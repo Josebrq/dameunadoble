@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin · Dame Una Doble</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --amber: #F5A800;
+  --amber-light: #FAEEDA;
+  --amber-dark: #BA7517;
+  --red: #D94F3D;
+  --espresso: #1A0F00;
+  --foam: #FFF8ED;
+  --slate: #3D3530;
+  --slate-light: #6B5E57;
+  --border: rgba(61,53,48,0.15);
+  --border-strong: rgba(61,53,48,0.3);
+  --green: #2E7D32;
+  --green-light: #E8F5E9;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', sans-serif; background: #f5f5f5; color: var(--espresso); }
+
+/* LOGIN */
+.login-wrap {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  background: var(--espresso);
+}
+.login-card {
+  background: var(--foam); border-radius: 16px; padding: 2.5rem;
+  width: 100%; max-width: 360px; text-align: center;
+}
+.login-logo { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--espresso); margin-bottom: 4px; }
+.login-logo span { color: var(--amber-dark); }
+.login-sub { font-size: 13px; color: var(--slate-light); margin-bottom: 2rem; }
+.login-card input {
+  width: 100%; padding: 10px 14px; border: 1px solid var(--border-strong);
+  border-radius: 8px; font-size: 14px; font-family: 'Inter', sans-serif;
+  background: #fff; margin-bottom: 12px; outline: none;
+}
+.login-card input:focus { border-color: var(--amber-dark); }
+.btn-primary {
+  width: 100%; padding: 11px; background: var(--amber-dark); color: var(--amber-light);
+  border: none; border-radius: 8px; font-size: 15px; font-weight: 600;
+  font-family: 'Inter', sans-serif; cursor: pointer; transition: background 0.2s;
+}
+.btn-primary:hover { background: #854F0B; }
+.login-error { color: var(--red); font-size: 13px; margin-top: 8px; display: none; }
+
+/* ADMIN LAYOUT */
+.admin-wrap { display: none; min-height: 100vh; }
+.admin-nav {
+  background: var(--espresso); color: var(--foam);
+  padding: 0 2rem; height: 56px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+}
+.admin-logo { font-family: 'Bebas Neue', sans-serif; font-size: 22px; }
+.admin-logo span { color: var(--amber); }
+.admin-nav-right { display: flex; align-items: center; gap: 1rem; }
+.admin-nav-right a { font-size: 13px; color: rgba(255,248,237,0.6); text-decoration: none; }
+.admin-nav-right a:hover { color: var(--amber); }
+.btn-logout {
+  font-size: 12px; padding: 5px 12px; border: 1px solid rgba(255,248,237,0.3);
+  border-radius: 6px; background: transparent; color: rgba(255,248,237,0.7);
+  cursor: pointer; font-family: 'Inter', sans-serif;
+}
+.btn-logout:hover { background: rgba(255,255,255,0.1); }
+
+.admin-body { max-width: 1100px; margin: 0 auto; padding: 2rem; }
+
+/* STATS */
+.admin-stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 2rem; }
+.stat-card { background: #fff; border-radius: 10px; border: 1px solid var(--border); padding: 1rem 1.25rem; }
+.stat-label { font-size: 12px; color: var(--slate-light); margin-bottom: 6px; }
+.stat-val { font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: var(--espresso); line-height: 1; }
+.stat-sub { font-size: 11px; color: var(--slate-light); margin-top: 2px; }
+
+/* TABS */
+.tabs { display: flex; gap: 4px; margin-bottom: 1.5rem; border-bottom: 2px solid var(--border); padding-bottom: 0; }
+.tab-btn {
+  font-size: 14px; font-weight: 500; padding: 8px 20px;
+  border: none; background: transparent; cursor: pointer;
+  color: var(--slate-light); border-bottom: 2px solid transparent; margin-bottom: -2px;
+  font-family: 'Inter', sans-serif; transition: all 0.2s;
+}
+.tab-btn.active { color: var(--amber-dark); border-bottom-color: var(--amber-dark); }
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* CARDS */
+.panel-card { background: #fff; border-radius: 12px; border: 1px solid var(--border); padding: 1.5rem; margin-bottom: 1.5rem; }
+.panel-card-title { font-size: 16px; font-weight: 600; color: var(--espresso); margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center; }
+
+/* FORMS */
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 1rem; }
+.form-group label { display: block; font-size: 12px; font-weight: 500; color: var(--slate-light); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+.form-group input, .form-group select {
+  width: 100%; padding: 9px 12px; border: 1px solid var(--border-strong);
+  border-radius: 8px; font-size: 14px; font-family: 'Inter', sans-serif;
+  background: var(--foam); color: var(--espresso); outline: none;
+}
+.form-group input:focus, .form-group select:focus { border-color: var(--amber-dark); }
+.btn-add {
+  padding: 9px 20px; background: var(--amber-dark); color: var(--amber-light);
+  border: none; border-radius: 8px; font-size: 14px; font-weight: 500;
+  font-family: 'Inter', sans-serif; cursor: pointer; transition: background 0.2s;
+}
+.btn-add:hover { background: #854F0B; }
+.btn-danger {
+  padding: 5px 10px; background: transparent; color: var(--red);
+  border: 1px solid var(--red); border-radius: 6px; font-size: 12px;
+  cursor: pointer; font-family: 'Inter', sans-serif;
+}
+.btn-danger:hover { background: #fdecea; }
+.btn-edit {
+  padding: 5px 10px; background: transparent; color: var(--amber-dark);
+  border: 1px solid var(--amber-dark); border-radius: 6px; font-size: 12px;
+  cursor: pointer; font-family: 'Inter', sans-serif; margin-right: 4px;
+}
+.btn-edit:hover { background: var(--amber-light); }
+.btn-save {
+  padding: 5px 10px; background: var(--green); color: #fff;
+  border: none; border-radius: 6px; font-size: 12px;
+  cursor: pointer; font-family: 'Inter', sans-serif; margin-right: 4px;
+}
+
+/* TABLE */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+thead th { padding: 10px 12px; text-align: left; font-size: 11px; font-weight: 600; color: var(--slate-light); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid var(--border); }
+tbody td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--espresso); }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: var(--foam); }
+.price-input { width: 80px; padding: 4px 8px; border: 1px solid var(--amber-dark); border-radius: 6px; font-size: 14px; font-family: 'Inter', sans-serif; }
+.badge-region { font-size: 11px; padding: 3px 8px; border-radius: 20px; background: var(--amber-light); color: var(--amber-dark); font-weight: 500; }
+.price-cell { font-family: 'Bebas Neue', sans-serif; font-size: 20px; }
+.price-cheap { color: #3B6D11; }
+.price-mid { color: var(--amber-dark); }
+.price-exp { color: var(--red); }
+
+/* REGION TABLE */
+.region-price-input { width: 90px; padding: 5px 8px; border: 1px solid var(--border-strong); border-radius: 6px; font-size: 14px; font-family: 'Bebas Neue', sans-serif; text-align: center; }
+.region-price-input:focus { border-color: var(--amber-dark); outline: none; }
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 2rem; right: 2rem; z-index: 999;
+  background: var(--espresso); color: var(--foam);
+  padding: 12px 20px; border-radius: 8px; font-size: 14px;
+  transform: translateY(80px); opacity: 0; transition: all 0.3s;
+  pointer-events: none;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.success { border-left: 3px solid #7CB87A; }
+.toast.error { border-left: 3px solid var(--red); }
+
+/* SEARCH */
+.search-bar { padding: 8px 12px; border: 1px solid var(--border-strong); border-radius: 8px; font-size: 14px; font-family: 'Inter', sans-serif; width: 240px; outline: none; background: var(--foam); }
+.search-bar:focus { border-color: var(--amber-dark); }
+
+@media (max-width: 768px) {
+  .admin-stats { grid-template-columns: repeat(2,1fr); }
+  .admin-body { padding: 1rem; }
+  .form-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">Dame Una <span>Doble</span> 🍺</div>
+    <div class="login-sub">Panel de administración</div>
+    <input type="password" id="pwd-input" placeholder="Contraseña" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="btn-primary" onclick="doLogin()">Entrar</button>
+    <div class="login-error" id="login-error">Contraseña incorrecta</div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div class="admin-wrap" id="admin-screen">
+  <nav class="admin-nav">
+    <div class="admin-logo">Dame Una <span>Doble</span> 🍺 <span style="font-size:13px;font-family:'Inter';font-weight:400;color:rgba(255,248,237,0.4);margin-left:8px">Admin</span></div>
+    <div class="admin-nav-right">
+      <a href="index.html" target="_blank">Ver web →</a>
+      <button class="btn-logout" onclick="doLogout()">Cerrar sesión</button>
+    </div>
+  </nav>
+
+  <div class="admin-body">
+
+    <div class="admin-stats" id="admin-stats"></div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('bares',this)">🍺 Bares</button>
+      <button class="tab-btn" onclick="switchTab('regiones',this)">🗺️ Regiones</button>
+    </div>
+
+    <!-- TAB BARES -->
+    <div class="tab-panel active" id="tab-bares">
+      <div class="panel-card">
+        <div class="panel-card-title">Añadir nuevo bar</div>
+        <div class="form-grid">
+          <div class="form-group"><label>Nombre del bar</label><input type="text" id="new-bar-name" placeholder="Bar El Patio"></div>
+          <div class="form-group"><label>Ciudad</label><input type="text" id="new-bar-city" placeholder="Sevilla"></div>
+          <div class="form-group"><label>Comunidad</label>
+            <select id="new-bar-region"></select>
+          </div>
+          <div class="form-group"><label>Precio doble (€)</label><input type="number" id="new-bar-price" placeholder="2.50" step="0.10" min="0.50" max="15"></div>
+        </div>
+        <button class="btn-add" onclick="addBar()">+ Añadir bar</button>
+      </div>
+
+      <div class="panel-card">
+        <div class="panel-card-title">
+          <span>Todos los bares <span style="font-size:13px;font-weight:400;color:var(--slate-light)" id="bars-count-label"></span></span>
+          <input class="search-bar" type="text" placeholder="Buscar..." id="bars-search" oninput="renderBarsTable()">
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th><th>Bar</th><th>Ciudad</th><th>Comunidad</th><th>Doble</th><th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="bars-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB REGIONES -->
+    <div class="tab-panel" id="tab-regiones">
+      <div class="panel-card">
+        <div class="panel-card-title">Precios medios por comunidad autónoma</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Comunidad</th><th>Precio medio (€)</th><th>Bares registrados</th><th>Guardar</th></tr>
+            </thead>
+            <tbody id="regions-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const ADMIN_PASSWORD = 'Av0c4dOJ0S3';
+
+const REGIONS = [
+  { id:'01', name:'Andalucía',          price:2.00, bars:312 },
+  { id:'02', name:'Aragón',             price:2.10, bars:87  },
+  { id:'03', name:'Asturias',           price:2.20, bars:94  },
+  { id:'04', name:'Baleares',           price:3.20, bars:143 },
+  { id:'05', name:'Canarias',           price:2.80, bars:188 },
+  { id:'06', name:'Cantabria',          price:2.30, bars:72  },
+  { id:'07', name:'Castilla-La Mancha', price:1.80, bars:134 },
+  { id:'08', name:'Castilla y León',    price:1.90, bars:156 },
+  { id:'09', name:'Cataluña',           price:3.10, bars:287 },
+  { id:'10', name:'Extremadura',        price:1.60, bars:98  },
+  { id:'11', name:'Galicia',            price:1.90, bars:201 },
+  { id:'12', name:'La Rioja',           price:2.00, bars:54  },
+  { id:'13', name:'Madrid',             price:3.40, bars:412 },
+  { id:'14', name:'Murcia',             price:2.10, bars:103 },
+  { id:'15', name:'Navarra',            price:2.40, bars:78  },
+  { id:'16', name:'País Vasco',         price:2.80, bars:178 },
+  { id:'17', name:'Valencia',           price:2.50, bars:224 },
+];
+
+let BARS = [
+  { id:1, name:'Bar El Patio',       city:'Sevilla',      region:'Andalucía',          price:1.80 },
+  { id:2, name:'La Taberna',         city:'Córdoba',      region:'Andalucía',          price:2.00 },
+  { id:3, name:'Bar Manolo',         city:'Granada',      region:'Andalucía',          price:2.20 },
+  { id:4, name:'El Rincón',          city:'Zaragoza',     region:'Aragón',             price:2.10 },
+  { id:5, name:'Cafetería Centro',   city:'Huesca',       region:'Aragón',             price:2.00 },
+  { id:6, name:'Sidrería Pepe',      city:'Oviedo',       region:'Asturias',           price:2.20 },
+  { id:7, name:'Bar del Puerto',     city:'Avilés',       region:'Asturias',           price:2.30 },
+  { id:8, name:'Chiringuito Sol',    city:'Palma',        region:'Baleares',           price:3.50 },
+  { id:9, name:'Bar Mediterráneo',   city:'Ibiza',        region:'Baleares',           price:3.80 },
+  { id:10,name:'La Playa',           city:'Las Palmas',   region:'Canarias',           price:2.80 },
+  { id:11,name:'El Guachinche',      city:'Santa Cruz',   region:'Canarias',           price:2.60 },
+  { id:12,name:'Bar La Marina',      city:'Santander',    region:'Cantabria',          price:2.30 },
+  { id:13,name:'Mesón El Quijote',   city:'Toledo',       region:'Castilla-La Mancha', price:1.70 },
+  { id:14,name:'Bar La Plaza',       city:'Albacete',     region:'Castilla-La Mancha', price:1.80 },
+  { id:15,name:'El Portón',          city:'Valladolid',   region:'Castilla y León',    price:1.90 },
+  { id:16,name:'Bar Catedral',       city:'Burgos',       region:'Castilla y León',    price:1.80 },
+  { id:17,name:'Bar Gòtic',          city:'Barcelona',    region:'Cataluña',           price:3.20 },
+  { id:18,name:'La Cervecería',      city:'Barcelona',    region:'Cataluña',           price:2.90 },
+  { id:19,name:'El Xampanyet',       city:'Barcelona',    region:'Cataluña',           price:3.50 },
+  { id:20,name:'Bar Extremeño',      city:'Badajoz',      region:'Extremadura',        price:1.50 },
+  { id:21,name:'La Fonda',           city:'Cáceres',      region:'Extremadura',        price:1.70 },
+  { id:22,name:'O Garaxe',           city:'Santiago',     region:'Galicia',            price:1.90 },
+  { id:23,name:'A Taberna',          city:'Vigo',         region:'Galicia',            price:2.00 },
+  { id:24,name:'Bar Logroño',        city:'Logroño',      region:'La Rioja',           price:2.00 },
+  { id:25,name:'El Cañas',           city:'Madrid',       region:'Madrid',             price:3.20 },
+  { id:26,name:'Cervecería Alemana', city:'Madrid',       region:'Madrid',             price:3.80 },
+  { id:27,name:'Bar Moratin',        city:'Madrid',       region:'Madrid',             price:3.00 },
+  { id:28,name:'La Huertana',        city:'Murcia',       region:'Murcia',             price:2.00 },
+  { id:29,name:'Bar Navarro',        city:'Pamplona',     region:'Navarra',            price:2.40 },
+  { id:30,name:'El Txoko',           city:'Bilbao',       region:'País Vasco',         price:2.90 },
+  { id:31,name:'Sagardi',            city:'San Sebastián',region:'País Vasco',         price:3.20 },
+  { id:32,name:'La Pepica',          city:'Valencia',     region:'Valencia',           price:2.50 },
+  { id:33,name:'Bar Albufera',       city:'Valencia',     region:'Valencia',           price:2.40 },
+];
+
+let nextId = 34;
+
+function doLogin() {
+  const pwd = document.getElementById('pwd-input').value;
+  if (pwd === ADMIN_PASSWORD) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('admin-screen').style.display = 'block';
+    initAdmin();
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+    document.getElementById('pwd-input').value = '';
+  }
+}
+
+function doLogout() {
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('admin-screen').style.display = 'none';
+  document.getElementById('pwd-input').value = '';
+}
+
+function initAdmin() {
+  populateRegionSelect();
+  updateStats();
+  renderBarsTable();
+  renderRegionsTable();
+}
+
+function populateRegionSelect() {
+  const sel = document.getElementById('new-bar-region');
+  sel.innerHTML = [...REGIONS].sort((a,b)=>a.name.localeCompare(b.name))
+    .map(r=>`<option value="${r.name}">${r.name}</option>`).join('');
+}
+
+function updateStats() {
+  const prices = BARS.map(b=>b.price);
+  const avg = prices.length ? (prices.reduce((a,b)=>a+b,0)/prices.length) : 0;
+  const min = prices.length ? Math.min(...prices) : 0;
+  const totalBars = BARS.length;
+  const regions = REGIONS.reduce((a,b)=>a+b.bars,0);
+  document.getElementById('admin-stats').innerHTML = `
+    <div class="stat-card"><div class="stat-label">Total bares</div><div class="stat-val">${totalBars}</div><div class="stat-sub">en la base de datos</div></div>
+    <div class="stat-card"><div class="stat-label">Precio medio</div><div class="stat-val">${avg.toFixed(2)}€</div><div class="stat-sub">media de todos los bares</div></div>
+    <div class="stat-card"><div class="stat-label">Más barato</div><div class="stat-val" style="color:#3B6D11">${min.toFixed(2)}€</div><div class="stat-sub">${BARS.find(b=>b.price===min)?.name||'—'}</div></div>
+    <div class="stat-card"><div class="stat-label">Comunidades</div><div class="stat-val">${REGIONS.length}</div><div class="stat-sub">${regions} bares registrados</div></div>
+  `;
+}
+
+function priceClass(p) { return p<2?'price-cheap':p<=3?'price-mid':'price-exp'; }
+
+function renderBarsTable() {
+  const q = (document.getElementById('bars-search')?.value||'').toLowerCase();
+  const filtered = BARS.filter(b=>!q||b.name.toLowerCase().includes(q)||b.city.toLowerCase().includes(q)||b.region.toLowerCase().includes(q));
+  document.getElementById('bars-count-label').textContent = `(${filtered.length} de ${BARS.length})`;
+  document.getElementById('bars-tbody').innerHTML = filtered.map((b,i)=>`<tr id="row-${b.id}">
+    <td style="color:var(--slate-light);font-size:12px">${i+1}</td>
+    <td style="font-weight:500">${b.name}</td>
+    <td>${b.city}</td>
+    <td><span class="badge-region">${b.region}</span></td>
+    <td class="price-cell ${priceClass(b.price)}">${b.price.toFixed(2)}€</td>
+    <td>
+      <button class="btn-edit" onclick="editBar(${b.id})">Editar</button>
+      <button class="btn-danger" onclick="deleteBar(${b.id})">Eliminar</button>
+    </td>
+  </tr>`).join('');
+}
+
+function renderRegionsTable() {
+  document.getElementById('regions-tbody').innerHTML = [...REGIONS]
+    .sort((a,b)=>a.price-b.price)
+    .map(r=>`<tr>
+      <td style="font-weight:500">${r.name}</td>
+      <td><input class="region-price-input" type="number" id="rp-${r.id}" value="${r.price.toFixed(2)}" step="0.10" min="0.50" max="15"></td>
+      <td style="color:var(--slate-light)">${r.bars}</td>
+      <td><button class="btn-save" onclick="saveRegionPrice('${r.id}','${r.name}')">Guardar</button></td>
+    </tr>`).join('');
+}
+
+function addBar() {
+  const name = document.getElementById('new-bar-name').value.trim();
+  const city = document.getElementById('new-bar-city').value.trim();
+  const region = document.getElementById('new-bar-region').value;
+  const price = parseFloat(document.getElementById('new-bar-price').value);
+  if (!name||!city||!price||price<0.5||price>15) { showToast('Rellena todos los campos correctamente','error'); return; }
+  BARS.push({ id:nextId++, name, city, region, price });
+  document.getElementById('new-bar-name').value='';
+  document.getElementById('new-bar-city').value='';
+  document.getElementById('new-bar-price').value='';
+  updateStats(); renderBarsTable();
+  showToast(`✅ "${name}" añadido correctamente`,'success');
+}
+
+function deleteBar(id) {
+  const bar = BARS.find(b=>b.id===id);
+  if (!confirm(`¿Eliminar "${bar.name}"?`)) return;
+  BARS = BARS.filter(b=>b.id!==id);
+  updateStats(); renderBarsTable();
+  showToast(`🗑️ "${bar.name}" eliminado`,'success');
+}
+
+function editBar(id) {
+  const bar = BARS.find(b=>b.id===id);
+  const row = document.getElementById('row-'+id);
+  row.innerHTML = `
+    <td style="color:var(--slate-light);font-size:12px">#</td>
+    <td><input style="width:140px;padding:4px 8px;border:1px solid var(--amber-dark);border-radius:6px;font-size:13px" id="e-name-${id}" value="${bar.name}"></td>
+    <td><input style="width:100px;padding:4px 8px;border:1px solid var(--border-strong);border-radius:6px;font-size:13px" id="e-city-${id}" value="${bar.city}"></td>
+    <td><span class="badge-region">${bar.region}</span></td>
+    <td><input class="price-input" type="number" id="e-price-${id}" value="${bar.price}" step="0.10" min="0.50" max="15"></td>
+    <td>
+      <button class="btn-save" onclick="saveBar(${id})">Guardar</button>
+      <button class="btn-danger" onclick="renderBarsTable()">Cancelar</button>
+    </td>
+  `;
+}
+
+function saveBar(id) {
+  const bar = BARS.find(b=>b.id===id);
+  bar.name = document.getElementById(`e-name-${id}`).value.trim()||bar.name;
+  bar.city = document.getElementById(`e-city-${id}`).value.trim()||bar.city;
+  bar.price = parseFloat(document.getElementById(`e-price-${id}`).value)||bar.price;
+  updateStats(); renderBarsTable();
+  showToast(`✅ "${bar.name}" actualizado`,'success');
+}
+
+function saveRegionPrice(id, name) {
+  const input = document.getElementById('rp-'+id);
+  const newPrice = parseFloat(input.value);
+  if (!newPrice||newPrice<0.5||newPrice>15) { showToast('Precio inválido','error'); return; }
+  const reg = REGIONS.find(r=>r.id===id);
+  reg.price = newPrice;
+  updateStats();
+  showToast(`✅ ${name} actualizado a ${newPrice.toFixed(2)}€`,'success');
+}
+
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-'+tab).classList.add('active');
+}
+
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = `toast ${type} show`;
+  setTimeout(()=>t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>

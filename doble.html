@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dame Una Doble 🍺 — El mapa de la cerveza en España</title>
+<meta name="description" content="Descubre cuánto cuesta un doble de cerveza en cada rincón de España. Datos reales, bares reales, precios reales.">
+<meta property="og:title" content="Dame Una Doble — El mapa de la cerveza en España">
+<meta property="og:description" content="Cuánto cuesta un doble en cada comunidad autónoma de España">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --amber: #F5A800;
+  --amber-light: #FAEEDA;
+  --amber-dark: #BA7517;
+  --red: #D94F3D;
+  --red-dark: #8B1A1A;
+  --espresso: #1A0F00;
+  --foam: #FFF8ED;
+  --slate: #3D3530;
+  --slate-light: #6B5E57;
+  --border: rgba(61,53,48,0.15);
+  --border-strong: rgba(61,53,48,0.3);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--foam);
+  color: var(--espresso);
+  overflow-x: hidden;
+}
+
+/* NAV */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(255,248,237,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  height: 60px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-logo { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 1px; color: var(--espresso); text-decoration: none; }
+.nav-logo span { color: var(--amber-dark); }
+.nav-links { display: flex; gap: 2rem; align-items: center; }
+.nav-links a { font-size: 14px; color: var(--slate); text-decoration: none; transition: color 0.2s; }
+.nav-links a:hover { color: var(--amber-dark); }
+.lang-switcher { display: flex; gap: 4px; }
+.lang-btn { font-size: 12px; padding: 4px 8px; border: 1px solid var(--border-strong); border-radius: 4px; cursor: pointer; background: transparent; color: var(--slate); transition: all 0.2s; }
+.lang-btn.active { background: var(--amber-dark); color: var(--amber-light); border-color: var(--amber-dark); }
+.nav-menu-btn { display: none; background: none; border: none; cursor: pointer; flex-direction: column; gap: 5px; padding: 4px; }
+.nav-menu-btn span { display: block; width: 22px; height: 2px; background: var(--espresso); border-radius: 2px; }
+
+/* HERO */
+.hero {
+  min-height: 100vh;
+  padding: 100px 2rem 4rem;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center;
+  background: radial-gradient(ellipse at 50% 0%, rgba(245,168,0,0.12) 0%, transparent 70%);
+  position: relative;
+}
+.hero-eyebrow { font-size: 13px; font-weight: 500; color: var(--amber-dark); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 1rem; }
+.hero h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(56px, 12vw, 120px);
+  line-height: 0.95;
+  color: var(--espresso);
+  letter-spacing: 2px;
+  margin-bottom: 1.5rem;
+}
+.hero h1 em { color: var(--amber-dark); font-style: normal; }
+.hero-sub { font-size: clamp(16px, 2.5vw, 20px); color: var(--slate-light); max-width: 560px; line-height: 1.6; margin-bottom: 2.5rem; }
+.hero-stats { display: flex; gap: 3rem; justify-content: center; flex-wrap: wrap; margin-bottom: 3rem; }
+.hero-stat { text-align: center; }
+.hero-stat-num { font-family: 'Bebas Neue', sans-serif; font-size: 48px; color: var(--amber-dark); line-height: 1; }
+.hero-stat-label { font-size: 13px; color: var(--slate-light); margin-top: 4px; }
+.scroll-hint { position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--slate-light); font-size: 12px; animation: bounce 2s infinite; }
+.scroll-arrow { width: 20px; height: 20px; border-right: 2px solid var(--amber-dark); border-bottom: 2px solid var(--amber-dark); transform: rotate(45deg); }
+@keyframes bounce { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(6px); } }
+
+/* SECTIONS */
+section { padding: 5rem 2rem; }
+.section-inner { max-width: 1100px; margin: 0 auto; }
+.section-header { margin-bottom: 3rem; }
+.section-eyebrow { font-size: 12px; font-weight: 600; color: var(--amber-dark); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 0.5rem; }
+.section-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(32px, 6vw, 56px); letter-spacing: 1px; color: var(--espresso); line-height: 1; }
+.section-desc { font-size: 16px; color: var(--slate-light); margin-top: 0.75rem; max-width: 540px; }
+
+/* MAP SECTION */
+#mapa { background: #fff; }
+.map-layout { display: grid; grid-template-columns: 1fr 300px; gap: 2rem; align-items: start; }
+.map-wrap { position: relative; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; background: var(--foam); }
+#spain-map { width: 100%; display: block; }
+.map-tooltip {
+  position: absolute; pointer-events: none; display: none;
+  background: var(--espresso); color: var(--foam);
+  border-radius: 8px; padding: 10px 14px; font-size: 13px;
+  z-index: 10; min-width: 140px;
+}
+.map-tooltip-name { font-weight: 600; margin-bottom: 4px; }
+.map-tooltip-price { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--amber); line-height: 1; }
+.map-tooltip-bars { font-size: 11px; color: rgba(255,248,237,0.6); margin-top: 4px; }
+.map-legend { display: flex; align-items: center; gap: 8px; padding: 1rem; border-top: 1px solid var(--border); }
+.map-legend-bar { flex: 1; height: 8px; border-radius: 4px; background: linear-gradient(to right, #FAEEDA, #EF9F27, #BA7517, #D94F3D, #8B1A1A); }
+.map-legend-label { font-size: 11px; color: var(--slate-light); }
+.map-sidebar { display: flex; flex-direction: column; gap: 1rem; }
+
+/* RANKING PANEL */
+.panel { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+.panel-title { font-size: 14px; font-weight: 600; color: var(--espresso); margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; }
+.sort-tabs { display: flex; gap: 4px; }
+.sort-tab { font-size: 11px; padding: 3px 8px; border: 1px solid var(--border-strong); border-radius: 20px; cursor: pointer; background: transparent; color: var(--slate); }
+.sort-tab.active { background: var(--amber-dark); color: var(--amber-light); border-color: var(--amber-dark); }
+.rank-item { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); }
+.rank-item:last-child { border-bottom: none; }
+.rank-num { font-size: 11px; color: var(--slate-light); width: 18px; text-align: right; flex-shrink: 0; }
+.rank-name { font-size: 13px; flex: 1; color: var(--espresso); }
+.rank-price { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--espresso); }
+.rank-bar-wrap { height: 3px; background: var(--border); border-radius: 2px; margin-top: 2px; }
+.rank-bar-fill { height: 3px; border-radius: 2px; }
+
+/* LEADERBOARD SECTION */
+#ranking { background: var(--foam); }
+.leaderboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+.lb-card {
+  background: #fff; border: 1px solid var(--border); border-radius: 12px;
+  overflow: hidden;
+}
+.lb-card-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+}
+.lb-medal { font-family: 'Bebas Neue', sans-serif; font-size: 32px; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.medal-1 { background: #FFF3CD; color: #856404; }
+.medal-2 { background: #F0F0F0; color: #555; }
+.medal-3 { background: #FFE8D6; color: #7D3C0A; }
+.lb-card-name { font-weight: 600; font-size: 16px; color: var(--espresso); }
+.lb-card-sub { font-size: 12px; color: var(--slate-light); }
+.lb-card-price { font-family: 'Bebas Neue', sans-serif; font-size: 36px; color: var(--amber-dark); margin-left: auto; }
+.lb-card-body { padding: 1rem 1.25rem; }
+.lb-row { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; color: var(--slate); border-bottom: 1px solid var(--border); }
+.lb-row:last-child { border-bottom: none; }
+.lb-row-price { font-weight: 500; color: var(--espresso); }
+
+/* BARS TABLE */
+#bares { background: #fff; }
+.bars-controls { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: center; }
+.search-input { flex: 1; min-width: 200px; padding: 10px 14px; border: 1px solid var(--border-strong); border-radius: 8px; font-size: 14px; font-family: 'Inter', sans-serif; background: var(--foam); color: var(--espresso); outline: none; }
+.search-input:focus { border-color: var(--amber-dark); }
+.filter-select { padding: 10px 14px; border: 1px solid var(--border-strong); border-radius: 8px; font-size: 14px; font-family: 'Inter', sans-serif; background: var(--foam); color: var(--espresso); outline: none; cursor: pointer; }
+.bars-table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+thead { background: var(--espresso); }
+thead th { padding: 12px 16px; text-align: left; color: var(--foam); font-weight: 500; font-size: 13px; white-space: nowrap; }
+tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--amber-light); }
+tbody td { padding: 11px 16px; color: var(--espresso); }
+.price-cell { font-family: 'Bebas Neue', sans-serif; font-size: 20px; }
+.price-cheap { color: #3B6D11; }
+.price-mid { color: var(--amber-dark); }
+.price-exp { color: var(--red); }
+.badge-region { font-size: 11px; padding: 3px 8px; border-radius: 20px; background: var(--amber-light); color: var(--amber-dark); font-weight: 500; }
+.bot-badge { font-size: 11px; padding: 2px 7px; border-radius: 4px; background: #E8F5E9; color: #2E7D32; font-weight: 500; }
+
+/* FOOTER */
+footer {
+  background: var(--espresso); color: var(--foam);
+  padding: 3rem 2rem;
+  text-align: center;
+}
+.footer-logo { font-family: 'Bebas Neue', sans-serif; font-size: 36px; letter-spacing: 2px; margin-bottom: 0.5rem; }
+.footer-logo span { color: var(--amber); }
+.footer-sub { font-size: 13px; color: rgba(255,248,237,0.5); margin-bottom: 2rem; }
+.footer-links { display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2rem; }
+.footer-links a { font-size: 13px; color: rgba(255,248,237,0.6); text-decoration: none; transition: color 0.2s; }
+.footer-links a:hover { color: var(--amber); }
+.footer-copy { font-size: 12px; color: rgba(255,248,237,0.3); }
+
+/* MOBILE */
+@media (max-width: 768px) {
+  nav { padding: 0 1rem; }
+  .nav-links { display: none; }
+  .nav-links.open { display: flex; flex-direction: column; position: fixed; top: 60px; left: 0; right: 0; background: var(--foam); border-bottom: 1px solid var(--border); padding: 1rem 1.5rem 1.5rem; gap: 1rem; z-index: 99; }
+  .nav-menu-btn { display: flex; }
+  .hero { padding: 80px 1.25rem 4rem; }
+  .hero-stats { gap: 1.5rem; }
+  .map-layout { grid-template-columns: 1fr; }
+  .map-sidebar { display: grid; grid-template-columns: 1fr; }
+  section { padding: 3.5rem 1.25rem; }
+  .bars-controls { flex-direction: column; }
+  .search-input, .filter-select { width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">Dame Una <span>Doble</span> 🍺</a>
+  <div class="nav-links" id="nav-links">
+    <a href="#mapa" data-i18n="nav-map">Mapa</a>
+    <a href="#ranking" data-i18n="nav-ranking">Ranking</a>
+    <a href="#bares" data-i18n="nav-bars">Bares</a>
+    <div class="lang-switcher">
+      <button class="lang-btn active" onclick="setLang('es')">ES</button>
+      <button class="lang-btn" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" onclick="setLang('it')">IT</button>
+      <button class="lang-btn" onclick="setLang('fr')">FR</button>
+    </div>
+  </div>
+  <button class="nav-menu-btn" id="menu-btn" onclick="toggleMenu()" aria-label="Menú">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <p class="hero-eyebrow" data-i18n="hero-eyebrow">El mapa de la cerveza en España</p>
+  <h1>DAME UNA<br><em>DOBLE</em></h1>
+  <p class="hero-sub" data-i18n="hero-sub">Descubre cuánto cuesta un doble de cerveza en cada rincón de España. Datos reales recogidos bar a bar.</p>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="hero-stat-num" id="h-bars">2.847</div>
+      <div class="hero-stat-label" data-i18n="hero-stat-bars">bares llamados</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num" id="h-regions">17</div>
+      <div class="hero-stat-label" data-i18n="hero-stat-regions">comunidades</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num" id="h-avg">2.38€</div>
+      <div class="hero-stat-label" data-i18n="hero-stat-avg">precio medio</div>
+    </div>
+  </div>
+  <div class="scroll-hint">
+    <div class="scroll-arrow"></div>
+  </div>
+</section>
+
+<!-- MAPA -->
+<section id="mapa">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-eyebrow" data-i18n="map-eyebrow">Comunidades Autónomas</div>
+      <div class="section-title" data-i18n="map-title">EL MAPA DEL DOBLE</div>
+      <div class="section-desc" data-i18n="map-desc">Precio medio del doble por comunidad autónoma. Del más barato al más caro.</div>
+    </div>
+    <div class="map-layout">
+      <div>
+        <div class="map-wrap">
+          <svg id="spain-map" viewBox="0 0 700 460" role="img" aria-label="Mapa de precios del doble de cerveza por comunidad autónoma"></svg>
+          <div class="map-tooltip" id="map-tooltip">
+            <div class="map-tooltip-name" id="tt-name"></div>
+            <div class="map-tooltip-price" id="tt-price"></div>
+            <div class="map-tooltip-bars" id="tt-bars"></div>
+          </div>
+          <div class="map-legend">
+            <span class="map-legend-label" data-i18n="legend-cheap">Barato</span>
+            <div class="map-legend-bar"></div>
+            <span class="map-legend-label" data-i18n="legend-exp">Caro</span>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:0 1rem;margin-top:4px;">
+          <span style="font-size:11px;color:var(--slate-light)">1.50€</span>
+          <span style="font-size:11px;color:var(--slate-light)">2.00€</span>
+          <span style="font-size:11px;color:var(--slate-light)">2.50€</span>
+          <span style="font-size:11px;color:var(--slate-light)">3.00€</span>
+          <span style="font-size:11px;color:var(--slate-light)">3.50€+</span>
+        </div>
+      </div>
+      <div class="map-sidebar">
+        <div class="panel">
+          <div class="panel-title">
+            <span data-i18n="ranking-title">🏆 Ranking</span>
+            <div class="sort-tabs">
+              <button class="sort-tab active" onclick="setSort('asc',this)" data-i18n="sort-cheap">+ barato</button>
+              <button class="sort-tab" onclick="setSort('desc',this)" data-i18n="sort-exp">+ caro</button>
+            </div>
+          </div>
+          <div id="ranking-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RANKING LEADERBOARD -->
+<section id="ranking">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-eyebrow" data-i18n="lb-eyebrow">Leaderboard</div>
+      <div class="section-title" data-i18n="lb-title">PODIO REGIONAL</div>
+      <div class="section-desc" data-i18n="lb-desc">Las tres comunidades más baratas y las tres más caras del ranking nacional.</div>
+    </div>
+    <div style="margin-bottom:1.5rem;">
+      <div style="font-size:13px;font-weight:600;color:var(--slate-light);letter-spacing:1px;text-transform:uppercase;margin-bottom:1rem;" data-i18n="lb-cheapest">🥇 Más baratas</div>
+      <div class="leaderboard-grid" id="lb-cheap"></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- BARES -->
+<section id="bares">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-eyebrow" data-i18n="bars-eyebrow">Base de datos</div>
+      <div class="section-title" data-i18n="bars-title">TODOS LOS BARES</div>
+      <div class="section-desc" data-i18n="bars-desc">Listado completo de bares registrados con su precio del doble.</div>
+    </div>
+    <div class="bars-controls">
+      <input class="search-input" id="bar-search" type="text" data-i18n-placeholder="search-placeholder" placeholder="Buscar bar o ciudad...">
+      <select class="filter-select" id="region-filter" onchange="filterBars()">
+        <option value="" data-i18n="all-regions">Todas las comunidades</option>
+      </select>
+      <select class="filter-select" id="price-filter" onchange="filterBars()">
+        <option value="" data-i18n="all-prices">Todos los precios</option>
+        <option value="cheap" data-i18n="price-cheap">Menos de 2€</option>
+        <option value="mid" data-i18n="price-mid">2€ – 3€</option>
+        <option value="exp" data-i18n="price-exp">Más de 3€</option>
+      </select>
+    </div>
+    <div class="bars-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th data-i18n="th-bar">Bar</th>
+            <th data-i18n="th-city">Ciudad</th>
+            <th data-i18n="th-region">Comunidad</th>
+            <th data-i18n="th-price">Doble</th>
+            <th data-i18n="th-source">Fuente</th>
+          </tr>
+        </thead>
+        <tbody id="bars-tbody"></tbody>
+      </table>
+    </div>
+    <div style="text-align:center;margin-top:1.5rem;font-size:13px;color:var(--slate-light)" id="bars-count"></div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Dame Una <span>Doble</span> 🍺</div>
+  <div class="footer-sub">dameunadoble.com · <span data-i18n="footer-sub">El mapa de la cerveza en España</span></div>
+  <div class="footer-links">
+    <a href="#mapa" data-i18n="nav-map">Mapa</a>
+    <a href="#ranking" data-i18n="nav-ranking">Ranking</a>
+    <a href="#bares" data-i18n="nav-bars">Bares</a>
+  </div>
+  <div class="footer-copy" data-i18n="footer-copy">Datos recogidos por bots. Precios orientativos.</div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+<script>
+
+/* ── TRANSLATIONS ── */
+const i18n = {
+  es: {
+    'nav-map':'Mapa','nav-ranking':'Ranking','nav-bars':'Bares',
+    'hero-eyebrow':'El mapa de la cerveza en España',
+    'hero-sub':'Descubre cuánto cuesta un doble de cerveza en cada rincón de España. Datos reales recogidos bar a bar.',
+    'hero-stat-bars':'bares llamados','hero-stat-regions':'comunidades','hero-stat-avg':'precio medio',
+    'map-eyebrow':'Comunidades Autónomas','map-title':'EL MAPA DEL DOBLE',
+    'map-desc':'Precio medio del doble por comunidad autónoma. Del más barato al más caro.',
+    'legend-cheap':'Barato','legend-exp':'Caro',
+    'ranking-title':'🏆 Ranking','sort-cheap':'+ barato','sort-exp':'+ caro',
+    'lb-eyebrow':'Leaderboard','lb-title':'PODIO REGIONAL',
+    'lb-desc':'Las tres comunidades más baratas del ranking nacional.',
+    'lb-cheapest':'🥇 Más baratas','lb-expensive':'💸 Más caras',
+    'bars-eyebrow':'Base de datos','bars-title':'TODOS LOS BARES',
+    'bars-desc':'Listado completo de bares registrados con su precio del doble.',
+    'search-placeholder':'Buscar bar o ciudad...',
+    'all-regions':'Todas las comunidades','all-prices':'Todos los precios',
+    'price-cheap':'Menos de 2€','price-mid':'2€ – 3€','price-exp':'Más de 3€',
+    'th-bar':'Bar','th-city':'Ciudad','th-region':'Comunidad','th-price':'Doble','th-source':'Fuente',
+    'footer-sub':'El mapa de la cerveza en España','footer-copy':'Datos recogidos por bots. Precios orientativos.',
+    'source-bot':'Bot 🤖','bars-showing':'Mostrando',
+    'bars-of':'de','bars-bars':'bares',
+  },
+  en: {
+    'nav-map':'Map','nav-ranking':'Ranking','nav-bars':'Bars',
+    'hero-eyebrow':'Spain\'s beer price map',
+    'hero-sub':'Find out how much a double beer costs in every corner of Spain. Real data collected bar by bar.',
+    'hero-stat-bars':'bars called','hero-stat-regions':'regions','hero-stat-avg':'avg price',
+    'map-eyebrow':'Autonomous Communities','map-title':'THE DOBLE MAP',
+    'map-desc':'Average double beer price by autonomous community. From cheapest to most expensive.',
+    'legend-cheap':'Cheap','legend-exp':'Expensive',
+    'ranking-title':'🏆 Ranking','sort-cheap':'cheapest','sort-exp':'priciest',
+    'lb-eyebrow':'Leaderboard','lb-title':'REGIONAL PODIUM',
+    'lb-desc':'The three cheapest regions in the national ranking.',
+    'lb-cheapest':'🥇 Cheapest','lb-expensive':'💸 Most expensive',
+    'bars-eyebrow':'Database','bars-title':'ALL BARS',
+    'bars-desc':'Full list of registered bars with their double beer price.',
+    'search-placeholder':'Search bar or city...',
+    'all-regions':'All regions','all-prices':'All prices',
+    'price-cheap':'Under 2€','price-mid':'2€ – 3€','price-exp':'Over 3€',
+    'th-bar':'Bar','th-city':'City','th-region':'Region','th-price':'Double','th-source':'Source',
+    'footer-sub':'Spain\'s beer price map','footer-copy':'Data collected by bots. Prices are approximate.',
+    'source-bot':'Bot 🤖','bars-showing':'Showing',
+    'bars-of':'of','bars-bars':'bars',
+  },
+  it: {
+    'nav-map':'Mappa','nav-ranking':'Classifica','nav-bars':'Bar',
+    'hero-eyebrow':'La mappa della birra in Spagna',
+    'hero-sub':'Scopri quanto costa una birra doppia in ogni angolo della Spagna. Dati reali raccolti bar per bar.',
+    'hero-stat-bars':'bar chiamati','hero-stat-regions':'comunità','hero-stat-avg':'prezzo medio',
+    'map-eyebrow':'Comunità Autonome','map-title':'LA MAPPA DEL DOPPIO',
+    'map-desc':'Prezzo medio della birra doppia per comunità autonoma. Dal più economico al più caro.',
+    'legend-cheap':'Economico','legend-exp':'Caro',
+    'ranking-title':'🏆 Classifica','sort-cheap':'+ economico','sort-exp':'+ caro',
+    'lb-eyebrow':'Leaderboard','lb-title':'PODIO REGIONALE',
+    'lb-desc':'Le tre comunità più economiche della classifica nazionale.',
+    'lb-cheapest':'🥇 Più economiche','lb-expensive':'💸 Più care',
+    'bars-eyebrow':'Database','bars-title':'TUTTI I BAR',
+    'bars-desc':'Elenco completo dei bar registrati con il prezzo della birra doppia.',
+    'search-placeholder':'Cerca bar o città...',
+    'all-regions':'Tutte le comunità','all-prices':'Tutti i prezzi',
+    'price-cheap':'Meno di 2€','price-mid':'2€ – 3€','price-exp':'Più di 3€',
+    'th-bar':'Bar','th-city':'Città','th-region':'Comunità','th-price':'Doppio','th-source':'Fonte',
+    'footer-sub':'La mappa della birra in Spagna','footer-copy':'Dati raccolti da bot. Prezzi indicativi.',
+    'source-bot':'Bot 🤖','bars-showing':'Mostrando',
+    'bars-of':'di','bars-bars':'bar',
+  },
+  fr: {
+    'nav-map':'Carte','nav-ranking':'Classement','nav-bars':'Bars',
+    'hero-eyebrow':'La carte de la bière en Espagne',
+    'hero-sub':'Découvrez combien coûte une bière double dans chaque coin de l\'Espagne. Données réelles collectées bar par bar.',
+    'hero-stat-bars':'bars appelés','hero-stat-regions':'communautés','hero-stat-avg':'prix moyen',
+    'map-eyebrow':'Communautés Autonomes','map-title':'LA CARTE DE LA DOUBLE',
+    'map-desc':'Prix moyen de la bière double par communauté autonome. Du moins cher au plus cher.',
+    'legend-cheap':'Pas cher','legend-exp':'Cher',
+    'ranking-title':'🏆 Classement','sort-cheap':'+ pas cher','sort-exp':'+ cher',
+    'lb-eyebrow':'Leaderboard','lb-title':'PODIUM RÉGIONAL',
+    'lb-desc':'Les trois communautés les moins chères du classement national.',
+    'lb-cheapest':'🥇 Moins chères','lb-expensive':'💸 Plus chères',
+    'bars-eyebrow':'Base de données','bars-title':'TOUS LES BARS',
+    'bars-desc':'Liste complète des bars enregistrés avec leur prix de la bière double.',
+    'search-placeholder':'Rechercher un bar ou une ville...',
+    'all-regions':'Toutes les communautés','all-prices':'Tous les prix',
+    'price-cheap':'Moins de 2€','price-mid':'2€ – 3€','price-exp':'Plus de 3€',
+    'th-bar':'Bar','th-city':'Ville','th-region':'Communauté','th-price':'Double','th-source':'Source',
+    'footer-sub':'La carte de la bière en Espagne','footer-copy':'Données collectées par des bots. Prix indicatifs.',
+    'source-bot':'Bot 🤖','bars-showing':'Affichage de',
+    'bars-of':'sur','bars-bars':'bars',
+  }
+};
+
+let currentLang = 'es';
+function t(key) { return i18n[currentLang][key] || i18n['es'][key] || key; }
+
+function setLang(lang) {
+  currentLang = lang;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.lang-btn').forEach(b => { if(b.textContent===lang.toUpperCase()) b.classList.add('active'); });
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    el.textContent = t(key);
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    el.placeholder = t(el.getAttribute('data-i18n-placeholder'));
+  });
+  document.getElementById('region-filter').options[0].textContent = t('all-regions');
+  document.getElementById('price-filter').options[0].textContent = t('all-prices');
+  document.getElementById('price-filter').options[1].textContent = t('price-cheap');
+  document.getElementById('price-filter').options[2].textContent = t('price-mid');
+  document.getElementById('price-filter').options[3].textContent = t('price-exp');
+  updateRanking();
+  renderLeaderboard();
+  filterBars();
+}
+
+/* ── DATA ── */
+const REGIONS = [
+  { id:'01', name:'Andalucía',         price:2.00, bars:312 },
+  { id:'02', name:'Aragón',            price:2.10, bars:87  },
+  { id:'03', name:'Asturias',          price:2.20, bars:94  },
+  { id:'04', name:'Baleares',          price:3.20, bars:143 },
+  { id:'05', name:'Canarias',          price:2.80, bars:188 },
+  { id:'06', name:'Cantabria',         price:2.30, bars:72  },
+  { id:'07', name:'Castilla-La Mancha',price:1.80, bars:134 },
+  { id:'08', name:'Castilla y León',   price:1.90, bars:156 },
+  { id:'09', name:'Cataluña',          price:3.10, bars:287 },
+  { id:'10', name:'Extremadura',       price:1.60, bars:98  },
+  { id:'11', name:'Galicia',           price:1.90, bars:201 },
+  { id:'12', name:'La Rioja',          price:2.00, bars:54  },
+  { id:'13', name:'Madrid',            price:3.40, bars:412 },
+  { id:'14', name:'Murcia',            price:2.10, bars:103 },
+  { id:'15', name:'Navarra',           price:2.40, bars:78  },
+  { id:'16', name:'País Vasco',        price:2.80, bars:178 },
+  { id:'17', name:'Valencia',          price:2.50, bars:224 },
+];
+
+const BARS = [
+  { name:'Bar El Patio',       city:'Sevilla',     region:'Andalucía',          price:1.80 },
+  { name:'La Taberna',         city:'Córdoba',     region:'Andalucía',          price:2.00 },
+  { name:'Bar Manolo',         city:'Granada',     region:'Andalucía',          price:2.20 },
+  { name:'El Rincón',          city:'Zaragoza',    region:'Aragón',             price:2.10 },
+  { name:'Cafetería Centro',   city:'Huesca',      region:'Aragón',             price:2.00 },
+  { name:'Sidrería Pepe',      city:'Oviedo',      region:'Asturias',           price:2.20 },
+  { name:'Bar del Puerto',     city:'Avilés',      region:'Asturias',           price:2.30 },
+  { name:'Chiringuito Sol',    city:'Palma',       region:'Baleares',           price:3.50 },
+  { name:'Bar Mediterráneo',   city:'Ibiza',       region:'Baleares',           price:3.80 },
+  { name:'La Playa',           city:'Las Palmas',  region:'Canarias',           price:2.80 },
+  { name:'El Guachinche',      city:'Santa Cruz',  region:'Canarias',           price:2.60 },
+  { name:'Bar La Marina',      city:'Santander',   region:'Cantabria',          price:2.30 },
+  { name:'Mesón El Quijote',   city:'Toledo',      region:'Castilla-La Mancha', price:1.70 },
+  { name:'Bar La Plaza',       city:'Albacete',    region:'Castilla-La Mancha', price:1.80 },
+  { name:'El Portón',          city:'Valladolid',  region:'Castilla y León',    price:1.90 },
+  { name:'Bar Catedral',       city:'Burgos',      region:'Castilla y León',    price:1.80 },
+  { name:'Bar Gòtic',          city:'Barcelona',   region:'Cataluña',           price:3.20 },
+  { name:'La Cervecería',      city:'Barcelona',   region:'Cataluña',           price:2.90 },
+  { name:'El Xampanyet',       city:'Barcelona',   region:'Cataluña',           price:3.50 },
+  { name:'Bar Extremeño',      city:'Badajoz',     region:'Extremadura',        price:1.50 },
+  { name:'La Fonda',           city:'Cáceres',     region:'Extremadura',        price:1.70 },
+  { name:'O Garaxe',           city:'Santiago',    region:'Galicia',            price:1.90 },
+  { name:'A Taberna',          city:'Vigo',        region:'Galicia',            price:2.00 },
+  { name:'Bar Logroño',        city:'Logroño',     region:'La Rioja',           price:2.00 },
+  { name:'El Cañas',           city:'Madrid',      region:'Madrid',             price:3.20 },
+  { name:'Cervecería Alemana', city:'Madrid',      region:'Madrid',             price:3.80 },
+  { name:'Bar Moratin',        city:'Madrid',      region:'Madrid',             price:3.00 },
+  { name:'La Huertana',        city:'Murcia',      region:'Murcia',             price:2.00 },
+  { name:'Bar Navarro',        city:'Pamplona',    region:'Navarra',            price:2.40 },
+  { name:'El Txoko',           city:'Bilbao',      region:'País Vasco',         price:2.90 },
+  { name:'Sagardi',            city:'San Sebastián',region:'País Vasco',        price:3.20 },
+  { name:'La Pepica',          city:'Valencia',    region:'Valencia',           price:2.50 },
+  { name:'Bar Albufera',       city:'Valencia',    region:'Valencia',           price:2.40 },
+];
+
+/* ── HELPERS ── */
+function priceColor(price) {
+  const t = Math.min(Math.max((price - 1.5) / 2.0, 0), 1);
+  const stops = ['#FAEEDA','#F5C47A','#EF9F27','#D94F3D','#8B1A1A'];
+  const idx = t * (stops.length - 1);
+  const i = Math.floor(idx), f = idx - i;
+  if (i >= stops.length - 1) return stops[stops.length - 1];
+  const hex = h => [parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];
+  const a = hex(stops[i]), b = hex(stops[i+1]);
+  return `rgb(${Math.round(a[0]+(b[0]-a[0])*f)},${Math.round(a[1]+(b[1]-a[1])*f)},${Math.round(a[2]+(b[2]-a[2])*f)})`;
+}
+
+function priceClass(price) {
+  if (price < 2) return 'price-cheap';
+  if (price <= 3) return 'price-mid';
+  return 'price-exp';
+}
+
+/* ── RANKING ── */
+let sortAsc = true;
+function setSort(dir, btn) {
+  sortAsc = dir === 'asc';
+  document.querySelectorAll('.sort-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  updateRanking();
+}
+
+function updateRanking() {
+  const sorted = [...REGIONS].sort((a,b) => sortAsc ? a.price-b.price : b.price-a.price);
+  const maxP = Math.max(...REGIONS.map(r=>r.price));
+  const minP = Math.min(...REGIONS.map(r=>r.price));
+  const list = document.getElementById('ranking-list');
+  list.innerHTML = sorted.map((r,i) => {
+    const pct = Math.round(((r.price-minP)/(maxP-minP))*100);
+    const col = priceColor(r.price);
+    return `<div class="rank-item">
+      <span class="rank-num">${i+1}</span>
+      <div style="flex:1">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span class="rank-name">${r.name}</span>
+          <span class="rank-price">${r.price.toFixed(2)}€</span>
+        </div>
+        <div class="rank-bar-wrap"><div class="rank-bar-fill" style="width:${Math.max(pct,4)}%;background:${col}"></div></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ── LEADERBOARD ── */
+function renderLeaderboard() {
+  const sorted = [...REGIONS].sort((a,b) => a.price-b.price);
+  const cheapest = sorted.slice(0,3);
+  const medals = ['🥇','🥈','🥉'];
+
+  function makeCards(list, container) {
+    container.innerHTML = list.map((r,i) => {
+      const topBars = BARS.filter(b=>b.region===r.name).sort((a,b)=>a.price-b.price).slice(0,3);
+      return `<div class="lb-card">
+        <div class="lb-card-header">
+          <div class="lb-medal ${i===0?'medal-1':i===1?'medal-2':'medal-3'}">${medals[i]}</div>
+          <div>
+            <div class="lb-card-name">${r.name}</div>
+            <div class="lb-card-sub">${r.bars} bares · ${r.price.toFixed(2)}€ media</div>
+          </div>
+          <div class="lb-card-price">${r.price.toFixed(2)}€</div>
+        </div>
+        <div class="lb-card-body">
+          ${topBars.map(b=>`<div class="lb-row"><span>${b.name} <span style="color:var(--slate-light);font-size:11px">${b.city}</span></span><span class="lb-row-price">${b.price.toFixed(2)}€</span></div>`).join('')}
+        </div>
+      </div>`;
+    }).join('');
+  }
+  makeCards(cheapest, document.getElementById('lb-cheap'));
+}
+
+/* ── BARS TABLE ── */
+let filteredBars = [...BARS];
+
+function filterBars() {
+  const q = document.getElementById('bar-search').value.toLowerCase();
+  const reg = document.getElementById('region-filter').value;
+  const price = document.getElementById('price-filter').value;
+  filteredBars = BARS.filter(b => {
+    if (q && !b.name.toLowerCase().includes(q) && !b.city.toLowerCase().includes(q)) return false;
+    if (reg && b.region !== reg) return false;
+    if (price === 'cheap' && b.price >= 2) return false;
+    if (price === 'mid' && (b.price < 2 || b.price > 3)) return false;
+    if (price === 'exp' && b.price <= 3) return false;
+    return true;
+  });
+  renderBarsTable();
+}
+
+function renderBarsTable() {
+  const tbody = document.getElementById('bars-tbody');
+  tbody.innerHTML = filteredBars.map(b => `<tr>
+    <td style="font-weight:500">${b.name}</td>
+    <td>${b.city}</td>
+    <td><span class="badge-region">${b.region}</span></td>
+    <td class="price-cell ${priceClass(b.price)}">${b.price.toFixed(2)}€</td>
+    <td><span class="bot-badge">${t('source-bot')}</span></td>
+  </tr>`).join('');
+  document.getElementById('bars-count').textContent = `${t('bars-showing')} ${filteredBars.length} ${t('bars-of')} ${BARS.length} ${t('bars-bars')}`;
+}
+
+function populateRegionFilter() {
+  const sel = document.getElementById('region-filter');
+  [...REGIONS].sort((a,b)=>a.name.localeCompare(b.name)).forEach(r => {
+    const opt = document.createElement('option');
+    opt.value = r.name; opt.textContent = r.name;
+    sel.appendChild(opt);
+  });
+}
+
+/* ── MAP ── */
+const NAME_MAP = {
+  'Andalucía':'Andalucía','Andalusia':'Andalucía',
+  'Aragón':'Aragón','Aragon':'Aragón',
+  'Asturias':'Asturias','Principality of Asturias':'Asturias',
+  'Illes Balears':'Baleares','Balearic Islands':'Baleares',
+  'Canary Islands':'Canarias','Canarias':'Canarias',
+  'Cantabria':'Cantabria',
+  'Castile-La Mancha':'Castilla-La Mancha','Castilla-La Mancha':'Castilla-La Mancha',
+  'Castile and León':'Castilla y León','Castilla y León':'Castilla y León',
+  'Catalonia':'Cataluña','Catalunya':'Cataluña','Cataluña':'Cataluña',
+  'Extremadura':'Extremadura',
+  'Galicia':'Galicia',
+  'La Rioja':'La Rioja',
+  'Community of Madrid':'Madrid','Madrid':'Madrid',
+  'Murcia':'Murcia','Region of Murcia':'Murcia',
+  'Navarre':'Navarra','Navarra':'Navarra',
+  'Basque Country':'País Vasco','País Vasco':'País Vasco',
+  'Valencian Community':'Valencia','Valencia':'Valencia',
+};
+
+const svg = d3.select('#spain-map');
+
+function getRegion(d) {
+  const raw = d.properties && (d.properties.name || d.properties.NAME || '');
+  return NAME_MAP[raw] || raw;
+}
+
+d3.json('https://cdn.jsdelivr.net/npm/es-atlas@0.6.0/es/autonomous_regions.json').then(topo => {
+  const key = Object.keys(topo.objects)[0];
+  const features = topojson.feature(topo, topo.objects[key]).features;
+  const proj = d3.geoConicConformal().parallels([35,44]).rotate([5,0]).fitSize([700,440],{type:'FeatureCollection',features});
+  const path = d3.geoPath(proj);
+
+  svg.selectAll('path')
+    .data(features).join('path')
+    .attr('d', path)
+    .attr('stroke', '#fff')
+    .attr('stroke-width', 0.8)
+    .attr('cursor', 'pointer')
+    .attr('fill', d => {
+      const name = getRegion(d);
+      const reg = REGIONS.find(r=>r.name===name);
+      return reg ? priceColor(reg.price) : '#e0d8d0';
+    })
+    .on('mousemove', function(event, d) {
+      const name = getRegion(d);
+      const reg = REGIONS.find(r=>r.name===name);
+      const tt = document.getElementById('map-tooltip');
+      const wrap = document.querySelector('.map-wrap');
+      const wr = wrap.getBoundingClientRect();
+      document.getElementById('tt-name').textContent = name;
+      document.getElementById('tt-price').textContent = reg ? reg.price.toFixed(2)+'€ / doble' : '—';
+      document.getElementById('tt-bars').textContent = reg ? `${reg.bars} bares` : '';
+      tt.style.display = 'block';
+      let x = event.clientX - wr.left + 14;
+      let y = event.clientY - wr.top + 14;
+      if (x + 160 > wr.width) x = event.clientX - wr.left - 170;
+      tt.style.left = x+'px'; tt.style.top = y+'px';
+    })
+    .on('mouseleave', () => { document.getElementById('map-tooltip').style.display = 'none'; });
+}).catch(() => {
+  svg.append('text').attr('x',350).attr('y',220).attr('text-anchor','middle')
+    .attr('fill','#888').attr('font-size',14).text('No se pudo cargar el mapa.');
+});
+
+/* ── NAV ── */
+function toggleMenu() {
+  document.getElementById('nav-links').classList.toggle('open');
+}
+
+/* ── INIT ── */
+document.getElementById('bar-search').addEventListener('input', filterBars);
+populateRegionFilter();
+updateRanking();
+renderLeaderboard();
+filterBars();
+setLang('es');
+</script>
+</body>
+</html>
