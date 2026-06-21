@@ -478,62 +478,39 @@ function setLang(lang) {
   filterBars();
 }
 
+/* ── SUPABASE ── */
+const SUPABASE_URL = 'https://cldpkjdzikjzqrfbsghh.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZHBramR6aWtqenFyZmJzZ2hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4NzE0NzEsImV4cCI6MjA5NzQ0NzQ3MX0.-OFHTqGUan5e9thGp8B38eOeo5aJvwD99oDE7aW53Ws';
+
+async function fetchBares() {
+  const r = await fetch(SUPABASE_URL + '/rest/v1/bares?select=*&order=nombre.asc', {
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+  });
+  return r.ok ? r.json() : [];
+}
+
 /* ── DATA ── */
 const REGIONS = [
-  { id:'01', name:'Andalucía',         price:2.00, bars:312 },
-  { id:'02', name:'Aragón',            price:2.10, bars:87  },
-  { id:'03', name:'Asturias',          price:2.20, bars:94  },
-  { id:'04', name:'Baleares',          price:3.20, bars:143 },
-  { id:'05', name:'Canarias',          price:2.80, bars:188 },
-  { id:'06', name:'Cantabria',         price:2.30, bars:72  },
-  { id:'07', name:'Castilla-La Mancha',price:1.80, bars:134 },
-  { id:'08', name:'Castilla y León',   price:1.90, bars:156 },
-  { id:'09', name:'Cataluña',          price:3.10, bars:287 },
-  { id:'10', name:'Extremadura',       price:1.60, bars:98  },
-  { id:'11', name:'Galicia',           price:1.90, bars:201 },
-  { id:'12', name:'La Rioja',          price:2.00, bars:54  },
-  { id:'13', name:'Madrid',            price:3.40, bars:412 },
-  { id:'14', name:'Murcia',            price:2.10, bars:103 },
-  { id:'15', name:'Navarra',           price:2.40, bars:78  },
-  { id:'16', name:'País Vasco',        price:2.80, bars:178 },
-  { id:'17', name:'Valencia',          price:2.50, bars:224 },
+  { id:'01', name:'Andalucía',          price:2.00, bars:0 },
+  { id:'02', name:'Aragón',             price:2.10, bars:0 },
+  { id:'03', name:'Asturias',           price:2.20, bars:0 },
+  { id:'04', name:'Baleares',           price:3.20, bars:0 },
+  { id:'05', name:'Canarias',           price:2.80, bars:0 },
+  { id:'06', name:'Cantabria',          price:2.30, bars:0 },
+  { id:'07', name:'Castilla-La Mancha', price:1.80, bars:0 },
+  { id:'08', name:'Castilla y León',    price:1.90, bars:0 },
+  { id:'09', name:'Cataluña',           price:3.10, bars:0 },
+  { id:'10', name:'Extremadura',        price:1.60, bars:0 },
+  { id:'11', name:'Galicia',            price:1.90, bars:0 },
+  { id:'12', name:'La Rioja',           price:2.00, bars:0 },
+  { id:'13', name:'Madrid',             price:3.40, bars:0 },
+  { id:'14', name:'Murcia',             price:2.10, bars:0 },
+  { id:'15', name:'Navarra',            price:2.40, bars:0 },
+  { id:'16', name:'País Vasco',         price:2.80, bars:0 },
+  { id:'17', name:'Valencia',           price:2.50, bars:0 },
 ];
 
-const BARS = [
-  { name:'Bar El Patio',       city:'Sevilla',     region:'Andalucía',          price:1.80 },
-  { name:'La Taberna',         city:'Córdoba',     region:'Andalucía',          price:2.00 },
-  { name:'Bar Manolo',         city:'Granada',     region:'Andalucía',          price:2.20 },
-  { name:'El Rincón',          city:'Zaragoza',    region:'Aragón',             price:2.10 },
-  { name:'Cafetería Centro',   city:'Huesca',      region:'Aragón',             price:2.00 },
-  { name:'Sidrería Pepe',      city:'Oviedo',      region:'Asturias',           price:2.20 },
-  { name:'Bar del Puerto',     city:'Avilés',      region:'Asturias',           price:2.30 },
-  { name:'Chiringuito Sol',    city:'Palma',       region:'Baleares',           price:3.50 },
-  { name:'Bar Mediterráneo',   city:'Ibiza',       region:'Baleares',           price:3.80 },
-  { name:'La Playa',           city:'Las Palmas',  region:'Canarias',           price:2.80 },
-  { name:'El Guachinche',      city:'Santa Cruz',  region:'Canarias',           price:2.60 },
-  { name:'Bar La Marina',      city:'Santander',   region:'Cantabria',          price:2.30 },
-  { name:'Mesón El Quijote',   city:'Toledo',      region:'Castilla-La Mancha', price:1.70 },
-  { name:'Bar La Plaza',       city:'Albacete',    region:'Castilla-La Mancha', price:1.80 },
-  { name:'El Portón',          city:'Valladolid',  region:'Castilla y León',    price:1.90 },
-  { name:'Bar Catedral',       city:'Burgos',      region:'Castilla y León',    price:1.80 },
-  { name:'Bar Gòtic',          city:'Barcelona',   region:'Cataluña',           price:3.20 },
-  { name:'La Cervecería',      city:'Barcelona',   region:'Cataluña',           price:2.90 },
-  { name:'El Xampanyet',       city:'Barcelona',   region:'Cataluña',           price:3.50 },
-  { name:'Bar Extremeño',      city:'Badajoz',     region:'Extremadura',        price:1.50 },
-  { name:'La Fonda',           city:'Cáceres',     region:'Extremadura',        price:1.70 },
-  { name:'O Garaxe',           city:'Santiago',    region:'Galicia',            price:1.90 },
-  { name:'A Taberna',          city:'Vigo',        region:'Galicia',            price:2.00 },
-  { name:'Bar Logroño',        city:'Logroño',     region:'La Rioja',           price:2.00 },
-  { name:'El Cañas',           city:'Madrid',      region:'Madrid',             price:3.20 },
-  { name:'Cervecería Alemana', city:'Madrid',      region:'Madrid',             price:3.80 },
-  { name:'Bar Moratin',        city:'Madrid',      region:'Madrid',             price:3.00 },
-  { name:'La Huertana',        city:'Murcia',      region:'Murcia',             price:2.00 },
-  { name:'Bar Navarro',        city:'Pamplona',    region:'Navarra',            price:2.40 },
-  { name:'El Txoko',           city:'Bilbao',      region:'País Vasco',         price:2.90 },
-  { name:'Sagardi',            city:'San Sebastián',region:'País Vasco',        price:3.20 },
-  { name:'La Pepica',          city:'Valencia',    region:'Valencia',           price:2.50 },
-  { name:'Bar Albufera',       city:'Valencia',    region:'Valencia',           price:2.40 },
-];
+let BARS = [];
 
 /* ── HELPERS ── */
 function priceColor(price) {
@@ -591,7 +568,7 @@ function renderLeaderboard() {
 
   function makeCards(list, container) {
     container.innerHTML = list.map((r,i) => {
-      const topBars = BARS.filter(b=>b.region===r.name).sort((a,b)=>a.price-b.price).slice(0,3);
+      const topBars = BARS.filter(b=>b.region===r.name).sort((a,b)=>(a.precio||0)-(b.precio||0)).slice(0,3);
       return `<div class="lb-card">
         <div class="lb-card-header">
           <div class="lb-medal ${i===0?'medal-1':i===1?'medal-2':'medal-3'}">${medals[i]}</div>
@@ -602,7 +579,7 @@ function renderLeaderboard() {
           <div class="lb-card-price">${r.price.toFixed(2)}€</div>
         </div>
         <div class="lb-card-body">
-          ${topBars.map(b=>`<div class="lb-row"><span>${b.name} <span style="color:var(--slate-light);font-size:11px">${b.city}</span></span><span class="lb-row-price">${b.price.toFixed(2)}€</span></div>`).join('')}
+          ${topBars.length ? topBars.map(b=>`<div class="lb-row"><span>${b.nombre||b.name} <span style="color:var(--slate-light);font-size:11px">${b.ciudad||b.city}</span></span><span class="lb-row-price">${(b.precio||b.price||0).toFixed(2)}€</span></div>`).join('') : '<div style="font-size:13px;color:var(--slate-light);padding:4px 0">Sin datos aún</div>'}
         </div>
       </div>`;
     }).join('');
@@ -611,18 +588,22 @@ function renderLeaderboard() {
 }
 
 /* ── BARS TABLE ── */
-let filteredBars = [...BARS];
+let filteredBars = [];
 
 function filterBars() {
   const q = document.getElementById('bar-search').value.toLowerCase();
   const reg = document.getElementById('region-filter').value;
   const price = document.getElementById('price-filter').value;
   filteredBars = BARS.filter(b => {
-    if (q && !b.name.toLowerCase().includes(q) && !b.city.toLowerCase().includes(q)) return false;
-    if (reg && b.region !== reg) return false;
-    if (price === 'cheap' && b.price >= 2) return false;
-    if (price === 'mid' && (b.price < 2 || b.price > 3)) return false;
-    if (price === 'exp' && b.price <= 3) return false;
+    const nombre = (b.nombre||b.name||'').toLowerCase();
+    const ciudad = (b.ciudad||b.city||'').toLowerCase();
+    const region = (b.region||'');
+    const precio = b.precio||b.price||0;
+    if (q && !nombre.includes(q) && !ciudad.includes(q)) return false;
+    if (reg && region !== reg) return false;
+    if (price === 'cheap' && precio >= 2) return false;
+    if (price === 'mid' && (precio < 2 || precio > 3)) return false;
+    if (price === 'exp' && precio <= 3) return false;
     return true;
   });
   renderBarsTable();
@@ -630,13 +611,20 @@ function filterBars() {
 
 function renderBarsTable() {
   const tbody = document.getElementById('bars-tbody');
-  tbody.innerHTML = filteredBars.map(b => `<tr>
-    <td style="font-weight:500">${b.name}</td>
-    <td>${b.city}</td>
-    <td><span class="badge-region">${b.region}</span></td>
-    <td class="price-cell ${priceClass(b.price)}">${b.price.toFixed(2)}€</td>
-    <td><span class="bot-badge">${t('source-bot')}</span></td>
-  </tr>`).join('');
+  tbody.innerHTML = filteredBars.map(b => {
+    const nombre = b.nombre||b.name||'—';
+    const ciudad = b.ciudad||b.city||'—';
+    const region = b.region||'—';
+    const precio = b.precio||b.price||0;
+    const direccion = b.direccion||'';
+    return `<tr>
+      <td style="font-weight:500">${nombre}</td>
+      <td>${ciudad}</td>
+      <td><span class="badge-region">${region}</span></td>
+      <td class="price-cell ${priceClass(precio)}">${precio.toFixed(2)}€</td>
+      <td><span class="bot-badge">${t('source-bot')}</span></td>
+    </tr>`;
+  }).join('');
   document.getElementById('bars-count').textContent = `${t('bars-showing')} ${filteredBars.length} ${t('bars-of')} ${BARS.length} ${t('bars-bars')}`;
 }
 
@@ -721,12 +709,38 @@ function toggleMenu() {
 }
 
 /* ── INIT ── */
-document.getElementById('bar-search').addEventListener('input', filterBars);
-populateRegionFilter();
-updateRanking();
-renderLeaderboard();
-filterBars();
-setLang('es');
+async function init() {
+  populateRegionFilter();
+
+  // Load real bars from Supabase
+  try {
+    BARS = await fetchBares();
+    // Update REGIONS with real counts and avg prices from Supabase data
+    REGIONS.forEach(r => {
+      const regionBars = BARS.filter(b => b.region === r.name);
+      r.bars = regionBars.length;
+      if (regionBars.length > 0) {
+        r.price = parseFloat((regionBars.reduce((a,b) => a + (b.precio||0), 0) / regionBars.length).toFixed(2));
+      }
+    });
+    // Update hero stats
+    const totalBars = BARS.length;
+    const prices = BARS.map(b => b.precio||0).filter(Boolean);
+    const avg = prices.length ? prices.reduce((a,b)=>a+b,0)/prices.length : 0;
+    document.getElementById('h-bars').textContent = totalBars.toLocaleString('es-ES');
+    document.getElementById('h-avg').textContent = avg.toFixed(2) + '€';
+  } catch(e) {
+    console.warn('Could not load bars from Supabase', e);
+  }
+
+  document.getElementById('bar-search').addEventListener('input', filterBars);
+  updateRanking();
+  renderLeaderboard();
+  filterBars();
+  setLang('es');
+}
+
+init();
 </script>
 </body>
 </html>
