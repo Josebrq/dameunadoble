@@ -8,171 +8,103 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
-  --amber: #F5A800;
-  --amber-light: #FAEEDA;
-  --amber-dark: #BA7517;
-  --red: #D94F3D;
-  --espresso: #1A0F00;
-  --foam: #FFF8ED;
-  --slate: #3D3530;
-  --slate-light: #6B5E57;
-  --border: rgba(61,53,48,0.15);
-  --border-strong: rgba(61,53,48,0.3);
-  --green: #2E7D32;
-  --green-light: #E8F5E9;
+  --amber:#F5A800;--amber-light:#FAEEDA;--amber-dark:#BA7517;--red:#D94F3D;
+  --espresso:#1A0F00;--foam:#FFF8ED;--slate:#3D3530;--slate-light:#6B5E57;
+  --border:rgba(61,53,48,0.15);--border-strong:rgba(61,53,48,0.3);
+  --green:#2E7D32;--green-light:#E8F5E9;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Inter', sans-serif; background: #f5f5f5; color: var(--espresso); }
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:#f5f5f5;color:var(--espresso);}
 
-/* LOGIN */
-.login-wrap {
-  min-height: 100vh; display: flex; align-items: center; justify-content: center;
-  background: var(--espresso);
-}
-.login-card {
-  background: var(--foam); border-radius: 16px; padding: 2.5rem;
-  width: 100%; max-width: 360px; text-align: center;
-}
-.login-logo { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--espresso); margin-bottom: 4px; }
-.login-logo span { color: var(--amber-dark); }
-.login-sub { font-size: 13px; color: var(--slate-light); margin-bottom: 2rem; }
-.login-card input {
-  width: 100%; padding: 10px 14px; border: 1px solid var(--border-strong);
-  border-radius: 8px; font-size: 14px; font-family: 'Inter', sans-serif;
-  background: #fff; margin-bottom: 12px; outline: none;
-}
-.login-card input:focus { border-color: var(--amber-dark); }
-.btn-primary {
-  width: 100%; padding: 11px; background: var(--amber-dark); color: var(--amber-light);
-  border: none; border-radius: 8px; font-size: 15px; font-weight: 600;
-  font-family: 'Inter', sans-serif; cursor: pointer; transition: background 0.2s;
-}
-.btn-primary:hover { background: #854F0B; }
-.login-error { color: var(--red); font-size: 13px; margin-top: 8px; display: none; }
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--espresso);}
+.login-card{background:var(--foam);border-radius:16px;padding:2.5rem;width:100%;max-width:360px;text-align:center;}
+.login-logo{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--espresso);margin-bottom:4px;}
+.login-logo span{color:var(--amber-dark);}
+.login-sub{font-size:13px;color:var(--slate-light);margin-bottom:2rem;}
+.login-card input{width:100%;padding:10px 14px;border:1px solid var(--border-strong);border-radius:8px;font-size:14px;font-family:'Inter',sans-serif;background:#fff;margin-bottom:12px;outline:none;}
+.login-card input:focus{border-color:var(--amber-dark);}
+.btn-primary{width:100%;padding:11px;background:var(--amber-dark);color:var(--amber-light);border:none;border-radius:8px;font-size:15px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;}
+.btn-primary:hover{background:#854F0B;}
+.login-error{color:var(--red);font-size:13px;margin-top:8px;display:none;}
 
-/* ADMIN LAYOUT */
-.admin-wrap { display: none; min-height: 100vh; }
-.admin-nav {
-  background: var(--espresso); color: var(--foam);
-  padding: 0 2rem; height: 56px;
-  display: flex; align-items: center; justify-content: space-between;
-  position: sticky; top: 0; z-index: 100;
-}
-.admin-logo { font-family: 'Bebas Neue', sans-serif; font-size: 22px; }
-.admin-logo span { color: var(--amber); }
-.admin-nav-right { display: flex; align-items: center; gap: 1rem; }
-.admin-nav-right a { font-size: 13px; color: rgba(255,248,237,0.6); text-decoration: none; }
-.admin-nav-right a:hover { color: var(--amber); }
-.btn-logout {
-  font-size: 12px; padding: 5px 12px; border: 1px solid rgba(255,248,237,0.3);
-  border-radius: 6px; background: transparent; color: rgba(255,248,237,0.7);
-  cursor: pointer; font-family: 'Inter', sans-serif;
-}
-.btn-logout:hover { background: rgba(255,255,255,0.1); }
+.admin-wrap{display:none;min-height:100vh;}
+.admin-nav{background:var(--espresso);color:var(--foam);padding:0 2rem;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.admin-logo{font-family:'Bebas Neue',sans-serif;font-size:22px;}
+.admin-logo span{color:var(--amber);}
+.admin-nav-right{display:flex;align-items:center;gap:1rem;}
+.admin-nav-right a{font-size:13px;color:rgba(255,248,237,0.6);text-decoration:none;}
+.btn-logout{font-size:12px;padding:5px 12px;border:1px solid rgba(255,248,237,0.3);border-radius:6px;background:transparent;color:rgba(255,248,237,0.7);cursor:pointer;font-family:'Inter',sans-serif;}
 
-.admin-body { max-width: 1100px; margin: 0 auto; padding: 2rem; }
+.admin-body{max-width:1100px;margin:0 auto;padding:2rem;}
+.admin-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:2rem;}
+.stat-card{background:#fff;border-radius:10px;border:1px solid var(--border);padding:1rem 1.25rem;}
+.stat-label{font-size:12px;color:var(--slate-light);margin-bottom:6px;}
+.stat-val{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--espresso);line-height:1;}
+.stat-sub{font-size:11px;color:var(--slate-light);margin-top:2px;}
 
-/* STATS */
-.admin-stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 2rem; }
-.stat-card { background: #fff; border-radius: 10px; border: 1px solid var(--border); padding: 1rem 1.25rem; }
-.stat-label { font-size: 12px; color: var(--slate-light); margin-bottom: 6px; }
-.stat-val { font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: var(--espresso); line-height: 1; }
-.stat-sub { font-size: 11px; color: var(--slate-light); margin-top: 2px; }
+.tabs{display:flex;gap:4px;margin-bottom:1.5rem;border-bottom:2px solid var(--border);}
+.tab-btn{font-size:14px;font-weight:500;padding:8px 20px;border:none;background:transparent;cursor:pointer;color:var(--slate-light);border-bottom:2px solid transparent;margin-bottom:-2px;font-family:'Inter',sans-serif;}
+.tab-btn.active{color:var(--amber-dark);border-bottom-color:var(--amber-dark);}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
 
-/* TABS */
-.tabs { display: flex; gap: 4px; margin-bottom: 1.5rem; border-bottom: 2px solid var(--border); padding-bottom: 0; }
-.tab-btn {
-  font-size: 14px; font-weight: 500; padding: 8px 20px;
-  border: none; background: transparent; cursor: pointer;
-  color: var(--slate-light); border-bottom: 2px solid transparent; margin-bottom: -2px;
-  font-family: 'Inter', sans-serif; transition: all 0.2s;
-}
-.tab-btn.active { color: var(--amber-dark); border-bottom-color: var(--amber-dark); }
+.panel-card{background:#fff;border-radius:12px;border:1px solid var(--border);padding:1.5rem;margin-bottom:1.5rem;}
+.panel-card-title{font-size:16px;font-weight:600;color:var(--espresso);margin-bottom:1.25rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
 
-.tab-panel { display: none; }
-.tab-panel.active { display: block; }
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:1rem;}
+.form-group label{display:block;font-size:12px;font-weight:500;color:var(--slate-light);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;}
+.form-group input,.form-group select{width:100%;padding:9px 12px;border:1px solid var(--border-strong);border-radius:8px;font-size:14px;font-family:'Inter',sans-serif;background:var(--foam);color:var(--espresso);outline:none;}
+.form-group input:focus,.form-group select:focus{border-color:var(--amber-dark);}
+.btn-add{padding:9px 20px;background:var(--amber-dark);color:var(--amber-light);border:none;border-radius:8px;font-size:14px;font-weight:500;font-family:'Inter',sans-serif;cursor:pointer;}
+.btn-add:hover{background:#854F0B;}
+.btn-danger{padding:5px 10px;background:transparent;color:var(--red);border:1px solid var(--red);border-radius:6px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;}
+.btn-danger:hover{background:#fdecea;}
+.btn-edit{padding:5px 10px;background:transparent;color:var(--amber-dark);border:1px solid var(--amber-dark);border-radius:6px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;margin-right:4px;}
+.btn-save{padding:5px 10px;background:var(--green);color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;margin-right:4px;}
+.btn-secondary{padding:7px 14px;background:transparent;color:var(--slate);border:1px solid var(--border-strong);border-radius:8px;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;}
+.btn-csv{padding:7px 14px;background:#1A0F00;color:var(--foam);border:none;border-radius:8px;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;}
 
-/* CARDS */
-.panel-card { background: #fff; border-radius: 12px; border: 1px solid var(--border); padding: 1.5rem; margin-bottom: 1.5rem; }
-.panel-card-title { font-size: 16px; font-weight: 600; color: var(--espresso); margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center; }
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:14px;}
+thead th{padding:10px 12px;text-align:left;font-size:11px;font-weight:600;color:var(--slate-light);text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid var(--border);}
+tbody td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--espresso);}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover{background:var(--foam);}
+.price-cell{font-family:'Bebas Neue',sans-serif;font-size:20px;}
+.price-cheap{color:#3B6D11;}.price-mid{color:var(--amber-dark);}.price-exp{color:var(--red);}
+.badge-region{font-size:11px;padding:3px 8px;border-radius:20px;background:var(--amber-light);color:var(--amber-dark);font-weight:500;}
+.cb{width:16px;height:16px;cursor:pointer;}
 
-/* FORMS */
-.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 1rem; }
-.form-group label { display: block; font-size: 12px; font-weight: 500; color: var(--slate-light); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
-.form-group input, .form-group select {
-  width: 100%; padding: 9px 12px; border: 1px solid var(--border-strong);
-  border-radius: 8px; font-size: 14px; font-family: 'Inter', sans-serif;
-  background: var(--foam); color: var(--espresso); outline: none;
-}
-.form-group input:focus, .form-group select:focus { border-color: var(--amber-dark); }
-.btn-add {
-  padding: 9px 20px; background: var(--amber-dark); color: var(--amber-light);
-  border: none; border-radius: 8px; font-size: 14px; font-weight: 500;
-  font-family: 'Inter', sans-serif; cursor: pointer; transition: background 0.2s;
-}
-.btn-add:hover { background: #854F0B; }
-.btn-danger {
-  padding: 5px 10px; background: transparent; color: var(--red);
-  border: 1px solid var(--red); border-radius: 6px; font-size: 12px;
-  cursor: pointer; font-family: 'Inter', sans-serif;
-}
-.btn-danger:hover { background: #fdecea; }
-.btn-edit {
-  padding: 5px 10px; background: transparent; color: var(--amber-dark);
-  border: 1px solid var(--amber-dark); border-radius: 6px; font-size: 12px;
-  cursor: pointer; font-family: 'Inter', sans-serif; margin-right: 4px;
-}
-.btn-edit:hover { background: var(--amber-light); }
-.btn-save {
-  padding: 5px 10px; background: var(--green); color: #fff;
-  border: none; border-radius: 6px; font-size: 12px;
-  cursor: pointer; font-family: 'Inter', sans-serif; margin-right: 4px;
-}
+.search-bar{padding:8px 12px;border:1px solid var(--border-strong);border-radius:8px;font-size:14px;font-family:'Inter',sans-serif;width:200px;outline:none;background:var(--foam);}
+.search-bar:focus{border-color:var(--amber-dark);}
 
-/* TABLE */
-.table-wrap { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-thead th { padding: 10px 12px; text-align: left; font-size: 11px; font-weight: 600; color: var(--slate-light); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid var(--border); }
-tbody td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--espresso); }
-tbody tr:last-child td { border-bottom: none; }
-tbody tr:hover { background: var(--foam); }
-.price-input { width: 80px; padding: 4px 8px; border: 1px solid var(--amber-dark); border-radius: 6px; font-size: 14px; font-family: 'Inter', sans-serif; }
-.badge-region { font-size: 11px; padding: 3px 8px; border-radius: 20px; background: var(--amber-light); color: var(--amber-dark); font-weight: 500; }
-.price-cell { font-family: 'Bebas Neue', sans-serif; font-size: 20px; }
-.price-cheap { color: #3B6D11; }
-.price-mid { color: var(--amber-dark); }
-.price-exp { color: var(--red); }
+.csv-zone{border:2px dashed var(--border-strong);border-radius:10px;padding:2rem;text-align:center;cursor:pointer;transition:border-color 0.2s;margin-bottom:1rem;}
+.csv-zone:hover,.csv-zone.drag{border-color:var(--amber-dark);background:var(--amber-light);}
+.csv-zone p{font-size:14px;color:var(--slate-light);margin-bottom:8px;}
+.csv-zone strong{color:var(--amber-dark);}
 
-/* REGION TABLE */
-.region-price-input { width: 90px; padding: 5px 8px; border: 1px solid var(--border-strong); border-radius: 6px; font-size: 14px; font-family: 'Bebas Neue', sans-serif; text-align: center; }
-.region-price-input:focus { border-color: var(--amber-dark); outline: none; }
+.region-price-input{width:90px;padding:5px 8px;border:1px solid var(--border-strong);border-radius:6px;font-size:14px;font-family:'Bebas Neue',sans-serif;text-align:center;}
+.region-price-input:focus{border-color:var(--amber-dark);outline:none;}
 
-/* TOAST */
-.toast {
-  position: fixed; bottom: 2rem; right: 2rem; z-index: 999;
-  background: var(--espresso); color: var(--foam);
-  padding: 12px 20px; border-radius: 8px; font-size: 14px;
-  transform: translateY(80px); opacity: 0; transition: all 0.3s;
-  pointer-events: none;
-}
-.toast.show { transform: translateY(0); opacity: 1; }
-.toast.success { border-left: 3px solid #7CB87A; }
-.toast.error { border-left: 3px solid var(--red); }
+.toast{position:fixed;bottom:2rem;right:2rem;z-index:999;background:var(--espresso);color:var(--foam);padding:12px 20px;border-radius:8px;font-size:14px;transform:translateY(80px);opacity:0;transition:all 0.3s;pointer-events:none;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.success{border-left:3px solid #7CB87A;}
+.toast.error{border-left:3px solid var(--red);}
 
-/* SEARCH */
-.search-bar { padding: 8px 12px; border: 1px solid var(--border-strong); border-radius: 8px; font-size: 14px; font-family: 'Inter', sans-serif; width: 240px; outline: none; background: var(--foam); }
-.search-bar:focus { border-color: var(--amber-dark); }
+.loading{text-align:center;padding:2rem;color:var(--slate-light);font-size:14px;}
+.bulk-bar{background:var(--espresso);color:var(--foam);padding:10px 16px;border-radius:8px;display:none;align-items:center;gap:12px;margin-bottom:1rem;font-size:13px;}
+.bulk-bar.show{display:flex;}
 
-@media (max-width: 768px) {
-  .admin-stats { grid-template-columns: repeat(2,1fr); }
-  .admin-body { padding: 1rem; }
-  .form-grid { grid-template-columns: 1fr; }
+@media(max-width:768px){
+  .admin-stats{grid-template-columns:repeat(2,1fr);}
+  .admin-body{padding:1rem;}
+  .form-grid{grid-template-columns:1fr;}
+  .search-bar{width:100%;}
 }
 </style>
 </head>
 <body>
 
-<!-- LOGIN -->
 <div class="login-wrap" id="login-screen">
   <div class="login-card">
     <div class="login-logo">Dame Una <span>Doble</span> 🍺</div>
@@ -183,22 +115,26 @@ tbody tr:hover { background: var(--foam); }
   </div>
 </div>
 
-<!-- ADMIN -->
 <div class="admin-wrap" id="admin-screen">
   <nav class="admin-nav">
     <div class="admin-logo">Dame Una <span>Doble</span> 🍺 <span style="font-size:13px;font-family:'Inter';font-weight:400;color:rgba(255,248,237,0.4);margin-left:8px">Admin</span></div>
     <div class="admin-nav-right">
-      <a href="index.html" target="_blank">Ver web →</a>
+      <a href="doble.html" target="_blank">Ver web →</a>
       <button class="btn-logout" onclick="doLogout()">Cerrar sesión</button>
     </div>
   </nav>
 
   <div class="admin-body">
-
-    <div class="admin-stats" id="admin-stats"></div>
+    <div class="admin-stats" id="admin-stats">
+      <div class="stat-card"><div class="stat-label">Total bares</div><div class="stat-val" id="s-total">—</div></div>
+      <div class="stat-card"><div class="stat-label">Precio medio</div><div class="stat-val" id="s-avg">—</div></div>
+      <div class="stat-card"><div class="stat-label">Más barato</div><div class="stat-val" style="color:#3B6D11" id="s-min">—</div><div class="stat-sub" id="s-min-name"></div></div>
+      <div class="stat-card"><div class="stat-label">Comunidades</div><div class="stat-val">17</div></div>
+    </div>
 
     <div class="tabs">
       <button class="tab-btn active" onclick="switchTab('bares',this)">🍺 Bares</button>
+      <button class="tab-btn" onclick="switchTab('csv',this)">📂 Importar CSV</button>
       <button class="tab-btn" onclick="switchTab('regiones',this)">🗺️ Regiones</button>
     </div>
 
@@ -207,12 +143,11 @@ tbody tr:hover { background: var(--foam); }
       <div class="panel-card">
         <div class="panel-card-title">Añadir nuevo bar</div>
         <div class="form-grid">
-          <div class="form-group"><label>Nombre del bar</label><input type="text" id="new-bar-name" placeholder="Bar El Patio"></div>
-          <div class="form-group"><label>Ciudad</label><input type="text" id="new-bar-city" placeholder="Sevilla"></div>
-          <div class="form-group"><label>Comunidad</label>
-            <select id="new-bar-region"></select>
-          </div>
-          <div class="form-group"><label>Precio doble (€)</label><input type="number" id="new-bar-price" placeholder="2.50" step="0.10" min="0.50" max="15"></div>
+          <div class="form-group"><label>Nombre</label><input type="text" id="new-nombre" placeholder="Bar El Patio"></div>
+          <div class="form-group"><label>Ciudad</label><input type="text" id="new-ciudad" placeholder="Sevilla"></div>
+          <div class="form-group"><label>Comunidad</label><select id="new-region"></select></div>
+          <div class="form-group"><label>Precio (€)</label><input type="number" id="new-precio" placeholder="2.50" step="0.10" min="0.50" max="15"></div>
+          <div class="form-group"><label>Dirección</label><input type="text" id="new-direccion" placeholder="Calle Mayor 12"></div>
         </div>
         <button class="btn-add" onclick="addBar()">+ Añadir bar</button>
       </div>
@@ -220,36 +155,61 @@ tbody tr:hover { background: var(--foam); }
       <div class="panel-card">
         <div class="panel-card-title">
           <span>Todos los bares <span style="font-size:13px;font-weight:400;color:var(--slate-light)" id="bars-count-label"></span></span>
-          <input class="search-bar" type="text" placeholder="Buscar..." id="bars-search" oninput="renderBarsTable()">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <input class="search-bar" type="text" placeholder="Buscar..." id="bars-search" oninput="renderBarsTable()">
+            <button class="btn-secondary" onclick="exportCSV()">⬇ Exportar CSV</button>
+          </div>
+        </div>
+        <div class="bulk-bar" id="bulk-bar">
+          <span id="bulk-count">0 seleccionados</span>
+          <button class="btn-danger" onclick="deleteSelected()">🗑 Eliminar seleccionados</button>
+          <button class="btn-secondary" style="font-size:12px;padding:4px 10px" onclick="clearSelection()">Cancelar</button>
         </div>
         <div class="table-wrap">
           <table>
             <thead>
               <tr>
-                <th>#</th><th>Bar</th><th>Ciudad</th><th>Comunidad</th><th>Doble</th><th>Acciones</th>
+                <th><input type="checkbox" class="cb" id="check-all" onchange="toggleAll(this)"></th>
+                <th>#</th><th>Bar</th><th>Ciudad</th><th>Comunidad</th><th>Dirección</th><th>Doble</th><th>Acciones</th>
               </tr>
             </thead>
             <tbody id="bars-tbody"></tbody>
           </table>
         </div>
+        <div id="loading-bars" class="loading">Cargando bares...</div>
+      </div>
+    </div>
+
+    <!-- TAB CSV -->
+    <div class="tab-panel" id="tab-csv">
+      <div class="panel-card">
+        <div class="panel-card-title">Importar bares desde CSV</div>
+        <div class="csv-zone" id="csv-zone" onclick="document.getElementById('csv-file').click()" ondragover="csvDrag(event,true)" ondragleave="csvDrag(event,false)" ondrop="csvDrop(event)">
+          <p>Arrastra tu archivo CSV aquí o <strong>haz clic para seleccionarlo</strong></p>
+          <p style="font-size:12px;margin-top:4px">Columnas requeridas: <code>nombre, ciudad, region, precio, direccion</code></p>
+        </div>
+        <input type="file" id="csv-file" accept=".csv" style="display:none" onchange="handleCSV(this.files[0])">
+        <div id="csv-preview"></div>
+      </div>
+      <div class="panel-card">
+        <div class="panel-card-title">Plantilla CSV</div>
+        <p style="font-size:14px;color:var(--slate-light);margin-bottom:1rem">Descarga la plantilla y rellénala con tus datos.</p>
+        <button class="btn-csv" onclick="downloadTemplate()">⬇ Descargar plantilla CSV</button>
       </div>
     </div>
 
     <!-- TAB REGIONES -->
     <div class="tab-panel" id="tab-regiones">
       <div class="panel-card">
-        <div class="panel-card-title">Precios medios por comunidad autónoma</div>
+        <div class="panel-card-title">Precios medios por comunidad</div>
         <div class="table-wrap">
           <table>
-            <thead>
-              <tr><th>Comunidad</th><th>Precio medio (€)</th><th>Bares registrados</th><th>Guardar</th></tr>
-            </thead>
+            <thead><tr><th>Comunidad</th><th>Precio medio (€)</th><th>Bares</th><th>Guardar</th></tr></thead>
             <tbody id="regions-tbody"></tbody>
           </table>
         </div>
       </div>
     </div>
-
   </div>
 </div>
 
@@ -257,68 +217,39 @@ tbody tr:hover { background: var(--foam); }
 
 <script>
 const ADMIN_PASSWORD = 'Av0c4dOJ0S3';
+const SUPABASE_URL = 'https://cldpkjdzikjzqrfbsghh.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZHBramR6aWtqenFyZmJzZ2hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4NzE0NzEsImV4cCI6MjA5NzQ0NzQ3MX0.-OFHTqGUan5e9thGp8B38eOeo5aJvwD99oDE7aW53Ws';
 
-const REGIONS = [
-  { id:'01', name:'Andalucía',          price:2.00, bars:312 },
-  { id:'02', name:'Aragón',             price:2.10, bars:87  },
-  { id:'03', name:'Asturias',           price:2.20, bars:94  },
-  { id:'04', name:'Baleares',           price:3.20, bars:143 },
-  { id:'05', name:'Canarias',           price:2.80, bars:188 },
-  { id:'06', name:'Cantabria',          price:2.30, bars:72  },
-  { id:'07', name:'Castilla-La Mancha', price:1.80, bars:134 },
-  { id:'08', name:'Castilla y León',    price:1.90, bars:156 },
-  { id:'09', name:'Cataluña',           price:3.10, bars:287 },
-  { id:'10', name:'Extremadura',        price:1.60, bars:98  },
-  { id:'11', name:'Galicia',            price:1.90, bars:201 },
-  { id:'12', name:'La Rioja',           price:2.00, bars:54  },
-  { id:'13', name:'Madrid',             price:3.40, bars:412 },
-  { id:'14', name:'Murcia',             price:2.10, bars:103 },
-  { id:'15', name:'Navarra',            price:2.40, bars:78  },
-  { id:'16', name:'País Vasco',         price:2.80, bars:178 },
-  { id:'17', name:'Valencia',           price:2.50, bars:224 },
-];
+const REGIONS = ['Andalucía','Aragón','Asturias','Baleares','Canarias','Cantabria','Castilla-La Mancha','Castilla y León','Cataluña','Extremadura','Galicia','La Rioja','Madrid','Murcia','Navarra','País Vasco','Valencia'];
 
-let BARS = [
-  { id:1, name:'Bar El Patio',       city:'Sevilla',      region:'Andalucía',          price:1.80 },
-  { id:2, name:'La Taberna',         city:'Córdoba',      region:'Andalucía',          price:2.00 },
-  { id:3, name:'Bar Manolo',         city:'Granada',      region:'Andalucía',          price:2.20 },
-  { id:4, name:'El Rincón',          city:'Zaragoza',     region:'Aragón',             price:2.10 },
-  { id:5, name:'Cafetería Centro',   city:'Huesca',       region:'Aragón',             price:2.00 },
-  { id:6, name:'Sidrería Pepe',      city:'Oviedo',       region:'Asturias',           price:2.20 },
-  { id:7, name:'Bar del Puerto',     city:'Avilés',       region:'Asturias',           price:2.30 },
-  { id:8, name:'Chiringuito Sol',    city:'Palma',        region:'Baleares',           price:3.50 },
-  { id:9, name:'Bar Mediterráneo',   city:'Ibiza',        region:'Baleares',           price:3.80 },
-  { id:10,name:'La Playa',           city:'Las Palmas',   region:'Canarias',           price:2.80 },
-  { id:11,name:'El Guachinche',      city:'Santa Cruz',   region:'Canarias',           price:2.60 },
-  { id:12,name:'Bar La Marina',      city:'Santander',    region:'Cantabria',          price:2.30 },
-  { id:13,name:'Mesón El Quijote',   city:'Toledo',       region:'Castilla-La Mancha', price:1.70 },
-  { id:14,name:'Bar La Plaza',       city:'Albacete',     region:'Castilla-La Mancha', price:1.80 },
-  { id:15,name:'El Portón',          city:'Valladolid',   region:'Castilla y León',    price:1.90 },
-  { id:16,name:'Bar Catedral',       city:'Burgos',       region:'Castilla y León',    price:1.80 },
-  { id:17,name:'Bar Gòtic',          city:'Barcelona',    region:'Cataluña',           price:3.20 },
-  { id:18,name:'La Cervecería',      city:'Barcelona',    region:'Cataluña',           price:2.90 },
-  { id:19,name:'El Xampanyet',       city:'Barcelona',    region:'Cataluña',           price:3.50 },
-  { id:20,name:'Bar Extremeño',      city:'Badajoz',      region:'Extremadura',        price:1.50 },
-  { id:21,name:'La Fonda',           city:'Cáceres',      region:'Extremadura',        price:1.70 },
-  { id:22,name:'O Garaxe',           city:'Santiago',     region:'Galicia',            price:1.90 },
-  { id:23,name:'A Taberna',          city:'Vigo',         region:'Galicia',            price:2.00 },
-  { id:24,name:'Bar Logroño',        city:'Logroño',      region:'La Rioja',           price:2.00 },
-  { id:25,name:'El Cañas',           city:'Madrid',       region:'Madrid',             price:3.20 },
-  { id:26,name:'Cervecería Alemana', city:'Madrid',       region:'Madrid',             price:3.80 },
-  { id:27,name:'Bar Moratin',        city:'Madrid',       region:'Madrid',             price:3.00 },
-  { id:28,name:'La Huertana',        city:'Murcia',       region:'Murcia',             price:2.00 },
-  { id:29,name:'Bar Navarro',        city:'Pamplona',     region:'Navarra',            price:2.40 },
-  { id:30,name:'El Txoko',           city:'Bilbao',       region:'País Vasco',         price:2.90 },
-  { id:31,name:'Sagardi',            city:'San Sebastián',region:'País Vasco',         price:3.20 },
-  { id:32,name:'La Pepica',          city:'Valencia',     region:'Valencia',           price:2.50 },
-  { id:33,name:'Bar Albufera',       city:'Valencia',     region:'Valencia',           price:2.40 },
-];
+const REGION_PRICES = {
+  'Andalucía':2.00,'Aragón':2.10,'Asturias':2.20,'Baleares':3.20,'Canarias':2.80,
+  'Cantabria':2.30,'Castilla-La Mancha':1.80,'Castilla y León':1.90,'Cataluña':3.10,
+  'Extremadura':1.60,'Galicia':1.90,'La Rioja':2.00,'Madrid':3.40,'Murcia':2.10,
+  'Navarra':2.40,'País Vasco':2.80,'Valencia':2.50
+};
 
-let nextId = 34;
+let allBars = [];
+let selected = new Set();
+
+async function api(method, path, body) {
+  const opts = {
+    method,
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': method === 'POST' ? 'return=representation' : ''
+    }
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch(SUPABASE_URL + '/rest/v1/' + path, opts);
+  if (!r.ok) throw new Error(await r.text());
+  return r.status === 204 ? null : r.json();
+}
 
 function doLogin() {
-  const pwd = document.getElementById('pwd-input').value;
-  if (pwd === ADMIN_PASSWORD) {
+  if (document.getElementById('pwd-input').value === ADMIN_PASSWORD) {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('admin-screen').style.display = 'block';
     initAdmin();
@@ -336,129 +267,256 @@ function doLogout() {
 
 function initAdmin() {
   populateRegionSelect();
-  updateStats();
-  renderBarsTable();
+  loadBars();
   renderRegionsTable();
 }
 
 function populateRegionSelect() {
-  const sel = document.getElementById('new-bar-region');
-  sel.innerHTML = [...REGIONS].sort((a,b)=>a.name.localeCompare(b.name))
-    .map(r=>`<option value="${r.name}">${r.name}</option>`).join('');
+  const sel = document.getElementById('new-region');
+  sel.innerHTML = [...REGIONS].sort().map(r => `<option value="${r}">${r}</option>`).join('');
+}
+
+async function loadBars() {
+  document.getElementById('loading-bars').style.display = 'block';
+  document.getElementById('bars-tbody').innerHTML = '';
+  try {
+    allBars = await api('GET', 'bares?select=*&order=nombre.asc');
+    updateStats();
+    renderBarsTable();
+  } catch(e) {
+    showToast('Error cargando bares: ' + e.message, 'error');
+  }
+  document.getElementById('loading-bars').style.display = 'none';
 }
 
 function updateStats() {
-  const prices = BARS.map(b=>b.price);
-  const avg = prices.length ? (prices.reduce((a,b)=>a+b,0)/prices.length) : 0;
+  const prices = allBars.map(b => b.precio).filter(Boolean);
+  const avg = prices.length ? prices.reduce((a,b)=>a+b,0)/prices.length : 0;
   const min = prices.length ? Math.min(...prices) : 0;
-  const totalBars = BARS.length;
-  const regions = REGIONS.reduce((a,b)=>a+b.bars,0);
-  document.getElementById('admin-stats').innerHTML = `
-    <div class="stat-card"><div class="stat-label">Total bares</div><div class="stat-val">${totalBars}</div><div class="stat-sub">en la base de datos</div></div>
-    <div class="stat-card"><div class="stat-label">Precio medio</div><div class="stat-val">${avg.toFixed(2)}€</div><div class="stat-sub">media de todos los bares</div></div>
-    <div class="stat-card"><div class="stat-label">Más barato</div><div class="stat-val" style="color:#3B6D11">${min.toFixed(2)}€</div><div class="stat-sub">${BARS.find(b=>b.price===min)?.name||'—'}</div></div>
-    <div class="stat-card"><div class="stat-label">Comunidades</div><div class="stat-val">${REGIONS.length}</div><div class="stat-sub">${regions} bares registrados</div></div>
-  `;
+  const minBar = allBars.find(b => b.precio === min);
+  document.getElementById('s-total').textContent = allBars.length;
+  document.getElementById('s-avg').textContent = avg.toFixed(2) + '€';
+  document.getElementById('s-min').textContent = min.toFixed(2) + '€';
+  document.getElementById('s-min-name').textContent = minBar ? minBar.nombre : '';
 }
 
 function priceClass(p) { return p<2?'price-cheap':p<=3?'price-mid':'price-exp'; }
 
 function renderBarsTable() {
   const q = (document.getElementById('bars-search')?.value||'').toLowerCase();
-  const filtered = BARS.filter(b=>!q||b.name.toLowerCase().includes(q)||b.city.toLowerCase().includes(q)||b.region.toLowerCase().includes(q));
-  document.getElementById('bars-count-label').textContent = `(${filtered.length} de ${BARS.length})`;
-  document.getElementById('bars-tbody').innerHTML = filtered.map((b,i)=>`<tr id="row-${b.id}">
+  const filtered = allBars.filter(b => !q || 
+    (b.nombre||'').toLowerCase().includes(q) || 
+    (b.ciudad||'').toLowerCase().includes(q) || 
+    (b.region||'').toLowerCase().includes(q)
+  );
+  document.getElementById('bars-count-label').textContent = `(${filtered.length} de ${allBars.length})`;
+  document.getElementById('bars-tbody').innerHTML = filtered.map((b,i) => `<tr id="row-${b.id}">
+    <td><input type="checkbox" class="cb" onchange="toggleSelect(${b.id},this)" ${selected.has(b.id)?'checked':''}></td>
     <td style="color:var(--slate-light);font-size:12px">${i+1}</td>
-    <td style="font-weight:500">${b.name}</td>
-    <td>${b.city}</td>
-    <td><span class="badge-region">${b.region}</span></td>
-    <td class="price-cell ${priceClass(b.price)}">${b.price.toFixed(2)}€</td>
+    <td style="font-weight:500">${b.nombre||'—'}</td>
+    <td>${b.ciudad||'—'}</td>
+    <td><span class="badge-region">${b.region||'—'}</span></td>
+    <td style="font-size:13px;color:var(--slate-light);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${b.direccion||'—'}</td>
+    <td class="price-cell ${priceClass(b.precio)}">${(b.precio||0).toFixed(2)}€</td>
     <td>
       <button class="btn-edit" onclick="editBar(${b.id})">Editar</button>
-      <button class="btn-danger" onclick="deleteBar(${b.id})">Eliminar</button>
+      <button class="btn-danger" onclick="deleteBar(${b.id},'${(b.nombre||'').replace(/'/g,"\\'")}')">✕</button>
     </td>
   </tr>`).join('');
+  updateBulkBar();
 }
 
-function renderRegionsTable() {
-  document.getElementById('regions-tbody').innerHTML = [...REGIONS]
-    .sort((a,b)=>a.price-b.price)
-    .map(r=>`<tr>
-      <td style="font-weight:500">${r.name}</td>
-      <td><input class="region-price-input" type="number" id="rp-${r.id}" value="${r.price.toFixed(2)}" step="0.10" min="0.50" max="15"></td>
-      <td style="color:var(--slate-light)">${r.bars}</td>
-      <td><button class="btn-save" onclick="saveRegionPrice('${r.id}','${r.name}')">Guardar</button></td>
-    </tr>`).join('');
+function toggleSelect(id, cb) {
+  if (cb.checked) selected.add(id); else selected.delete(id);
+  updateBulkBar();
 }
 
-function addBar() {
-  const name = document.getElementById('new-bar-name').value.trim();
-  const city = document.getElementById('new-bar-city').value.trim();
-  const region = document.getElementById('new-bar-region').value;
-  const price = parseFloat(document.getElementById('new-bar-price').value);
-  if (!name||!city||!price||price<0.5||price>15) { showToast('Rellena todos los campos correctamente','error'); return; }
-  BARS.push({ id:nextId++, name, city, region, price });
-  document.getElementById('new-bar-name').value='';
-  document.getElementById('new-bar-city').value='';
-  document.getElementById('new-bar-price').value='';
-  updateStats(); renderBarsTable();
-  showToast(`✅ "${name}" añadido correctamente`,'success');
+function toggleAll(cb) {
+  const q = (document.getElementById('bars-search')?.value||'').toLowerCase();
+  const filtered = allBars.filter(b => !q || (b.nombre||'').toLowerCase().includes(q) || (b.ciudad||'').toLowerCase().includes(q));
+  filtered.forEach(b => { if(cb.checked) selected.add(b.id); else selected.delete(b.id); });
+  renderBarsTable();
 }
 
-function deleteBar(id) {
-  const bar = BARS.find(b=>b.id===id);
-  if (!confirm(`¿Eliminar "${bar.name}"?`)) return;
-  BARS = BARS.filter(b=>b.id!==id);
-  updateStats(); renderBarsTable();
-  showToast(`🗑️ "${bar.name}" eliminado`,'success');
+function clearSelection() { selected.clear(); document.getElementById('check-all').checked = false; renderBarsTable(); }
+
+function updateBulkBar() {
+  const bar = document.getElementById('bulk-bar');
+  if (selected.size > 0) { bar.classList.add('show'); document.getElementById('bulk-count').textContent = `${selected.size} seleccionados`; }
+  else bar.classList.remove('show');
+}
+
+async function addBar() {
+  const nombre = document.getElementById('new-nombre').value.trim();
+  const ciudad = document.getElementById('new-ciudad').value.trim();
+  const region = document.getElementById('new-region').value;
+  const precio = parseFloat(document.getElementById('new-precio').value);
+  const direccion = document.getElementById('new-direccion').value.trim();
+  if (!nombre||!ciudad||!precio||precio<0.5||precio>15) { showToast('Rellena todos los campos obligatorios','error'); return; }
+  try {
+    await api('POST','bares',{nombre,ciudad,region,precio,direccion});
+    document.getElementById('new-nombre').value='';
+    document.getElementById('new-ciudad').value='';
+    document.getElementById('new-precio').value='';
+    document.getElementById('new-direccion').value='';
+    showToast(`✅ "${nombre}" añadido`,'success');
+    loadBars();
+  } catch(e) { showToast('Error: '+e.message,'error'); }
+}
+
+async function deleteBar(id, nombre) {
+  if (!confirm(`¿Eliminar "${nombre}"?`)) return;
+  try {
+    await api('DELETE',`bares?id=eq.${id}`);
+    allBars = allBars.filter(b=>b.id!==id);
+    selected.delete(id);
+    updateStats(); renderBarsTable();
+    showToast(`🗑 "${nombre}" eliminado`,'success');
+  } catch(e) { showToast('Error: '+e.message,'error'); }
+}
+
+async function deleteSelected() {
+  if (!selected.size) return;
+  if (!confirm(`¿Eliminar ${selected.size} bares?`)) return;
+  try {
+    const ids = [...selected].join(',');
+    await api('DELETE',`bares?id=in.(${ids})`);
+    allBars = allBars.filter(b=>!selected.has(b.id));
+    selected.clear();
+    updateStats(); renderBarsTable();
+    showToast(`🗑 ${selected.size} bares eliminados`,'success');
+  } catch(e) { showToast('Error: '+e.message,'error'); }
 }
 
 function editBar(id) {
-  const bar = BARS.find(b=>b.id===id);
+  const b = allBars.find(x=>x.id===id);
   const row = document.getElementById('row-'+id);
   row.innerHTML = `
-    <td style="color:var(--slate-light);font-size:12px">#</td>
-    <td><input style="width:140px;padding:4px 8px;border:1px solid var(--amber-dark);border-radius:6px;font-size:13px" id="e-name-${id}" value="${bar.name}"></td>
-    <td><input style="width:100px;padding:4px 8px;border:1px solid var(--border-strong);border-radius:6px;font-size:13px" id="e-city-${id}" value="${bar.city}"></td>
-    <td><span class="badge-region">${bar.region}</span></td>
-    <td><input class="price-input" type="number" id="e-price-${id}" value="${bar.price}" step="0.10" min="0.50" max="15"></td>
+    <td></td><td style="color:var(--slate-light);font-size:12px">#</td>
+    <td><input style="width:130px;padding:4px 8px;border:1px solid var(--amber-dark);border-radius:6px;font-size:13px" id="e-nombre-${id}" value="${b.nombre||''}"></td>
+    <td><input style="width:100px;padding:4px 8px;border:1px solid var(--border-strong);border-radius:6px;font-size:13px" id="e-ciudad-${id}" value="${b.ciudad||''}"></td>
+    <td><span class="badge-region">${b.region||''}</span></td>
+    <td><input style="width:140px;padding:4px 8px;border:1px solid var(--border-strong);border-radius:6px;font-size:13px" id="e-dir-${id}" value="${b.direccion||''}"></td>
+    <td><input class="region-price-input" type="number" id="e-precio-${id}" value="${b.precio}" step="0.10" min="0.50" max="15"></td>
     <td>
       <button class="btn-save" onclick="saveBar(${id})">Guardar</button>
       <button class="btn-danger" onclick="renderBarsTable()">Cancelar</button>
-    </td>
-  `;
+    </td>`;
 }
 
-function saveBar(id) {
-  const bar = BARS.find(b=>b.id===id);
-  bar.name = document.getElementById(`e-name-${id}`).value.trim()||bar.name;
-  bar.city = document.getElementById(`e-city-${id}`).value.trim()||bar.city;
-  bar.price = parseFloat(document.getElementById(`e-price-${id}`).value)||bar.price;
-  updateStats(); renderBarsTable();
-  showToast(`✅ "${bar.name}" actualizado`,'success');
+async function saveBar(id) {
+  const nombre = document.getElementById(`e-nombre-${id}`).value.trim();
+  const ciudad = document.getElementById(`e-ciudad-${id}`).value.trim();
+  const direccion = document.getElementById(`e-dir-${id}`).value.trim();
+  const precio = parseFloat(document.getElementById(`e-precio-${id}`).value);
+  try {
+    await api('PATCH',`bares?id=eq.${id}`,{nombre,ciudad,direccion,precio});
+    const bar = allBars.find(b=>b.id===id);
+    Object.assign(bar,{nombre,ciudad,direccion,precio});
+    updateStats(); renderBarsTable();
+    showToast(`✅ "${nombre}" actualizado`,'success');
+  } catch(e) { showToast('Error: '+e.message,'error'); }
 }
 
-function saveRegionPrice(id, name) {
-  const input = document.getElementById('rp-'+id);
-  const newPrice = parseFloat(input.value);
-  if (!newPrice||newPrice<0.5||newPrice>15) { showToast('Precio inválido','error'); return; }
-  const reg = REGIONS.find(r=>r.id===id);
-  reg.price = newPrice;
-  updateStats();
-  showToast(`✅ ${name} actualizado a ${newPrice.toFixed(2)}€`,'success');
+function exportCSV() {
+  const rows = [['nombre','ciudad','region','precio','direccion']];
+  allBars.forEach(b => rows.push([b.nombre,b.ciudad,b.region,b.precio,b.direccion||'']));
+  const csv = rows.map(r=>r.map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = 'dameunadoble_bares.csv'; a.click();
+  showToast('✅ CSV exportado','success');
+}
+
+function downloadTemplate() {
+  const csv = 'nombre,ciudad,region,precio,direccion\n"Bar El Patio","Sevilla","Andalucía",1.80,"Calle Mayor 12"\n"La Taberna","Madrid","Madrid",3.20,"Gran Vía 45"';
+  const blob = new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = 'plantilla_bares.csv'; a.click();
+}
+
+function csvDrag(e,over) { e.preventDefault(); document.getElementById('csv-zone').classList.toggle('drag',over); }
+function csvDrop(e) { e.preventDefault(); csvDrag(e,false); handleCSV(e.dataTransfer.files[0]); }
+
+function handleCSV(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const lines = e.target.result.split('\n').filter(l=>l.trim());
+    const headers = lines[0].split(',').map(h=>h.trim().replace(/"/g,'').toLowerCase());
+    const rows = lines.slice(1).map(line => {
+      const vals = line.match(/(".*?"|[^,]+)/g)||[];
+      const obj = {};
+      headers.forEach((h,i) => { obj[h] = (vals[i]||'').trim().replace(/^"|"$/g,''); });
+      return obj;
+    }).filter(r=>r.nombre);
+    
+    const preview = document.getElementById('csv-preview');
+    preview.innerHTML = `
+      <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:1rem;margin-top:1rem;">
+        <p style="font-size:14px;color:var(--slate);margin-bottom:1rem"><strong>${rows.length} bares</strong> listos para importar</p>
+        <div style="overflow-x:auto;max-height:200px;overflow-y:auto">
+          <table style="width:100%;font-size:13px;border-collapse:collapse">
+            <thead><tr style="background:var(--foam)">${headers.map(h=>`<th style="padding:6px 10px;text-align:left;border-bottom:1px solid var(--border)">${h}</th>`).join('')}</tr></thead>
+            <tbody>${rows.slice(0,5).map(r=>`<tr>${headers.map(h=>`<td style="padding:6px 10px;border-bottom:1px solid var(--border)">${r[h]||'—'}</td>`).join('')}</tr>`).join('')}
+            ${rows.length>5?`<tr><td colspan="${headers.length}" style="padding:6px 10px;color:var(--slate-light);font-size:12px">...y ${rows.length-5} más</td></tr>`:''}
+            </tbody>
+          </table>
+        </div>
+        <div style="margin-top:1rem;display:flex;gap:8px">
+          <button class="btn-add" onclick="importCSVRows(${JSON.stringify(rows).replace(/"/g,'&quot;')})">⬆ Importar ${rows.length} bares</button>
+          <button class="btn-secondary" onclick="document.getElementById('csv-preview').innerHTML=''">Cancelar</button>
+        </div>
+      </div>`;
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+async function importCSVRows(rows) {
+  try {
+    const data = rows.map(r=>({
+      nombre:r.nombre, ciudad:r.ciudad, region:r.region,
+      precio:parseFloat(r.precio)||0, direccion:r.direccion||''
+    }));
+    await api('POST','bares',data);
+    document.getElementById('csv-preview').innerHTML='';
+    showToast(`✅ ${data.length} bares importados`,'success');
+    loadBars();
+    switchTab('bares', document.querySelector('.tab-btn'));
+  } catch(e) { showToast('Error importando: '+e.message,'error'); }
+}
+
+function renderRegionsTable() {
+  document.getElementById('regions-tbody').innerHTML = Object.entries(REGION_PRICES)
+    .sort((a,b)=>a[1]-b[1])
+    .map(([name,price])=>`<tr>
+      <td style="font-weight:500">${name}</td>
+      <td><input class="region-price-input" type="number" id="rp-${name.replace(/\s/g,'_')}" value="${price.toFixed(2)}" step="0.10" min="0.50" max="15"></td>
+      <td style="color:var(--slate-light);font-size:13px">${allBars.filter(b=>b.region===name).length} bares</td>
+      <td><button class="btn-save" onclick="saveRegion('${name}')">Guardar</button></td>
+    </tr>`).join('');
+}
+
+function saveRegion(name) {
+  const key = name.replace(/\s/g,'_');
+  const val = parseFloat(document.getElementById('rp-'+key).value);
+  if (!val||val<0.5||val>15) { showToast('Precio inválido','error'); return; }
+  REGION_PRICES[name] = val;
+  showToast(`✅ ${name} → ${val.toFixed(2)}€`,'success');
 }
 
 function switchTab(tab, btn) {
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  btn.classList.add('active');
+  document.querySelector(`.tab-btn:nth-child(${tab==='bares'?1:tab==='csv'?2:3})`).classList.add('active');
   document.getElementById('tab-'+tab).classList.add('active');
+  if (tab==='regiones') renderRegionsTable();
 }
 
-function showToast(msg, type='success') {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.className = `toast ${type} show`;
-  setTimeout(()=>t.classList.remove('show'), 3000);
+function showToast(msg,type='success') {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className=`toast ${type} show`;
+  setTimeout(()=>t.classList.remove('show'),3000);
 }
 </script>
 </body>
