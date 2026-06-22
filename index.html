@@ -809,7 +809,8 @@ d3.json('https://cdn.jsdelivr.net/npm/es-atlas@0.6.0/es/autonomous_regions.json'
       tt.style.left = x+'px'; tt.style.top = y+'px';
     })
     .on('mouseleave', () => { document.getElementById('map-tooltip').style.display = 'none'; });
-}  // Zoom animation: Spain -> Madrid after 2 seconds
+
+  // Zoom animation: Spain -> Madrid after 2 seconds
   setTimeout(() => {
     const madridX = madridCoords[0];
     const madridY = madridCoords[1];
