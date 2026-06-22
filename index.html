@@ -402,6 +402,17 @@ footer {
   </div>
 </section>
 
+<!-- DISCLAIMER BANNER -->
+<div style="background:#FFF3CD;border-top:2px solid #F5A800;padding:1rem 2rem;">
+  <div style="max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <span style="font-size:18px">⚠️</span>
+    <p style="font-size:13px;color:#856404;line-height:1.5;flex:1">
+      <strong>Precios orientativos:</strong> Los precios mostrados son aproximados y pueden variar según el establecimiento, horario o zona de consumición. Dame Una Doble no se responsabiliza de discrepancias entre el precio publicado y el real. Verifica siempre el precio en el bar antes de consumir.
+      <a href="legal.html" style="color:#856404;font-weight:600;margin-left:4px">Más info →</a>
+    </p>
+  </div>
+</div>
+
 <!-- FOOTER -->
 <footer>
   <div class="footer-logo">Dame Una <span>Doble</span> 🍺</div>
@@ -541,7 +552,7 @@ const SUPABASE_URL = 'https://cldpkjdzikjzqrfbsghh.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZHBramR6aWtqenFyZmJzZ2hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4NzE0NzEsImV4cCI6MjA5NzQ0NzQ3MX0.-OFHTqGUan5e9thGp8B38eOeo5aJvwD99oDE7aW53Ws';
 
 async function fetchBares() {
-  const r = await fetch(SUPABASE_URL + '/rest/v1/bares?select=*&order=nombre.asc', {
+  const r = await fetch(SUPABASE_URL + '/rest/v1/bares?select=*&aprobado=eq.true&order=nombre.asc', {
     headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
   });
   return r.ok ? r.json() : [];
@@ -680,7 +691,11 @@ function renderBarsTable() {
       <td>${ciudad}</td>
       <td><span class="badge-region">${region}</span></td>
       <td class="price-cell ${priceClass(precio)}">${precio.toFixed(2)}€</td>
-      <td><span class="bot-badge">${t('source-bot')}</span></td>
+      <td>
+        <span class="bot-badge">${t('source-bot')}</span>
+        <a href="mailto:dameunadoble@gmail.com?subject=Reclamación de ficha: ${encodeURIComponent(nombre)}&body=Hola, soy el propietario de ${encodeURIComponent(nombre)} en ${encodeURIComponent(ciudad)}. Quiero modificar o reclamar mi ficha.%0A%0ADatos correctos:%0ANombre:%0APrecio del doble:%0ADirección:%0A%0AGracias." 
+          style="font-size:11px;color:var(--amber-dark);text-decoration:none;margin-left:6px;white-space:nowrap" title="¿Eres el propietario? Reclama tu ficha">✏️ Reclamar</a>
+      </td>
     </tr>`;
   }).join('');
   document.getElementById('bars-count').textContent = `${t('bars-showing')} ${filteredBars.length} ${t('bars-of')} ${BARS.length} ${t('bars-bars')}`;
