@@ -583,6 +583,7 @@ let BARS = [];
 
 /* ── HELPERS ── */
 function priceColor(price) {
+  price = parseFloat(price)||0;
   const t = Math.min(Math.max((price - 1.5) / 2.0, 0), 1);
   const stops = ['#FAEEDA','#F5C47A','#EF9F27','#D94F3D','#8B1A1A'];
   const idx = t * (stops.length - 1);
@@ -621,7 +622,7 @@ function updateRanking() {
       <div style="flex:1">
         <div style="display:flex;justify-content:space-between;align-items:center">
           <span class="rank-name">${r.name}</span>
-          <span class="rank-price">${r.price.toFixed(2)}€</span>
+          <span class="rank-price">${parseFloat(r.price||0).toFixed(2)}€</span>
         </div>
         <div class="rank-bar-wrap"><div class="rank-bar-fill" style="width:${Math.max(pct,4)}%;background:${col}"></div></div>
       </div>
@@ -643,12 +644,12 @@ function renderLeaderboard() {
           <div class="lb-medal ${i===0?'medal-1':i===1?'medal-2':'medal-3'}">${medals[i]}</div>
           <div>
             <div class="lb-card-name">${r.name}</div>
-            <div class="lb-card-sub">${r.bars} bares · ${r.price.toFixed(2)}€ media</div>
+            <div class="lb-card-sub">${r.bars} bares · ${parseFloat(r.price||0).toFixed(2)}€ media</div>
           </div>
-          <div class="lb-card-price">${r.price.toFixed(2)}€</div>
+          <div class="lb-card-price">${parseFloat(r.price||0).toFixed(2)}€</div>
         </div>
         <div class="lb-card-body">
-          ${topBars.length ? topBars.map(b=>`<div class="lb-row"><span>${b.nombre||b.name} <span style="color:var(--slate-light);font-size:11px">${b.ciudad||b.city}</span></span><span class="lb-row-price">${(b.precio||b.price||0).toFixed(2)}€</span></div>`).join('') : '<div style="font-size:13px;color:var(--slate-light);padding:4px 0">Sin datos aún</div>'}
+          ${topBars.length ? topBars.map(b=>`<div class="lb-row"><span>${b.nombre||b.name} <span style="color:var(--slate-light);font-size:11px">${b.ciudad||b.city}</span></span><span class="lb-row-price">${parseFloat(b.precio||b.price||0).toFixed(2)}€</span></div>`).join('') : '<div style="font-size:13px;color:var(--slate-light);padding:4px 0">Sin datos aún</div>'}
         </div>
       </div>`;
     }).join('');
@@ -690,7 +691,7 @@ function renderBarsTable() {
       <td style="font-weight:500">${nombre}</td>
       <td>${ciudad}</td>
       <td><span class="badge-region">${region}</span></td>
-      <td class="price-cell ${priceClass(precio)}">${precio.toFixed(2)}€</td>
+      <td class="price-cell ${priceClass(parseFloat(precio)||0)}">${parseFloat(precio||0).toFixed(2)}€</td>
       <td>
         <span class="bot-badge">${t('source-bot')}</span>
         <a href="mailto:dameunadoble@gmail.com?subject=Reclamación de ficha: ${encodeURIComponent(nombre)}&body=Hola, soy el propietario de ${encodeURIComponent(nombre)} en ${encodeURIComponent(ciudad)}. Quiero modificar o reclamar mi ficha.%0A%0ADatos correctos:%0ANombre:%0APrecio del doble:%0ADirección:%0A%0AGracias." 
@@ -793,12 +794,12 @@ async function init() {
       const regionBars = BARS.filter(b => b.region === r.name);
       r.bars = regionBars.length;
       if (regionBars.length > 0) {
-        r.price = parseFloat((regionBars.reduce((a,b) => a + (b.precio||0), 0) / regionBars.length).toFixed(2));
+        r.price = parseFloat((regionBars.reduce((a,b) => a + (parseFloat(b.precio)||0), 0) / regionBars.length).toFixed(2));
       }
     });
     // Update hero stats
     const totalBars = BARS.length;
-    const prices = BARS.map(b => b.precio||0).filter(Boolean);
+    const prices = BARS.map(b => parseFloat(b.precio)||0).filter(Boolean);
     const avg = prices.length ? prices.reduce((a,b)=>a+b,0)/prices.length : 0;
     document.getElementById('h-bars').textContent = totalBars.toLocaleString('es-ES');
     document.getElementById('h-avg').textContent = avg.toFixed(2) + '€';
