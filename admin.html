@@ -290,13 +290,13 @@ async function loadBars() {
 }
 
 function updateStats() {
-  const prices = allBars.map(b => parseFloat(b.precio)).filter(Boolean);
+  const prices = allBars.map(b => parseFloat(b.precio)||0).filter(p => p > 0);
   const avg = prices.length ? prices.reduce((a,b)=>a+b,0)/prices.length : 0;
   const min = prices.length ? Math.min(...prices) : 0;
-  const minBar = allBars.find(b => b.precio === min);
+  const minBar = allBars.find(b => parseFloat(b.precio) === min);
   document.getElementById('s-total').textContent = allBars.length;
   document.getElementById('s-avg').textContent = avg.toFixed(2) + '€';
-  document.getElementById('s-min').textContent = parseFloat(min||0).toFixed(2) + '€';
+  document.getElementById('s-min').textContent = min.toFixed(2) + '€';
   document.getElementById('s-min-name').textContent = minBar ? minBar.nombre : '';
 }
 
