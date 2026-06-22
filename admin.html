@@ -290,17 +290,17 @@ async function loadBars() {
 }
 
 function updateStats() {
-  const prices = allBars.map(b => b.precio).filter(Boolean);
+  const prices = allBars.map(b => parseFloat(b.precio)).filter(Boolean);
   const avg = prices.length ? prices.reduce((a,b)=>a+b,0)/prices.length : 0;
   const min = prices.length ? Math.min(...prices) : 0;
   const minBar = allBars.find(b => b.precio === min);
   document.getElementById('s-total').textContent = allBars.length;
   document.getElementById('s-avg').textContent = avg.toFixed(2) + '€';
-  document.getElementById('s-min').textContent = min.toFixed(2) + '€';
+  document.getElementById('s-min').textContent = parseFloat(min||0).toFixed(2) + '€';
   document.getElementById('s-min-name').textContent = minBar ? minBar.nombre : '';
 }
 
-function priceClass(p) { return p<2?'price-cheap':p<=3?'price-mid':'price-exp'; }
+function priceClass(p) { p=parseFloat(p)||0; return p<2?'price-cheap':p<=3?'price-mid':'price-exp'; }
 
 function renderBarsTable() {
   const q = (document.getElementById('bars-search')?.value||'').toLowerCase();
@@ -321,7 +321,7 @@ function renderBarsTable() {
       <td>${b.ciudad||'—'}</td>
       <td><span class="badge-region">${b.region||'—'}</span></td>
       <td style="font-size:13px;color:var(--slate-light);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${b.direccion||'—'}</td>
-      <td class="price-cell ${priceClass(b.precio)}">${(b.precio||0).toFixed(2)}€</td>
+      <td class="price-cell ${priceClass(parseFloat(b.precio)||0)}">${parseFloat(b.precio||0).toFixed(2)}€</td>
       <td>${approveBtn}</td>
       <td>
         <button class="btn-edit" onclick="editBar(${b.id})">Editar</button>
