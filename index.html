@@ -373,6 +373,7 @@ footer {
       <div class="section-desc" data-i18n="bars-desc">Listado completo de bares registrados con su precio del doble.</div>
     </div>
     <div class="bars-controls">
+      <button id="geo-btn" onclick="findNearMe()" style="padding:10px 16px;background:var(--amber-dark);color:var(--amber-light);border:none;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap">📍 Cerca de mí</button>
       <input class="search-input" id="bar-search" type="text" data-i18n-placeholder="search-placeholder" placeholder="Buscar bar o ciudad...">
       <select class="filter-select" id="region-filter" onchange="filterBars()">
         <option value="" data-i18n="all-regions">Todas las comunidades</option>
@@ -392,6 +393,7 @@ footer {
             <th data-i18n="th-zone">Zona</th>
             <th data-i18n="th-address">Dirección</th>
             <th data-i18n="th-price">Doble</th>
+            <th id="th-dist" style="display:none">Distancia</th>
             <th data-i18n="th-source">Fuente</th>
           </tr>
         </thead>
@@ -706,6 +708,13 @@ function filterBars() {
     if (price === 'exp' && precio <= 3) return false;
     return true;
   });
+  if (geoActive) {
+    filteredBars.sort((a, b) => {
+      const distA = (a.lat && a.lng) ? haversine(userLat, userLng, parseFloat(a.lat), parseFloat(a.lng)) : 99999;
+      const distB = (b.lat && b.lng) ? haversine(userLat, userLng, parseFloat(b.lat), parseFloat(b.lng)) : 99999;
+      return distA - distB;
+    });
+  }
   renderBarsTable();
 }
 
@@ -718,11 +727,13 @@ function renderBarsTable() {
     const precio = b.precio||b.price||0;
     const direccion = b.direccion||'';
     const zona = extractZona(direccion);
+    const dist = (geoActive && b.lat && b.lng) ? haversine(userLat, userLng, parseFloat(b.lat), parseFloat(b.lng)) : null;
     return `<tr>
       <td style="font-weight:500">${nombre}</td>
       <td><span class="badge-region">${zona}</span></td>
       <td style="font-size:12px;color:var(--slate-light);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${direccion}">${direccion||'—'}</td>
       <td class="price-cell ${priceClass(parseFloat(precio)||0)}">${parseFloat(precio||0).toFixed(2)}€</td>
+      ${geoActive ? `<td style="font-size:13px;font-weight:500;color:var(--amber-dark);white-space:nowrap">${dist !== null ? formatDist(dist) : '—'}</td>` : ''}
       <td>
         <span class="bot-badge">${t('source-bot')}</span>
         <a href="mailto:dameunadoble@gmail.com?subject=Reclamación: ${encodeURIComponent(nombre)}&body=Hola, soy el propietario de ${encodeURIComponent(nombre)}. Quiero modificar mi ficha.%0A%0ADatos correctos:%0ANombre:%0APrecio del doble:%0ADirección:%0A%0AGracias." 
@@ -866,6 +877,59 @@ d3.json('https://cdn.jsdelivr.net/npm/es-atlas@0.6.0/es/autonomous_regions.json'
 /* ── NAV ── */
 function toggleMenu() {
   document.getElementById('nav-links').classList.toggle('open');
+}
+
+/* ── GEOLOCATION ── */
+let userLat = null;
+let userLng = null;
+let geoActive = false;
+
+function haversine(lat1, lng1, lat2, lng2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLng/2) * Math.sin(dLng/2);
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+function formatDist(km) {
+  if (km < 1) return Math.round(km * 1000) + 'm';
+  return km.toFixed(1) + 'km';
+}
+
+function findNearMe() {
+  const btn = document.getElementById('geo-btn');
+  if (geoActive) {
+    geoActive = false;
+    userLat = null;
+    userLng = null;
+    btn.textContent = '📍 Cerca de mí';
+    btn.style.background = 'var(--amber-dark)';
+    document.getElementById('th-dist').style.display = 'none';
+    filterBars();
+    return;
+  }
+  btn.textContent = '⏳ Localizando...';
+  btn.style.background = 'var(--slate-light)';
+  if (!navigator.geolocation) {
+    btn.textContent = '📍 No disponible';
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(pos => {
+    userLat = pos.coords.latitude;
+    userLng = pos.coords.longitude;
+    geoActive = true;
+    btn.textContent = '✕ Quitar distancia';
+    btn.style.background = 'var(--red)';
+    document.getElementById('th-dist').style.display = '';
+    filterBars();
+  }, err => {
+    btn.textContent = '📍 Cerca de mí';
+    btn.style.background = 'var(--amber-dark)';
+    alert('No se pudo obtener tu ubicación. Activa la geolocalización en tu navegador.');
+  }, { enableHighAccuracy: true, timeout: 10000 });
 }
 
 /* ── INIT ── */
