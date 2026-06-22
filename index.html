@@ -561,16 +561,16 @@ async function fetchBares() {
 /* ── DATA ── */
 const REGIONS = [
   { id:'01', name:'Centro',       price:0, bars:0 },
-  { id:'02', name:'Malasana',     price:0, bars:0 },
-  { id:'03', name:'Lavapies',     price:0, bars:0 },
+  { id:'02', name:'Malasaña',     price:0, bars:0 },
+  { id:'03', name:'Lavapiés',     price:0, bars:0 },
   { id:'04', name:'Chueca',       price:0, bars:0 },
   { id:'05', name:'La Latina',    price:0, bars:0 },
-  { id:'06', name:'Chamberi',     price:0, bars:0 },
+  { id:'06', name:'Chamberí',     price:0, bars:0 },
   { id:'07', name:'Salamanca',    price:0, bars:0 },
   { id:'08', name:'Retiro',       price:0, bars:0 },
-  { id:'09', name:'Argueelles',   price:0, bars:0 },
+  { id:'09', name:'Argüelles',   price:0, bars:0 },
   { id:'10', name:'Moncloa',      price:0, bars:0 },
-  { id:'11', name:'Tetuan',       price:0, bars:0 },
+  { id:'11', name:'Tetuán',       price:0, bars:0 },
   { id:'12', name:'Carabanchel',  price:0, bars:0 },
   { id:'13', name:'Vallecas',     price:0, bars:0 },
   { id:'14', name:'Usera',        price:0, bars:0 },
@@ -586,22 +586,22 @@ const REGIONS = [
 function extractZona(direccion) {
   if (!direccion) return 'Otros';
   const d = direccion.toLowerCase();
-  if (d.includes('centro') || d.includes('sol') || d.includes('gran via') || d.includes('mayor')) return 'Centro';
-  if (d.includes('malasa')) return 'Malasana';
-  if (d.includes('lavapi') || d.includes('embajadores')) return 'Lavapies';
-  if (d.includes('chueca') || d.includes('infantas') || d.includes('hortaleza')) return 'Chueca';
-  if (d.includes('latina') || d.includes('cava baja') || d.includes('toledo')) return 'La Latina';
-  if (d.includes('chamber') || d.includes('ponzano') || d.includes('luchana')) return 'Chamberi';
+  if (d.includes('centro') || d.includes('sol') || d.includes('gran via') || d.includes('mayor') || d.includes('arenal') || d.includes('montera') || d.includes('preciados') || d.includes('carretas')) return 'Centro';
+  if (d.includes('malasa') || d.includes('acuerdo') || d.includes('espiritu santo') || d.includes('san bernardo') || d.includes('noviciado') || d.includes('pez') || d.includes('palma') || d.includes('fuencarral') || d.includes('corredera')) return 'Malasaña';
+  if (d.includes('lavapi') || d.includes('embajadores') || d.includes('argumosa') || d.includes('sombrerete') || d.includes('ave maria') || d.includes('valencia')) return 'Lavapiés';
+  if (d.includes('chueca') || d.includes('infantas') || d.includes('libertad') || d.includes('barbieri') || d.includes('augusto figueroa')) return 'Chueca';
+  if (d.includes('latina') || d.includes('cava baja') || d.includes('cava alta') || d.includes('toledo') || d.includes('rastro') || d.includes('cascorro')) return 'La Latina';
+  if (d.includes('chamber') || d.includes('ponzano') || d.includes('luchana') || d.includes('santa engracia') || d.includes('rios rosas') || d.includes('alonso cano')) return 'Chamberí';
   if (d.includes('salamanca') || d.includes('serrano') || d.includes('velazquez') || d.includes('goya')) return 'Salamanca';
   if (d.includes('retiro') || d.includes('ibiza') || d.includes('niño jesus')) return 'Retiro';
-  if (d.includes('arguelles') || d.includes('princesa')) return 'Argueelles';
+  if (d.includes('arguelles') || d.includes('princesa')) return 'Argüelles';
   if (d.includes('moncloa') || d.includes('ciudad universitaria')) return 'Moncloa';
-  if (d.includes('tetuan') || d.includes('bravo murillo')) return 'Tetuan';
+  if (d.includes('tetuan') || d.includes('bravo murillo')) return 'Tetuán';
   if (d.includes('carabanchel')) return 'Carabanchel';
   if (d.includes('vallecas')) return 'Vallecas';
   if (d.includes('usera')) return 'Usera';
-  if (d.includes('hortaleza') || d.includes('arturo soria')) return 'Hortaleza';
-  if (d.includes('fuencarral')) return 'Fuencarral';
+  if (d.includes('arturo soria') || d.includes('hortaleza, madrid') || d.includes('distrito hortaleza')) return 'Hortaleza';
+  if (d.includes('fuencarral') && !d.includes('c. de fuencarral') && !d.includes('calle fuencarral') && !d.includes('c. fuencarral')) return 'Fuencarral';
   if (d.includes('san blas')) return 'San Blas';
   if (d.includes('ciudad lineal')) return 'Ciudad Lineal';
   if (d.includes('barajas')) return 'Barajas';
@@ -828,11 +828,11 @@ d3.json('https://cdn.jsdelivr.net/npm/es-atlas@0.6.0/es/autonomous_regions.json'
     setTimeout(() => {
       const madridZones = [
         {name:'Centro',lat:40.4168,lng:-3.7038},
-        {name:'Malasana',lat:40.4267,lng:-3.7037},
-        {name:'Lavapies',lat:40.4072,lng:-3.7033},
+        {name:'Malasaña',lat:40.4267,lng:-3.7037},
+        {name:'Lavapiés',lat:40.4072,lng:-3.7033},
         {name:'Chueca',lat:40.4230,lng:-3.6988},
         {name:'La Latina',lat:40.4103,lng:-3.7115},
-        {name:'Chamberi',lat:40.4350,lng:-3.7020},
+        {name:'Chamberí',lat:40.4350,lng:-3.7020},
         {name:'Salamanca',lat:40.4285,lng:-3.6817},
         {name:'Retiro',lat:40.4089,lng:-3.6827},
       ];
