@@ -137,6 +137,7 @@ tbody tr:hover{background:var(--foam);}
       <button class="tab-btn active" onclick="switchTab('bares',this)">🍺 Bares</button>
       <button class="tab-btn" onclick="switchTab('csv',this)">📂 Importar CSV</button>
       <button class="tab-btn" onclick="switchTab('regiones',this)">🗺️ Regiones</button>
+      <button class="tab-btn" onclick="switchTab('pendientes',this)">⏳ Sin precio</button>
       <button class="tab-btn" onclick="switchTab('destacar',this)">⭐ Destacados</button>
     </div>
 
@@ -200,6 +201,27 @@ tbody tr:hover{background:var(--foam);}
         <div class="panel-card-title">Plantilla CSV</div>
         <p style="font-size:14px;color:var(--slate-light);margin-bottom:1rem">Descarga la plantilla y rellénala con tus datos.</p>
         <button class="btn-csv" onclick="downloadTemplate()">⬇ Descargar plantilla CSV</button>
+      </div>
+    </div>
+
+    <!-- TAB PENDIENTES -->
+    <div class="tab-panel" id="tab-pendientes">
+      <div class="panel-card">
+        <div class="panel-card-title">
+          <span>⏳ Bares sin precio <span style="font-size:13px;font-weight:400;color:var(--slate-light)" id="pending-count"></span></span>
+          <button class="btn-secondary" onclick="loadBars();switchTab('pendientes',document.querySelectorAll('.tab-btn')[3])">🔄 Actualizar</button>
+        </div>
+        <p style="font-size:13px;color:var(--slate-light);margin-bottom:1.5rem">Introduce el precio rápidamente. Haz clic en "Buscar" para ver si Google tiene info del bar.</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th><th>Bar</th><th>Dirección</th><th>Precio</th><th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="pending-tbody"></tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -558,6 +580,7 @@ function switchTab(tab, btn) {
   if(btn) btn.classList.add('active');
   document.getElementById('tab-'+tab).classList.add('active');
   if (tab==='regiones') renderRegionsTable();
+  if (tab==='pendientes') renderPendientes();
   if (tab==='destacar') { loadDestacados(); populateDestacadoSelect(); }
 }
 
@@ -614,6 +637,52 @@ async function removeDestacado(id, nombre) {
     showToast(`✅ "${nombre}" ya no es destacado`,'success');
     loadDestacados();
   } catch(e) { showToast('Error: '+e.message,'error'); }
+}
+
+function renderPendientes() {
+  const pending = allBars.filter(b => !b.precio || parseFloat(b.precio) === 0);
+  document.getElementById('pending-count').textContent = '(' + pending.length + ' pendientes)';
+  document.getElementById('pending-tbody').innerHTML = pending.map((b, i) => {
+    const searchQuery = encodeURIComponent(b.nombre + ' ' + (b.direccion || 'Madrid') + ' precio cerveza doble');
+    return `<tr>
+      <td style="color:var(--slate-light);font-size:12px">${i + 1}</td>
+      <td>
+        <div style="font-weight:500">${b.nombre || '—'}</div>
+        <div style="font-size:11px;color:var(--slate-light)">${b.region || 'Madrid'}</div>
+      </td>
+      <td style="font-size:12px;color:var(--slate-light);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${b.direccion || '—'}</td>
+      <td>
+        <input type="number" id="qp-${b.id}" placeholder="€" step="0.10" min="0.50" max="15"
+          style="width:70px;padding:5px 8px;border:1px solid var(--border-strong);border-radius:6px;font-size:14px;font-family:'Bebas Neue',sans-serif;text-align:center"
+          onkeydown="if(event.key==='Enter')quickSavePrice(${b.id})">
+      </td>
+      <td style="white-space:nowrap">
+        <button class="btn-save" onclick="quickSavePrice(${b.id})">Guardar</button>
+        <a href="https://www.google.com/search?q=${searchQuery}" target="_blank"
+          style="font-size:11px;padding:5px 8px;border:1px solid var(--amber-dark);border-radius:6px;color:var(--amber-dark);text-decoration:none;margin-left:4px">🔍 Buscar</a>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function quickSavePrice(id) {
+  const input = document.getElementById('qp-' + id);
+  const precio = input.value;
+  if (!precio || parseFloat(precio) < 0.5 || parseFloat(precio) > 15) {
+    showToast('Introduce un precio válido (0.50 - 15.00)', 'error');
+    return;
+  }
+  try {
+    await api('PATCH', 'bares?id=eq.' + id, { precio: precio, aprobado: true });
+    const bar = allBars.find(b => b.id === id);
+    if (bar) { bar.precio = precio; bar.aprobado = true; }
+    showToast('✅ Precio guardado y bar aprobado', 'success');
+    renderPendientes();
+    renderBarsTable();
+    updateStats();
+  } catch (e) {
+    showToast('Error: ' + e.message, 'error');
+  }
 }
 
 async function approveBar(id) {
