@@ -170,7 +170,7 @@ tbody tr:hover{background:var(--foam);}
             <thead>
               <tr>
                 <th><input type="checkbox" class="cb" id="check-all" onchange="toggleAll(this)"></th>
-                <th>#</th><th>Bar</th><th>Ciudad</th><th>Comunidad</th><th>Dirección</th><th>Doble</th><th>Acciones</th>
+                <th>#</th><th>Bar</th><th>Ciudad</th><th>Comunidad</th><th>Dirección</th><th>Doble</th><th>Estado</th><th>Acciones</th>
               </tr>
             </thead>
             <tbody id="bars-tbody"></tbody>
@@ -310,19 +310,25 @@ function renderBarsTable() {
     (b.region||'').toLowerCase().includes(q)
   );
   document.getElementById('bars-count-label').textContent = `(${filtered.length} de ${allBars.length})`;
-  document.getElementById('bars-tbody').innerHTML = filtered.map((b,i) => `<tr id="row-${b.id}">
-    <td><input type="checkbox" class="cb" onchange="toggleSelect(${b.id},this)" ${selected.has(b.id)?'checked':''}></td>
-    <td style="color:var(--slate-light);font-size:12px">${i+1}</td>
-    <td style="font-weight:500">${b.nombre||'—'}</td>
-    <td>${b.ciudad||'—'}</td>
-    <td><span class="badge-region">${b.region||'—'}</span></td>
-    <td style="font-size:13px;color:var(--slate-light);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${b.direccion||'—'}</td>
-    <td class="price-cell ${priceClass(b.precio)}">${(b.precio||0).toFixed(2)}€</td>
-    <td>
-      <button class="btn-edit" onclick="editBar(${b.id})">Editar</button>
-      <button class="btn-danger" onclick="deleteBar(${b.id},'${(b.nombre||'').replace(/'/g,"\\'")}')">✕</button>
-    </td>
-  </tr>`).join('');
+  document.getElementById('bars-tbody').innerHTML = filtered.map((b,i) => {
+    const approveBtn = b.aprobado
+      ? '<span style="font-size:11px;padding:3px 8px;border-radius:20px;background:#E8F5E9;color:#2E7D32;font-weight:500">✅ Aprobado</span>'
+      : `<button onclick="approveBar(${b.id})" style="font-size:11px;padding:4px 10px;background:#F5A800;color:#1A0F00;border:none;border-radius:6px;cursor:pointer;font-weight:600">⏳ Aprobar</button>`;
+    return `<tr id="row-${b.id}">
+      <td><input type="checkbox" class="cb" onchange="toggleSelect(${b.id},this)" ${selected.has(b.id)?'checked':''}></td>
+      <td style="color:var(--slate-light);font-size:12px">${i+1}</td>
+      <td style="font-weight:500">${b.nombre||'—'}</td>
+      <td>${b.ciudad||'—'}</td>
+      <td><span class="badge-region">${b.region||'—'}</span></td>
+      <td style="font-size:13px;color:var(--slate-light);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${b.direccion||'—'}</td>
+      <td class="price-cell ${priceClass(b.precio)}">${(b.precio||0).toFixed(2)}€</td>
+      <td>${approveBtn}</td>
+      <td>
+        <button class="btn-edit" onclick="editBar(${b.id})">Editar</button>
+        <button class="btn-danger" onclick="deleteBar(${b.id},'${(b.nombre||'').replace(/'/g,"\\'")}')">✕</button>
+      </td>
+    </tr>`;
+  }).join('');
   updateBulkBar();
 }
 
@@ -511,6 +517,16 @@ function switchTab(tab, btn) {
   document.querySelector(`.tab-btn:nth-child(${tab==='bares'?1:tab==='csv'?2:3})`).classList.add('active');
   document.getElementById('tab-'+tab).classList.add('active');
   if (tab==='regiones') renderRegionsTable();
+}
+
+async function approveBar(id) {
+  try {
+    await api('PATCH',`bares?id=eq.${id}`,{aprobado:true});
+    const bar = allBars.find(b=>b.id===id);
+    if(bar) bar.aprobado = true;
+    renderBarsTable();
+    showToast(`✅ Bar aprobado y publicado en la web`,'success');
+  } catch(e) { showToast('Error: '+e.message,'error'); }
 }
 
 function showToast(msg,type='success') {
