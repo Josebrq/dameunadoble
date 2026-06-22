@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dame Una Doble 🍺 — El mapa de la cerveza en España</title>
-<meta name="description" content="Descubre cuánto cuesta un doble de cerveza en cada rincón de España. Datos reales, bares reales, precios reales.">
-<meta property="og:title" content="Dame Una Doble — El mapa de la cerveza en España">
-<meta property="og:description" content="Cuánto cuesta un doble en cada comunidad autónoma de España">
+<title>Dame Una Doble 🍺 — El mapa de la cerveza en Madrid</title>
+<meta name="description" content="Descubre cuánto cuesta un doble de cerveza en cada barrio de Madrid. Datos reales, bares reales, precios reales.">
+<meta property="og:title" content="Dame Una Doble — El mapa de la cerveza en Madrid">
+<meta property="og:description" content="Cuánto cuesta un doble en cada barrio de Madrid">
 <meta property="og:type" content="website">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -222,17 +222,17 @@ footer {
 
 <!-- HERO -->
 <section class="hero">
-  <p class="hero-eyebrow" data-i18n="hero-eyebrow">El mapa de la cerveza en España</p>
+  <p class="hero-eyebrow" data-i18n="hero-eyebrow">El mapa de la cerveza en Madrid</p>
   <h1>DAME UNA<br><em>DOBLE</em></h1>
-  <p class="hero-sub" data-i18n="hero-sub">Descubre cuánto cuesta un doble de cerveza en cada rincón de España. Datos reales recogidos bar a bar.</p>
+  <p class="hero-sub" data-i18n="hero-sub">Descubre cuánto cuesta un doble de cerveza en cada barrio de Madrid. Datos reales, bar a bar.</p>
   <div class="hero-stats">
     <div class="hero-stat">
       <div class="hero-stat-num" id="h-bars">2.847</div>
       <div class="hero-stat-label" data-i18n="hero-stat-bars">bares llamados</div>
     </div>
     <div class="hero-stat">
-      <div class="hero-stat-num" id="h-regions">17</div>
-      <div class="hero-stat-label" data-i18n="hero-stat-regions">comunidades</div>
+      <div class="hero-stat-num" id="h-regions">20</div>
+      <div class="hero-stat-label" data-i18n="hero-stat-regions">barrios</div>
     </div>
     <div class="hero-stat">
       <div class="hero-stat-num" id="h-avg">2.38€</div>
@@ -248,9 +248,9 @@ footer {
 <section id="mapa">
   <div class="section-inner">
     <div class="section-header">
-      <div class="section-eyebrow" data-i18n="map-eyebrow">Comunidades Autónomas</div>
-      <div class="section-title" data-i18n="map-title">EL MAPA DEL DOBLE</div>
-      <div class="section-desc" data-i18n="map-desc">Precio medio del doble por comunidad autónoma. Del más barato al más caro.</div>
+      <div class="section-eyebrow" data-i18n="map-eyebrow">Barrios de Madrid</div>
+      <div class="section-title" data-i18n="map-title">EL MAPA DE MADRID</div>
+      <div class="section-desc" data-i18n="map-desc">Precio medio del doble por barrio. Del más barato al más caro.</div>
     </div>
     <div class="map-layout">
       <div>
@@ -296,7 +296,7 @@ footer {
   <div class="section-inner">
     <div class="section-header">
       <div class="section-eyebrow" data-i18n="lb-eyebrow">Leaderboard</div>
-      <div class="section-title" data-i18n="lb-title">PODIO REGIONAL</div>
+      <div class="section-title" data-i18n="lb-title">PODIO POR BARRIO</div>
       <div class="section-desc" data-i18n="lb-desc">Las tres comunidades más baratas y las tres más caras del ranking nacional.</div>
     </div>
     <div style="margin-bottom:1.5rem;">
@@ -389,8 +389,8 @@ footer {
         <thead>
           <tr>
             <th data-i18n="th-bar">Bar</th>
-            <th data-i18n="th-city">Ciudad</th>
-            <th data-i18n="th-region">Comunidad</th>
+            <th data-i18n="th-zone">Zona</th>
+            <th data-i18n="th-address">Dirección</th>
             <th data-i18n="th-price">Doble</th>
             <th data-i18n="th-source">Fuente</th>
           </tr>
@@ -416,7 +416,7 @@ footer {
 <!-- FOOTER -->
 <footer>
   <div class="footer-logo">Dame Una <span>Doble</span> 🍺</div>
-  <div class="footer-sub">dameunadoble.com · <span data-i18n="footer-sub">El mapa de la cerveza en España</span></div>
+  <div class="footer-sub">dameunadoble.com · <span data-i18n="footer-sub">El mapa de la cerveza en Madrid</span></div>
   <div class="footer-links">
     <a href="#mapa" data-i18n="nav-map">Mapa</a>
     <a href="#ranking" data-i18n="nav-ranking">Ranking</a>
@@ -435,23 +435,23 @@ footer {
 const i18n = {
   es: {
     'nav-map':'Mapa','nav-ranking':'Ranking','nav-bars':'Bares',
-    'hero-eyebrow':'El mapa de la cerveza en España',
-    'hero-sub':'Descubre cuánto cuesta un doble de cerveza en cada rincón de España. Datos reales recogidos bar a bar.',
-    'hero-stat-bars':'bares llamados','hero-stat-regions':'comunidades','hero-stat-avg':'precio medio',
-    'map-eyebrow':'Comunidades Autónomas','map-title':'EL MAPA DEL DOBLE',
-    'map-desc':'Precio medio del doble por comunidad autónoma. Del más barato al más caro.',
+    'hero-eyebrow':'El mapa de la cerveza en Madrid',
+    'hero-sub':'Descubre cuánto cuesta un doble de cerveza en cada barrio de Madrid. Datos reales, bar a bar.',
+    'hero-stat-bars':'bares llamados','hero-stat-regions':'barrios','hero-stat-avg':'precio medio',
+    'map-eyebrow':'Barrios de Madrid','map-title':'EL MAPA DE MADRID',
+    'map-desc':'Precio medio del doble por barrio. Del más barato al más caro.',
     'legend-cheap':'Barato','legend-exp':'Caro',
     'ranking-title':'🏆 Ranking','sort-cheap':'+ barato','sort-exp':'+ caro',
-    'lb-eyebrow':'Leaderboard','lb-title':'PODIO REGIONAL',
-    'lb-desc':'Las tres comunidades más baratas del ranking nacional.',
+    'lb-eyebrow':'Leaderboard','lb-title':'PODIO POR BARRIO',
+    'lb-desc':'Los tres barrios más baratos de Madrid.',
     'lb-cheapest':'🥇 Más baratas','lb-expensive':'💸 Más caras',
     'bars-eyebrow':'Base de datos','bars-title':'TODOS LOS BARES',
     'bars-desc':'Listado completo de bares registrados con su precio del doble.',
     'search-placeholder':'Buscar bar o ciudad...',
-    'all-regions':'Todas las comunidades','all-prices':'Todos los precios',
+    'all-regions':'Todos los barrios','all-prices':'Todos los precios',
     'price-cheap':'Menos de 2€','price-mid':'2€ – 3€','price-exp':'Más de 3€',
-    'th-bar':'Bar','th-city':'Ciudad','th-region':'Comunidad','th-price':'Doble','th-source':'Fuente',
-    'footer-sub':'El mapa de la cerveza en España','footer-copy':'Datos recogidos por bots. Precios orientativos.',
+    'th-bar':'Bar','th-city':'Ciudad','th-zone':'Zona','th-address':'Dirección','th-price':'Doble','th-source':'Fuente',
+    'footer-sub':'El mapa de la cerveza en Madrid','footer-copy':'Datos recogidos por bots. Precios orientativos.',
     'source-bot':'Bot 🤖','bars-showing':'Mostrando',
     'bars-of':'de','bars-bars':'bares',
   },
@@ -459,7 +459,7 @@ const i18n = {
     'nav-map':'Map','nav-ranking':'Ranking','nav-bars':'Bars',
     'hero-eyebrow':'Spain\'s beer price map',
     'hero-sub':'Find out how much a double beer costs in every corner of Spain. Real data collected bar by bar.',
-    'hero-stat-bars':'bars called','hero-stat-regions':'regions','hero-stat-avg':'avg price',
+    'hero-stat-bars':'bars called','hero-stat-regions':'districts','hero-stat-avg':'avg price',
     'map-eyebrow':'Autonomous Communities','map-title':'THE DOBLE MAP',
     'map-desc':'Average double beer price by autonomous community. From cheapest to most expensive.',
     'legend-cheap':'Cheap','legend-exp':'Expensive',
@@ -470,9 +470,9 @@ const i18n = {
     'bars-eyebrow':'Database','bars-title':'ALL BARS',
     'bars-desc':'Full list of registered bars with their double beer price.',
     'search-placeholder':'Search bar or city...',
-    'all-regions':'All regions','all-prices':'All prices',
+    'all-regions':'All districts','all-prices':'All prices',
     'price-cheap':'Under 2€','price-mid':'2€ – 3€','price-exp':'Over 3€',
-    'th-bar':'Bar','th-city':'City','th-region':'Region','th-price':'Double','th-source':'Source',
+    'th-bar':'Bar','th-city':'City','th-zone':'Zone','th-address':'Address','th-address':'Adresse','th-price':'Double','th-source':'Source',
     'footer-sub':'Spain\'s beer price map','footer-copy':'Data collected by bots. Prices are approximate.',
     'source-bot':'Bot 🤖','bars-showing':'Showing',
     'bars-of':'of','bars-bars':'bars',
@@ -481,20 +481,20 @@ const i18n = {
     'nav-map':'Mappa','nav-ranking':'Classifica','nav-bars':'Bar',
     'hero-eyebrow':'La mappa della birra in Spagna',
     'hero-sub':'Scopri quanto costa una birra doppia in ogni angolo della Spagna. Dati reali raccolti bar per bar.',
-    'hero-stat-bars':'bar chiamati','hero-stat-regions':'comunità','hero-stat-avg':'prezzo medio',
+    'hero-stat-bars':'bar chiamati','hero-stat-regions':'quartieri','hero-stat-avg':'prezzo medio',
     'map-eyebrow':'Comunità Autonome','map-title':'LA MAPPA DEL DOPPIO',
     'map-desc':'Prezzo medio della birra doppia per comunità autonoma. Dal più economico al più caro.',
     'legend-cheap':'Economico','legend-exp':'Caro',
     'ranking-title':'🏆 Classifica','sort-cheap':'+ economico','sort-exp':'+ caro',
-    'lb-eyebrow':'Leaderboard','lb-title':'PODIO REGIONALE',
+    'lb-eyebrow':'Leaderboard','lb-title':'PODIO POR BARRIOE',
     'lb-desc':'Le tre comunità più economiche della classifica nazionale.',
     'lb-cheapest':'🥇 Più economiche','lb-expensive':'💸 Più care',
     'bars-eyebrow':'Database','bars-title':'TUTTI I BAR',
     'bars-desc':'Elenco completo dei bar registrati con il prezzo della birra doppia.',
     'search-placeholder':'Cerca bar o città...',
-    'all-regions':'Tutte le comunità','all-prices':'Tutti i prezzi',
+    'all-regions':'Tutti i quartieri','all-prices':'Tutti i prezzi',
     'price-cheap':'Meno di 2€','price-mid':'2€ – 3€','price-exp':'Più di 3€',
-    'th-bar':'Bar','th-city':'Città','th-region':'Comunità','th-price':'Doppio','th-source':'Fonte',
+    'th-bar':'Bar','th-city':'Città','th-zone':'Zona','th-address':'Indirizzo','th-price':'Doppio','th-source':'Fonte',
     'footer-sub':'La mappa della birra in Spagna','footer-copy':'Dati raccolti da bot. Prezzi indicativi.',
     'source-bot':'Bot 🤖','bars-showing':'Mostrando',
     'bars-of':'di','bars-bars':'bar',
@@ -503,7 +503,7 @@ const i18n = {
     'nav-map':'Carte','nav-ranking':'Classement','nav-bars':'Bars',
     'hero-eyebrow':'La carte de la bière en Espagne',
     'hero-sub':'Découvrez combien coûte une bière double dans chaque coin de l\'Espagne. Données réelles collectées bar par bar.',
-    'hero-stat-bars':'bars appelés','hero-stat-regions':'communautés','hero-stat-avg':'prix moyen',
+    'hero-stat-bars':'bars appelés','hero-stat-regions':'quartiers','hero-stat-avg':'prix moyen',
     'map-eyebrow':'Communautés Autonomes','map-title':'LA CARTE DE LA DOUBLE',
     'map-desc':'Prix moyen de la bière double par communauté autonome. Du moins cher au plus cher.',
     'legend-cheap':'Pas cher','legend-exp':'Cher',
@@ -514,9 +514,9 @@ const i18n = {
     'bars-eyebrow':'Base de données','bars-title':'TOUS LES BARS',
     'bars-desc':'Liste complète des bars enregistrés avec leur prix de la bière double.',
     'search-placeholder':'Rechercher un bar ou une ville...',
-    'all-regions':'Toutes les communautés','all-prices':'Tous les prix',
+    'all-regions':'Tous les quartiers','all-prices':'Tous les prix',
     'price-cheap':'Moins de 2€','price-mid':'2€ – 3€','price-exp':'Plus de 3€',
-    'th-bar':'Bar','th-city':'Ville','th-region':'Communauté','th-price':'Double','th-source':'Source',
+    'th-bar':'Bar','th-city':'Ville','th-zone':'Zone','th-address':'Address','th-address':'Adresse','th-price':'Double','th-source':'Source',
     'footer-sub':'La carte de la bière en Espagne','footer-copy':'Données collectées par des bots. Prix indicatifs.',
     'source-bot':'Bot 🤖','bars-showing':'Affichage de',
     'bars-of':'sur','bars-bars':'bars',
@@ -560,24 +560,53 @@ async function fetchBares() {
 
 /* ── DATA ── */
 const REGIONS = [
-  { id:'01', name:'Andalucía',          price:2.00, bars:0 },
-  { id:'02', name:'Aragón',             price:2.10, bars:0 },
-  { id:'03', name:'Asturias',           price:2.20, bars:0 },
-  { id:'04', name:'Baleares',           price:3.20, bars:0 },
-  { id:'05', name:'Canarias',           price:2.80, bars:0 },
-  { id:'06', name:'Cantabria',          price:2.30, bars:0 },
-  { id:'07', name:'Castilla-La Mancha', price:1.80, bars:0 },
-  { id:'08', name:'Castilla y León',    price:1.90, bars:0 },
-  { id:'09', name:'Cataluña',           price:3.10, bars:0 },
-  { id:'10', name:'Extremadura',        price:1.60, bars:0 },
-  { id:'11', name:'Galicia',            price:1.90, bars:0 },
-  { id:'12', name:'La Rioja',           price:2.00, bars:0 },
-  { id:'13', name:'Madrid',             price:3.40, bars:0 },
-  { id:'14', name:'Murcia',             price:2.10, bars:0 },
-  { id:'15', name:'Navarra',            price:2.40, bars:0 },
-  { id:'16', name:'País Vasco',         price:2.80, bars:0 },
-  { id:'17', name:'Valencia',           price:2.50, bars:0 },
+  { id:'01', name:'Centro',       price:0, bars:0 },
+  { id:'02', name:'Malasana',     price:0, bars:0 },
+  { id:'03', name:'Lavapies',     price:0, bars:0 },
+  { id:'04', name:'Chueca',       price:0, bars:0 },
+  { id:'05', name:'La Latina',    price:0, bars:0 },
+  { id:'06', name:'Chamberi',     price:0, bars:0 },
+  { id:'07', name:'Salamanca',    price:0, bars:0 },
+  { id:'08', name:'Retiro',       price:0, bars:0 },
+  { id:'09', name:'Argueelles',   price:0, bars:0 },
+  { id:'10', name:'Moncloa',      price:0, bars:0 },
+  { id:'11', name:'Tetuan',       price:0, bars:0 },
+  { id:'12', name:'Carabanchel',  price:0, bars:0 },
+  { id:'13', name:'Vallecas',     price:0, bars:0 },
+  { id:'14', name:'Usera',        price:0, bars:0 },
+  { id:'15', name:'Hortaleza',    price:0, bars:0 },
+  { id:'16', name:'Fuencarral',   price:0, bars:0 },
+  { id:'17', name:'San Blas',     price:0, bars:0 },
+  { id:'18', name:'Ciudad Lineal',price:0, bars:0 },
+  { id:'19', name:'Barajas',      price:0, bars:0 },
+  { id:'20', name:'Otros',        price:0, bars:0 },
 ];
+
+// Extract zone from Google Places address
+function extractZona(direccion) {
+  if (!direccion) return 'Otros';
+  const d = direccion.toLowerCase();
+  if (d.includes('centro') || d.includes('sol') || d.includes('gran via') || d.includes('mayor')) return 'Centro';
+  if (d.includes('malasa')) return 'Malasana';
+  if (d.includes('lavapi') || d.includes('embajadores')) return 'Lavapies';
+  if (d.includes('chueca') || d.includes('infantas') || d.includes('hortaleza')) return 'Chueca';
+  if (d.includes('latina') || d.includes('cava baja') || d.includes('toledo')) return 'La Latina';
+  if (d.includes('chamber') || d.includes('ponzano') || d.includes('luchana')) return 'Chamberi';
+  if (d.includes('salamanca') || d.includes('serrano') || d.includes('velazquez') || d.includes('goya')) return 'Salamanca';
+  if (d.includes('retiro') || d.includes('ibiza') || d.includes('niño jesus')) return 'Retiro';
+  if (d.includes('arguelles') || d.includes('princesa')) return 'Argueelles';
+  if (d.includes('moncloa') || d.includes('ciudad universitaria')) return 'Moncloa';
+  if (d.includes('tetuan') || d.includes('bravo murillo')) return 'Tetuan';
+  if (d.includes('carabanchel')) return 'Carabanchel';
+  if (d.includes('vallecas')) return 'Vallecas';
+  if (d.includes('usera')) return 'Usera';
+  if (d.includes('hortaleza') || d.includes('arturo soria')) return 'Hortaleza';
+  if (d.includes('fuencarral')) return 'Fuencarral';
+  if (d.includes('san blas')) return 'San Blas';
+  if (d.includes('ciudad lineal')) return 'Ciudad Lineal';
+  if (d.includes('barajas')) return 'Barajas';
+  return 'Otros';
+}
 
 let BARS = [];
 
@@ -638,7 +667,7 @@ function renderLeaderboard() {
 
   function makeCards(list, container) {
     container.innerHTML = list.map((r,i) => {
-      const topBars = BARS.filter(b=>b.region===r.name).sort((a,b)=>(a.precio||0)-(b.precio||0)).slice(0,3);
+      const topBars = BARS.filter(b=>extractZona(b.direccion)===r.name).sort((a,b)=>(parseFloat(a.precio)||0)-(parseFloat(b.precio)||0)).slice(0,3);
       return `<div class="lb-card">
         <div class="lb-card-header">
           <div class="lb-medal ${i===0?'medal-1':i===1?'medal-2':'medal-3'}">${medals[i]}</div>
@@ -670,7 +699,8 @@ function filterBars() {
     const region = (b.region||'');
     const precio = b.precio||b.price||0;
     if (q && !nombre.includes(q) && !ciudad.includes(q)) return false;
-    if (reg && region !== reg) return false;
+    const zona = extractZona(b.direccion||'');
+    if (reg && zona !== reg) return false;
     if (price === 'cheap' && precio >= 2) return false;
     if (price === 'mid' && (precio < 2 || precio > 3)) return false;
     if (price === 'exp' && precio <= 3) return false;
@@ -687,15 +717,17 @@ function renderBarsTable() {
     const region = b.region||'—';
     const precio = b.precio||b.price||0;
     const direccion = b.direccion||'';
+    const direccion = b.direccion||'';
+    const zona = extractZona(direccion);
     return `<tr>
       <td style="font-weight:500">${nombre}</td>
-      <td>${ciudad}</td>
-      <td><span class="badge-region">${region}</span></td>
+      <td><span class="badge-region">${zona}</span></td>
+      <td style="font-size:12px;color:var(--slate-light);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${direccion}">${direccion||'—'}</td>
       <td class="price-cell ${priceClass(parseFloat(precio)||0)}">${parseFloat(precio||0).toFixed(2)}€</td>
       <td>
         <span class="bot-badge">${t('source-bot')}</span>
-        <a href="mailto:dameunadoble@gmail.com?subject=Reclamación de ficha: ${encodeURIComponent(nombre)}&body=Hola, soy el propietario de ${encodeURIComponent(nombre)} en ${encodeURIComponent(ciudad)}. Quiero modificar o reclamar mi ficha.%0A%0ADatos correctos:%0ANombre:%0APrecio del doble:%0ADirección:%0A%0AGracias." 
-          style="font-size:11px;color:var(--amber-dark);text-decoration:none;margin-left:6px;white-space:nowrap" title="¿Eres el propietario? Reclama tu ficha">✏️ Reclamar</a>
+        <a href="mailto:dameunadoble@gmail.com?subject=Reclamación: ${encodeURIComponent(nombre)}&body=Hola, soy el propietario de ${encodeURIComponent(nombre)}. Quiero modificar mi ficha.%0A%0ADatos correctos:%0ANombre:%0APrecio del doble:%0ADirección:%0A%0AGracias." 
+          style="font-size:11px;color:var(--amber-dark);text-decoration:none;margin-left:6px;white-space:nowrap" title="Reclama tu ficha">Reclamar</a>
       </td>
     </tr>`;
   }).join('');
@@ -710,6 +742,9 @@ function populateRegionFilter() {
     sel.appendChild(opt);
   });
 }
+
+// Override filter to use zone from address instead of region field
+const origFilterBars = filterBars;
 
 /* ── MAP ── */
 const NAME_MAP = {
@@ -744,6 +779,9 @@ d3.json('https://cdn.jsdelivr.net/npm/es-atlas@0.6.0/es/autonomous_regions.json'
   const features = topojson.feature(topo, topo.objects[key]).features;
   const proj = d3.geoConicConformal().parallels([35,44]).rotate([5,0]).fitSize([700,440],{type:'FeatureCollection',features});
   const path = d3.geoPath(proj);
+  
+  // Store initial projection for zoom animation
+  const madridCoords = proj([-3.7038, 40.4168]);
 
   svg.selectAll('path')
     .data(features).join('path')
@@ -772,6 +810,54 @@ d3.json('https://cdn.jsdelivr.net/npm/es-atlas@0.6.0/es/autonomous_regions.json'
       tt.style.left = x+'px'; tt.style.top = y+'px';
     })
     .on('mouseleave', () => { document.getElementById('map-tooltip').style.display = 'none'; });
+}  // Zoom animation: Spain -> Madrid after 2 seconds
+  setTimeout(() => {
+    const madridX = madridCoords[0];
+    const madridY = madridCoords[1];
+    const scale = 4;
+    const tx = 350 - madridX * scale;
+    const ty = 230 - madridY * scale;
+    
+    svg.selectAll('path')
+      .transition()
+      .duration(2000)
+      .ease(d3.easeCubicInOut)
+      .attr('transform', `translate(${tx},${ty}) scale(${scale})`);
+    
+    // Add Madrid zone markers after zoom
+    setTimeout(() => {
+      const madridZones = [
+        {name:'Centro',lat:40.4168,lng:-3.7038},
+        {name:'Malasana',lat:40.4267,lng:-3.7037},
+        {name:'Lavapies',lat:40.4072,lng:-3.7033},
+        {name:'Chueca',lat:40.4230,lng:-3.6988},
+        {name:'La Latina',lat:40.4103,lng:-3.7115},
+        {name:'Chamberi',lat:40.4350,lng:-3.7020},
+        {name:'Salamanca',lat:40.4285,lng:-3.6817},
+        {name:'Retiro',lat:40.4089,lng:-3.6827},
+      ];
+      
+      madridZones.forEach(z => {
+        const [x,y] = proj([-z.lng, z.lat]).map((v,i) => i===0 ? v*scale+tx : v*scale+ty);
+        const region = REGIONS.find(r => r.name === z.name);
+        const barCount = region ? region.bars : 0;
+        
+        if (barCount > 0) {
+          svg.append('circle').attr('cx',x).attr('cy',y).attr('r',0)
+            .attr('fill',priceColor(region.price)).attr('fill-opacity',0.7)
+            .attr('stroke','#fff').attr('stroke-width',0.5)
+            .transition().delay(200).duration(600).attr('r', Math.min(3 + barCount, 12));
+          
+          svg.append('text').attr('x',x).attr('y',y-8)
+            .attr('text-anchor','middle').attr('fill','var(--espresso)')
+            .attr('font-size','3px').attr('font-weight','600').attr('opacity',0)
+            .text(z.name)
+            .transition().delay(400).duration(400).attr('opacity',1);
+        }
+      });
+    }, 2200);
+  }, 1500);
+
 }).catch(() => {
   svg.append('text').attr('x',350).attr('y',220).attr('text-anchor','middle')
     .attr('fill','#888').attr('font-size',14).text('No se pudo cargar el mapa.');
@@ -791,10 +877,11 @@ async function init() {
     BARS = await fetchBares();
     // Update REGIONS with real counts and avg prices from Supabase data
     REGIONS.forEach(r => {
-      const regionBars = BARS.filter(b => b.region === r.name);
-      r.bars = regionBars.length;
-      if (regionBars.length > 0) {
-        r.price = parseFloat((regionBars.reduce((a,b) => a + (parseFloat(b.precio)||0), 0) / regionBars.length).toFixed(2));
+      const zoneBars = BARS.filter(b => extractZona(b.direccion) === r.name);
+      r.bars = zoneBars.length;
+      const prices = zoneBars.map(b => parseFloat(b.precio)||0).filter(p => p > 0);
+      if (prices.length > 0) {
+        r.price = parseFloat((prices.reduce((a,b) => a+b, 0) / prices.length).toFixed(2));
       }
     });
     // Update hero stats
@@ -803,6 +890,8 @@ async function init() {
     const avg = prices.length ? prices.reduce((a,b)=>a+b,0)/prices.length : 0;
     document.getElementById('h-bars').textContent = totalBars.toLocaleString('es-ES');
     document.getElementById('h-avg').textContent = avg.toFixed(2) + '€';
+    const zonesWithBars = REGIONS.filter(r => r.bars > 0).length;
+    document.getElementById('h-regions').textContent = zonesWithBars || REGIONS.length;
   } catch(e) {
     console.warn('Could not load bars from Supabase', e);
   }
