@@ -110,6 +110,13 @@ body { font-family:'Inter',sans-serif; background:var(--foam); color:var(--espre
     </div>
   </div>
 
+  <div class="reportes-section" id="nuevos-section" style="display:none">
+    <div class="reportes-card" style="background:#E8F5E9;border-color:var(--green)">
+      <div class="reportes-title" style="color:var(--green)">🆕 Bares nuevos por aprobar</div>
+      <div id="nuevos-list"></div>
+    </div>
+  </div>
+
   <div class="search-section">
     <input type="text" class="search-box" id="search" placeholder="🔍 Buscar bar..." oninput="renderList()">
     <div class="filter-pills">
@@ -152,6 +159,55 @@ function doLogin() {
   }
 }
 
+let nuevos = [];
+
+async function loadNuevos() {
+  try {
+    nuevos = await api('GET', 'bares?select=*&aprobado=eq.false&order=id.desc');
+    renderNuevos();
+  } catch(e) { console.warn('Error loading nuevos', e); nuevos = []; renderNuevos(); }
+}
+
+function renderNuevos() {
+  var section = document.getElementById('nuevos-section');
+  if (!nuevos.length) { section.style.display = 'none'; return; }
+  section.style.display = 'block';
+  document.getElementById('nuevos-list').innerHTML = nuevos.map(function(b) {
+    var precio = parseFloat(b.precio) || 0;
+    return '<div class="reporte-item">' +
+      '<div class="reporte-info">' +
+        '<div class="reporte-name">' + (b.nombre||'—') + '</div>' +
+        '<div style="font-size:11px;color:var(--slate-light)">' + (b.direccion||'Sin direccion') + '</div>' +
+      '</div>' +
+      (precio > 0 ? '<div class="reporte-price">' + precio.toFixed(2) + '€</div>' : '<div style="font-size:12px;color:var(--slate-light)">Sin precio</div>') +
+      '<div class="reporte-actions">' +
+        '<button class="mini-btn mini-accept" onclick="aprobarNuevo(' + b.id + ')">✓</button>' +
+        '<button class="mini-btn mini-reject" onclick="rechazarNuevo(' + b.id + ',\'' + (b.nombre||'').replace(/'/g,'') + '\')">✕</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+async function aprobarNuevo(id) {
+  try {
+    await api('PATCH', 'bares?id=eq.' + id, { aprobado: true });
+    nuevos = nuevos.filter(function(b) { return b.id !== id; });
+    renderNuevos();
+    loadAll();
+    showToast('✅ Bar aprobado y publicado', 'success');
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+async function rechazarNuevo(id, nombre) {
+  if (!confirm('¿Eliminar "' + nombre + '"?')) return;
+  try {
+    await api('DELETE', 'bares?id=eq.' + id);
+    nuevos = nuevos.filter(function(b) { return b.id !== id; });
+    renderNuevos();
+    showToast('Bar eliminado', 'success');
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
 async function loadAll() {
   try {
     allBars = await api('GET', 'bares?select=*&order=nombre.asc');
@@ -160,6 +216,7 @@ async function loadAll() {
   } catch(e) {
     document.getElementById('bar-list').innerHTML = '<div class="empty">Error: '+e.message+'</div>';
   }
+  await loadNuevos();
   // Load reportes (may not exist yet)
   try {
     reportes = await api('GET', 'reportes?select=*&revisado=eq.false&order=created_at.desc');
@@ -173,7 +230,7 @@ async function loadAll() {
 function updateStats() {
   const pending = allBars.filter(b => !b.precio || parseFloat(b.precio) === 0).length;
   document.getElementById('stat-total').textContent = allBars.length;
-  document.getElementById('stat-pending').textContent = pending;
+  document.getElementById('stat-pending').textContent = pending + nuevos.length;
   document.getElementById('stat-reportes').textContent = reportes.length;
 }
 
