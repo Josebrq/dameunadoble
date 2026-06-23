@@ -9,6 +9,8 @@
 <meta property="og:description" content="Encuentra el doble más barato cerca de ti en Madrid">
 <meta property="og:type" content="website">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -183,6 +185,8 @@ footer { background:var(--espresso-deep); color:var(--foam); padding:3rem 2rem; 
 .reveal.visible { opacity:1; transform:translateY(0); }
 
 .leaflet-popup-content-wrapper { border-radius:10px !important; }
+.marker-cluster { background:none !important; }
+.marker-cluster div { background:none !important; }
 
 /* MOBILE */
 @media (max-width:768px) {
@@ -337,6 +341,7 @@ footer { background:var(--espresso-deep); color:var(--foam); padding:3rem 2rem; 
 <div class="toast" id="toast"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 <script>
 /* ── TRANSLATIONS ── */
 const i18n = {
@@ -473,31 +478,53 @@ function initMap() {
   }).addTo(map);
 }
 
+let clusterGroup = null;
+
 function updateMapMarkers() {
   if (!map) return;
-  markers.forEach(m => map.removeLayer(m));
+  if (clusterGroup) map.removeLayer(clusterGroup);
   markers = [];
+  clusterGroup = L.markerClusterGroup({
+    maxClusterRadius: 40,
+    spiderfyOnMaxZoom: true,
+    showCoverageOnHover: false,
+    iconCreateFunction: function(cluster) {
+      const count = cluster.getChildCount();
+      const childMarkers = cluster.getAllChildMarkers();
+      const prices = childMarkers.map(m => m._barPrecio).filter(p => p > 0);
+      const avg = prices.length ? prices.reduce((a,b) => a+b, 0) / prices.length : 0;
+      const color = priceToColor(avg);
+      const size = count < 10 ? 36 : count < 30 ? 44 : 52;
+      return L.divIcon({
+        className: '',
+        html: '<div style="background:'+color+';color:#fff;font-family:Bebas Neue,sans-serif;font-size:'+(size>40?16:14)+'px;width:'+size+'px;height:'+size+'px;border-radius:50%;border:3px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,0.25);display:flex;align-items:center;justify-content:center;line-height:1">'+count+'</div>',
+        iconSize: [size, size],
+        iconAnchor: [size/2, size/2]
+      });
+    }
+  });
+
   const withCoords = BARS.filter(b => b.lat && b.lng && parseFloat(b.lat) && parseFloat(b.lng));
-  withCoords.forEach((b, idx) => {
+  withCoords.forEach(b => {
     const lat = parseFloat(b.lat), lng = parseFloat(b.lng);
     const precio = parseFloat(b.precio) || 0;
     const color = priceToColor(precio);
     const zona = extractZona(b.direccion);
     const icon = L.divIcon({
-      className:'',
-      html:'<div style="background:'+color+';color:#fff;font-family:Bebas Neue,sans-serif;font-size:13px;padding:3px 7px;border-radius:6px;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.3);white-space:nowrap;text-align:center;line-height:1.2">'+(precio>0?precio.toFixed(2)+'\u20ac':'?')+'</div>',
-      iconSize:[50,28], iconAnchor:[25,28], popupAnchor:[0,-30]
+      className: '',
+      html: '<div style="background:'+color+';color:#fff;font-family:Bebas Neue,sans-serif;font-size:13px;padding:3px 7px;border-radius:6px;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.3);white-space:nowrap;text-align:center;line-height:1.2">'+(precio > 0 ? precio.toFixed(2)+'\u20ac' : '?')+'</div>',
+      iconSize: [50, 28], iconAnchor: [25, 28], popupAnchor: [0, -30]
     });
-    const marker = L.marker([lat,lng], {icon, opacity:0});
-    marker.bindPopup('<div style="font-family:Inter,sans-serif;min-width:160px"><div style="font-weight:600;font-size:15px;margin-bottom:4px">'+(b.nombre||'')+'</div><div style="font-size:12px;color:#6B5E57;margin-bottom:4px">'+zona+' \u00b7 '+(b.direccion||'')+'</div>'+(precio>0?'<div style="font-family:Bebas Neue,sans-serif;font-size:28px;color:'+color+'">'+precio.toFixed(2)+'\u20ac / doble</div>':'<div style="font-size:13px;color:#BA7517">Precio pendiente</div>')+'</div>');
-    marker.addTo(map);
+    const marker = L.marker([lat, lng], { icon: icon });
+    marker._barPrecio = precio;
+    marker.bindPopup('<div style="font-family:Inter,sans-serif;min-width:160px"><div style="font-weight:600;font-size:15px;margin-bottom:4px">'+(b.nombre||'')+'</div><div style="font-size:12px;color:#6B5E57;margin-bottom:4px">'+zona+' \u00b7 '+(b.direccion||'')+'</div>'+(precio > 0 ? '<div style="font-family:Bebas Neue,sans-serif;font-size:28px;color:'+color+'">'+precio.toFixed(2)+'\u20ac / doble</div>' : '<div style="font-size:13px;color:#BA7517">Precio pendiente</div>')+'</div>');
     markers.push(marker);
-    // Staggered drop-in animation
-    setTimeout(() => { marker.setOpacity(1); }, idx * 40);
+    clusterGroup.addLayer(marker);
   });
+
+  map.addLayer(clusterGroup);
   if (markers.length > 0) {
-    const group = L.featureGroup(markers);
-    try { map.fitBounds(group.getBounds().pad(0.15)); } catch(e) {}
+    try { map.fitBounds(clusterGroup.getBounds().pad(0.15)); } catch(e) {}
   }
 }
 
