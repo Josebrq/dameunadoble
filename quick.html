@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quick Admin · Dame Una Doble</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root { --amber:#F5A800; --amber-dark:#BA7517; --espresso:#1A0F00; --espresso-deep:#0D0900; --foam:#FFF8ED; --slate:#3D3530; --slate-light:#6B5E57; --green:#2D8A4E; --red:#D94F3D; --border:rgba(61,53,48,0.12); --border-strong:rgba(61,53,48,0.25); }
+* { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+body { font-family:'Inter',sans-serif; background:var(--foam); color:var(--espresso); }
+
+/* LOGIN */
+.login-wrap { min-height:100vh; display:flex; align-items:center; justify-content:center; background:var(--espresso-deep); padding:1.5rem; }
+.login-card { background:var(--foam); border-radius:18px; padding:2rem; width:100%; max-width:340px; text-align:center; }
+.login-logo { font-family:'Bebas Neue',sans-serif; font-size:30px; color:var(--espresso); }
+.login-logo span { color:var(--amber-dark); }
+.login-sub { font-size:13px; color:var(--slate-light); margin-bottom:1.5rem; }
+.login-card input { width:100%; padding:14px; border:1px solid var(--border-strong); border-radius:12px; font-size:16px; font-family:'Inter',sans-serif; background:#fff; margin-bottom:12px; outline:none; }
+.login-card input:focus { border-color:var(--amber-dark); }
+.btn-primary { width:100%; padding:14px; background:var(--amber-dark); color:var(--foam); border:none; border-radius:12px; font-size:16px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; }
+.login-error { color:var(--red); font-size:13px; margin-top:8px; display:none; }
+
+/* APP */
+.app { display:none; min-height:100vh; padding-bottom:2rem; }
+.app-header { background:var(--espresso-deep); color:var(--foam); padding:1rem 1.25rem; position:sticky; top:0; z-index:100; display:flex; align-items:center; justify-content:space-between; }
+.app-logo { font-family:'Bebas Neue',sans-serif; font-size:20px; }
+.app-logo span { color:var(--amber); }
+.app-header a { color:rgba(255,248,237,0.6); font-size:12px; text-decoration:none; }
+
+.search-section { padding:1.25rem; position:sticky; top:56px; background:var(--foam); z-index:90; border-bottom:1px solid var(--border); }
+.search-box { width:100%; padding:14px 16px; border:2px solid var(--border-strong); border-radius:12px; font-size:16px; font-family:'Inter',sans-serif; background:#fff; outline:none; }
+.search-box:focus { border-color:var(--amber); }
+.filter-pills { display:flex; gap:8px; margin-top:10px; overflow-x:auto; padding-bottom:4px; }
+.pill { padding:7px 14px; border-radius:20px; border:1px solid var(--border-strong); background:#fff; font-size:13px; white-space:nowrap; cursor:pointer; color:var(--slate); }
+.pill.active { background:var(--amber-dark); color:var(--foam); border-color:var(--amber-dark); }
+
+.bar-list { padding:1rem 1.25rem; }
+.bar-item { background:#fff; border:1px solid var(--border); border-radius:14px; padding:1rem; margin-bottom:12px; }
+.bar-item-top { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:10px; }
+.bar-item-name { font-weight:600; font-size:16px; line-height:1.3; }
+.bar-item-addr { font-size:12px; color:var(--slate-light); margin-top:2px; }
+.bar-item-status { font-size:10px; padding:3px 8px; border-radius:20px; white-space:nowrap; flex-shrink:0; }
+.status-ok { background:#E8F5E9; color:var(--green); }
+.status-pending { background:#FFF3CD; color:#856404; }
+.bar-item-controls { display:flex; gap:8px; align-items:center; }
+.price-input { flex:1; padding:12px; border:2px solid var(--border-strong); border-radius:10px; font-size:18px; font-family:'Bebas Neue',sans-serif; text-align:center; outline:none; }
+.price-input:focus { border-color:var(--amber); }
+.save-btn { padding:12px 20px; background:var(--green); color:#fff; border:none; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; white-space:nowrap; }
+.save-btn:active { transform:scale(0.97); }
+
+.empty { text-align:center; padding:3rem 1rem; color:var(--slate-light); font-size:14px; }
+.loading { text-align:center; padding:3rem; color:var(--slate-light); }
+
+.stats-bar { display:flex; gap:1rem; padding:1rem 1.25rem; }
+.stat-chip { flex:1; background:#fff; border:1px solid var(--border); border-radius:12px; padding:0.75rem; text-align:center; }
+.stat-chip-num { font-family:'Bebas Neue',sans-serif; font-size:24px; color:var(--amber-dark); line-height:1; }
+.stat-chip-label { font-size:11px; color:var(--slate-light); margin-top:2px; }
+
+.toast { position:fixed; bottom:1.5rem; left:50%; transform:translateX(-50%) translateY(80px); z-index:3000; background:var(--espresso); color:var(--foam); padding:14px 24px; border-radius:12px; font-size:14px; opacity:0; transition:all 0.3s; pointer-events:none; box-shadow:0 8px 24px rgba(0,0,0,0.25); }
+.toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
+.toast.success { border-left:3px solid var(--green); }
+.toast.error { border-left:3px solid var(--red); }
+
+/* REPORTES BADGE */
+.reportes-section { padding:0 1.25rem 1rem; }
+.reportes-card { background:#FFF8E5; border:1px solid var(--amber); border-radius:14px; padding:1rem; }
+.reportes-title { font-size:13px; font-weight:600; color:var(--amber-dark); margin-bottom:10px; display:flex; align-items:center; gap:6px; }
+.reporte-item { display:flex; justify-content:space-between; align-items:center; gap:8px; padding:8px 0; border-bottom:1px solid rgba(245,168,0,0.2); }
+.reporte-item:last-child { border-bottom:none; }
+.reporte-info { flex:1; min-width:0; }
+.reporte-name { font-size:13px; font-weight:500; }
+.reporte-price { font-family:'Bebas Neue',sans-serif; font-size:18px; color:var(--amber-dark); }
+.reporte-actions { display:flex; gap:6px; }
+.mini-btn { padding:6px 10px; border-radius:8px; border:none; font-size:12px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; }
+.mini-accept { background:var(--green); color:#fff; }
+.mini-reject { background:transparent; color:var(--red); border:1px solid var(--red); }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="login">
+  <div class="login-card">
+    <div class="login-logo">Quick <span>Admin</span> 🍺</div>
+    <div class="login-sub">Actualiza precios desde el movil</div>
+    <input type="password" id="pwd" placeholder="Contraseña" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="btn-primary" onclick="doLogin()">Entrar</button>
+    <div class="login-error" id="login-error">Contraseña incorrecta</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app">
+  <div class="app-header">
+    <div class="app-logo">Quick <span>Admin</span> 🍺</div>
+    <a href="admin.html">Admin completo →</a>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-chip"><div class="stat-chip-num" id="stat-total">0</div><div class="stat-chip-label">Total</div></div>
+    <div class="stat-chip"><div class="stat-chip-num" id="stat-pending">0</div><div class="stat-chip-label">Sin precio</div></div>
+    <div class="stat-chip"><div class="stat-chip-num" id="stat-reportes">0</div><div class="stat-chip-label">Reportes</div></div>
+  </div>
+
+  <div class="reportes-section" id="reportes-section" style="display:none">
+    <div class="reportes-card">
+      <div class="reportes-title">💬 Reportes de usuarios pendientes</div>
+      <div id="reportes-list"></div>
+    </div>
+  </div>
+
+  <div class="search-section">
+    <input type="text" class="search-box" id="search" placeholder="🔍 Buscar bar..." oninput="renderList()">
+    <div class="filter-pills">
+      <div class="pill active" data-filter="all" onclick="setFilter('all',this)">Todos</div>
+      <div class="pill" data-filter="pending" onclick="setFilter('pending',this)">Sin precio</div>
+      <div class="pill" data-filter="ok" onclick="setFilter('ok',this)">Con precio</div>
+    </div>
+  </div>
+
+  <div class="bar-list" id="bar-list"><div class="loading">Cargando bares...</div></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const ADMIN_PASSWORD = 'Av0c4dOJ0S3';
+const SUPABASE_URL = 'https://cldpkjdzikjzqrfbsghh.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZHBramR6aWtqenFyZmJzZ2hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4NzE0NzEsImV4cCI6MjA5NzQ0NzQ3MX0.-OFHTqGUan5e9thGp8B38eOeo5aJvwD99oDE7aW53Ws';
+
+let allBars = [];
+let reportes = [];
+let currentFilter = 'all';
+
+async function api(method, path, body) {
+  const opts = { method, headers:{ 'apikey':SUPABASE_KEY, 'Authorization':'Bearer '+SUPABASE_KEY, 'Content-Type':'application/json', 'Prefer': method==='POST'?'return=representation':'' } };
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch(SUPABASE_URL + '/rest/v1/' + path, opts);
+  if (!r.ok) throw new Error(await r.text());
+  return r.status === 204 ? null : r.json();
+}
+
+function doLogin() {
+  if (document.getElementById('pwd').value === ADMIN_PASSWORD) {
+    document.getElementById('login').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    loadAll();
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+    document.getElementById('pwd').value = '';
+  }
+}
+
+async function loadAll() {
+  try {
+    allBars = await api('GET', 'bares?select=*&order=nombre.asc');
+    updateStats();
+    renderList();
+  } catch(e) {
+    document.getElementById('bar-list').innerHTML = '<div class="empty">Error: '+e.message+'</div>';
+  }
+  // Load reportes (may not exist yet)
+  try {
+    reportes = await api('GET', 'reportes?select=*&revisado=eq.false&order=created_at.desc');
+    renderReportes();
+  } catch(e) {
+    console.warn('No reportes table yet', e);
+    reportes = [];
+  }
+}
+
+function updateStats() {
+  const pending = allBars.filter(b => !b.precio || parseFloat(b.precio) === 0).length;
+  document.getElementById('stat-total').textContent = allBars.length;
+  document.getElementById('stat-pending').textContent = pending;
+  document.getElementById('stat-reportes').textContent = reportes.length;
+}
+
+function setFilter(f, el) {
+  currentFilter = f;
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  renderList();
+}
+
+function renderList() {
+  const q = document.getElementById('search').value.toLowerCase();
+  let list = allBars.filter(b => {
+    const name = (b.nombre||'').toLowerCase();
+    const addr = (b.direccion||'').toLowerCase();
+    if (q && !name.includes(q) && !addr.includes(q)) return false;
+    const hasPrice = b.precio && parseFloat(b.precio) > 0;
+    if (currentFilter === 'pending' && hasPrice) return false;
+    if (currentFilter === 'ok' && !hasPrice) return false;
+    return true;
+  });
+
+  const cont = document.getElementById('bar-list');
+  if (!list.length) { cont.innerHTML = '<div class="empty">No hay bares que coincidan.</div>'; return; }
+
+  cont.innerHTML = list.map(b => {
+    const precio = parseFloat(b.precio) || 0;
+    const aprobado = b.aprobado;
+    const statusClass = aprobado ? 'status-ok' : 'status-pending';
+    const statusText = aprobado ? '✓ Publicado' : '⏳ Sin aprobar';
+    return `<div class="bar-item">
+      <div class="bar-item-top">
+        <div>
+          <div class="bar-item-name">${b.nombre||'—'}</div>
+          <div class="bar-item-addr">${b.direccion||'Sin direccion'}</div>
+        </div>
+        <span class="bar-item-status ${statusClass}">${statusText}</span>
+      </div>
+      <div class="bar-item-controls">
+        <input class="price-input" type="number" id="price-${b.id}" value="${precio>0?precio.toFixed(2):''}" placeholder="€" step="0.10" min="0.50" max="15" inputmode="decimal">
+        <button class="save-btn" onclick="savePrice(${b.id})">Guardar</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function savePrice(id) {
+  const input = document.getElementById('price-'+id);
+  const precio = input.value;
+  if (!precio || parseFloat(precio) < 0.5 || parseFloat(precio) > 15) { showToast('Precio invalido (0.50-15.00)','error'); return; }
+  try {
+    await api('PATCH', 'bares?id=eq.'+id, { precio:String(precio), aprobado:true });
+    const bar = allBars.find(b => b.id === id);
+    if (bar) { bar.precio = String(precio); bar.aprobado = true; }
+    updateStats();
+    showToast('✅ Guardado y publicado','success');
+    // brief highlight
+    const item = input.closest('.bar-item');
+    if (item) { item.style.borderColor = 'var(--green)'; setTimeout(()=>item.style.borderColor='', 1000); }
+  } catch(e) { showToast('Error: '+e.message,'error'); }
+}
+
+function renderReportes() {
+  updateStats();
+  const section = document.getElementById('reportes-section');
+  if (!reportes.length) { section.style.display = 'none'; return; }
+  section.style.display = 'block';
+  document.getElementById('reportes-list').innerHTML = reportes.map(r => `
+    <div class="reporte-item">
+      <div class="reporte-info">
+        <div class="reporte-name">${r.bar_nombre||'Bar'}</div>
+      </div>
+      <div class="reporte-price">${parseFloat(r.precio||0).toFixed(2)}€</div>
+      <div class="reporte-actions">
+        <button class="mini-btn mini-accept" onclick="acceptReporte(${r.id},${r.bar_id},'${(r.precio||'').replace(/'/g,'')}')">✓</button>
+        <button class="mini-btn mini-reject" onclick="rejectReporte(${r.id})">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+async function acceptReporte(reporteId, barId, precio) {
+  try {
+    // Update the original bar with the reported price
+    await api('PATCH', 'bares?id=eq.'+barId, { precio:String(precio), aprobado:true });
+    // Mark reporte as reviewed
+    await api('PATCH', 'reportes?id=eq.'+reporteId, { revisado:true });
+    const bar = allBars.find(b => b.id === barId);
+    if (bar) { bar.precio = String(precio); bar.aprobado = true; }
+    reportes = reportes.filter(r => r.id !== reporteId);
+    renderReportes();
+    renderList();
+    showToast('✅ Precio actualizado','success');
+  } catch(e) { showToast('Error: '+e.message,'error'); }
+}
+
+async function rejectReporte(reporteId) {
+  try {
+    await api('PATCH', 'reportes?id=eq.'+reporteId, { revisado:true });
+    reportes = reportes.filter(r => r.id !== reporteId);
+    renderReportes();
+    showToast('Reporte descartado');
+  } catch(e) { showToast('Error: '+e.message,'error'); }
+}
+
+function showToast(msg, type='') {
+  const tt = document.getElementById('toast');
+  tt.textContent = msg; tt.className = 'toast show ' + type;
+  setTimeout(() => tt.classList.remove('show'), 2500);
+}
+</script>
+</body>
+</html>
