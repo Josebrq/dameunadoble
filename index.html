@@ -485,8 +485,9 @@ function updateMapMarkers() {
   if (clusterGroup) map.removeLayer(clusterGroup);
   markers = [];
   clusterGroup = L.markerClusterGroup({
-    maxClusterRadius: 40,
+    maxClusterRadius: 18,
     spiderfyOnMaxZoom: true,
+    disableClusteringAtZoom: 15,
     showCoverageOnHover: false,
     iconCreateFunction: function(cluster) {
       const count = cluster.getChildCount();
