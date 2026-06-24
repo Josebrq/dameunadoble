@@ -615,8 +615,8 @@ body {
   font-family: 'Inter', sans-serif;
 }
 .bot-tab.active { color: var(--dorada); }
-.bot-tab-icon { font-size: 20px; line-height: 1; }
-.bot-tab-label { font-size: 10px; font-weight: 500; }
+.bot-tab-icon { font-size: 18px; line-height: 1; }
+.bot-tab-label { font-size: 9px; font-weight: 500; }
 
 /* ─────────────────────────────
    TOAST
@@ -1017,6 +1017,10 @@ body {
   <button class="bot-tab" id="bt-ranking" onclick="switchTab('ranking')">
     <div class="bot-tab-icon">🏆</div>
     <div class="bot-tab-label">Ranking</div>
+  </button>
+  <button class="bot-tab" id="bt-feed"    onclick="switchTab('feed')">
+    <div class="bot-tab-icon">📡</div>
+    <div class="bot-tab-label">Feed</div>
   </button>
   <button class="bot-tab" id="bt-perfil"  onclick="switchTab('perfil')">
     <div class="bot-tab-icon">👤</div>
@@ -1565,7 +1569,7 @@ async function loadReviews(barId) {
     </div>`;
   }
 
-  html += `<a class="btn-maps-link" href="https://maps.google.com/?q=${mapsQ}" target="_blank" rel="noopener">🗺️ Ver en Google Maps</a>`;
+  html += `<a class="btn-maps-link" href="https://www.google.com/maps/search/?api=1&query=${mapsQ}" target="_blank" rel="noopener">🗺️ Ver en Google Maps</a>`;
 
   if (currentUser) {
     const alreadyReviewed = list.some(r => r.user_id === currentUser.id);
@@ -1994,7 +1998,7 @@ function openSheetByName(name) {
 }
 
 function esc(str) {
-  return (str || '').replace(/'/g, "\\'");
+  return (str || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
 }
 
 function extractZona(dir) {
@@ -2027,7 +2031,7 @@ function extractZona(dir) {
   // 1. Cargar datos inmediatamente, sin esperar auth
   loadBars();
   loadReportes();
-  initMap();
+  // initMap() se llama desde switchTab cuando el usuario abre el mapa por primera vez
 
   // 2. Auth en paralelo — no bloquea la carga de datos
   try {
