@@ -752,12 +752,22 @@ body {
           </div>
         </div>
         <button class="hero-cta" onclick="switchTab('mapa')">🗺️ Ver el mapa</button>
+        <div style="margin-top:1rem">
+          <button onclick="findNearMe()" id="geo-home-btn" style="background:transparent;border:1.5px solid var(--border-strong);color:var(--malta);padding:10px 20px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s">
+            📍 Bares cerca de mí
+          </button>
+        </div>
       </div>
 
       <div class="home-sections">
         <div class="home-section-title">🏆 Top 3 más baratos ahora</div>
         <div class="home-top3" id="home-top3">
           <div class="loading-state"><div class="loading-spinner"></div></div>
+        </div>
+
+        <div id="home-cerca-section" style="display:none">
+          <div class="home-section-title">📍 Más cercanos a ti</div>
+          <div class="home-top3" id="home-cerca-list"></div>
         </div>
 
         <div class="home-section-title">Explorar</div>
@@ -791,6 +801,7 @@ body {
   <section id="tab-mapa" class="tab-content">
     <div class="map-filters">
       <button class="filter-chip active" data-filter="all"   onclick="setMapFilter('all',this)">Todos</button>
+      <button class="filter-chip"        data-filter="cerca" onclick="geolocate()">📍 Cerca de mí</button>
       <button class="filter-chip"        data-filter="cheap" onclick="setMapFilter('cheap',this)">🟢 &lt; €2.50</button>
       <button class="filter-chip"        data-filter="fav"   onclick="setMapFilter('fav',this)">❤️ Favoritos</button>
     </div>
@@ -946,6 +957,9 @@ let currentUser    = null;
 let map            = null;
 let leafletMarkers = {};
 let mapInited      = false;
+let userLat        = null;
+let userLng        = null;
+let geoActive      = false;
 
 /* ══════════════════════════════
    SUPABASE CLIENT + AUTH
@@ -1073,11 +1087,25 @@ function renderMapMarkers() {
     return true;
   });
 
+  const visible = allBars.filter(b => {
+    if (!b.lat || !b.lng || !b._precio) return false;
+    if (mapFilter === 'cheap') return b._precio < 2.5;
+    if (mapFilter === 'fav')   return favorites.includes(b.id);
+    if (mapFilter === 'cerca') {
+      if (!geoActive) return true;
+      return haversine(userLat, userLng, b.lat, b.lng) <= 1.0; // 1km radius
+    }
+    return true;
+  });
+
   visible.forEach(b => {
     const cls  = pinClass(b._precio);
+    const dist = geoActive && b.lat && b.lng
+      ? ` <span style="font-size:10px;opacity:0.8">${formatDist(haversine(userLat,userLng,b.lat,b.lng))}</span>`
+      : '';
     const icon = L.divIcon({
       className: '',
-      html: `<div class="price-pin ${cls}" id="pin-${b.id}">€${b._precio.toFixed(2)}</div>`,
+      html: `<div class="price-pin ${cls}" id="pin-${b.id}">€${b._precio.toFixed(2)}${dist}</div>`,
       iconAnchor: [28, 14],
     });
     const mk = L.marker([b.lat, b.lng], { icon })
@@ -1095,23 +1123,61 @@ function setMapFilter(filter, el) {
 }
 
 function geolocate() {
-  if (!navigator.geolocation) return;
-  navigator.geolocation.getCurrentPosition(
-    pos => {
-      const latlng = [pos.coords.latitude, pos.coords.longitude];
-      map.setView(latlng, 15);
-      L.circleMarker(latlng, {
-        radius: 8, fillColor: '#2563eb', fillOpacity: 1,
-        color: '#fff', weight: 3,
-      }).addTo(map);
-    },
-    () => showToast('No se pudo obtener tu ubicación')
-  );
+  if (!navigator.geolocation) { showToast('Geolocalización no disponible'); return; }
+  if (geoActive) {
+    geoActive = false; userLat = null; userLng = null;
+    document.querySelector('[data-filter="cerca"]')?.classList.remove('active');
+    renderMapMarkers();
+    renderHome();
+    showToast('Distancia desactivada');
+    return;
+  }
+  showToast('📍 Localizando...');
+  navigator.geolocation.getCurrentPosition(pos => {
+    userLat = pos.coords.latitude;
+    userLng = pos.coords.longitude;
+    geoActive = true;
+    map.setView([userLat, userLng], 15);
+    L.circleMarker([userLat, userLng], {
+      radius: 8, fillColor: '#2563eb', fillOpacity: 1,
+      color: '#fff', weight: 3,
+    }).addTo(map);
+    // Activate cerca filter chip
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    document.querySelector('[data-filter="cerca"]')?.classList.add('active');
+    mapFilter = 'cerca';
+    renderMapMarkers();
+    renderHome();
+    showToast('📍 Mostrando bares cercanos');
+  }, () => showToast('No se pudo obtener tu ubicación'), { enableHighAccuracy: true, timeout: 10000 });
 }
 
 /* ══════════════════════════════
    HOME
 ══════════════════════════════ */
+function findNearMe() {
+  if (!navigator.geolocation) { showToast('Geolocalización no disponible'); return; }
+  if (geoActive) {
+    geoActive = false; userLat = null; userLng = null;
+    document.getElementById('geo-home-btn').textContent = '📍 Bares cerca de mí';
+    document.getElementById('geo-home-btn').style.borderColor = '';
+    document.getElementById('home-cerca-section').style.display = 'none';
+    return;
+  }
+  showToast('📍 Localizando...');
+  navigator.geolocation.getCurrentPosition(pos => {
+    userLat = pos.coords.latitude;
+    userLng = pos.coords.longitude;
+    geoActive = true;
+    const btn = document.getElementById('geo-home-btn');
+    btn.textContent = '📍 Ubicación activa · Desactivar';
+    btn.style.borderColor = 'var(--lupulo)';
+    btn.style.color = 'var(--lupulo)';
+    renderHome();
+    showToast('📍 Mostrando bares cercanos');
+  }, () => showToast('No se pudo obtener tu ubicación'), { enableHighAccuracy: true, timeout: 10000 });
+}
+
 function renderHome() {
   if (!allBars.length) return;
   const valid  = allBars.filter(b => b._precio > 0);
@@ -1136,6 +1202,30 @@ function renderHome() {
       <div class="home-bar-price">€${b._precio.toFixed(2)}</div>
     </div>`;
   }).join('');
+
+  // Nearby bars
+  const cercaSection = document.getElementById('home-cerca-section');
+  if (geoActive && userLat && userLng) {
+    const nearby = [...valid]
+      .filter(b => b.lat && b.lng)
+      .map(b => ({ ...b, _dist: haversine(userLat, userLng, b.lat, b.lng) }))
+      .sort((a, b) => a._dist - b._dist)
+      .slice(0, 5);
+    cercaSection.style.display = 'block';
+    document.getElementById('home-cerca-list').innerHTML = nearby.map(b => {
+      const zona = extractZona(b.direccion || '') || b.ciudad || 'Madrid';
+      return `<div class="home-bar-row" onclick="openSheet(${b.id})">
+        <div class="home-bar-medal">📍</div>
+        <div class="home-bar-info">
+          <div class="home-bar-name">${b.nombre}</div>
+          <div class="home-bar-zona">${zona} · ${formatDist(b._dist)}</div>
+        </div>
+        <div class="home-bar-price">€${b._precio.toFixed(2)}</div>
+      </div>`;
+    }).join('');
+  } else {
+    cercaSection.style.display = 'none';
+  }
 }
 
 /* ══════════════════════════════
@@ -1513,6 +1603,13 @@ function removeFav(id) {
 /* ══════════════════════════════
    UTILITIES
 ══════════════════════════════ */
+function haversine(la1,lo1,la2,lo2){
+  const R=6371,dLa=(la2-la1)*Math.PI/180,dLo=(lo2-lo1)*Math.PI/180,
+    a=Math.sin(dLa/2)**2+Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dLo/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+function formatDist(km){ return km<1 ? Math.round(km*1000)+'m' : km.toFixed(1)+'km'; }
+
 function avgPrice() {
   const valid = allBars.filter(b => b._precio > 0);
   if (!valid.length) return 0;
