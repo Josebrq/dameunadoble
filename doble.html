@@ -169,12 +169,12 @@ body {
 /* Custom Leaflet marker */
 .price-pin {
   background: var(--malta); color: var(--espuma);
-  border: 1.5px solid rgba(255,252,244,0.3);
-  border-radius: 4px; padding: 2px 7px;
-  font-family: 'Bebas Neue', sans-serif; font-size: 14px;
+  border: 1.5px solid rgba(255,252,244,0.25);
+  border-radius: 5px; padding: 3px 8px;
+  font-family: 'Bebas Neue', sans-serif; font-size: 15px;
   white-space: nowrap; cursor: pointer;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
-  transition: transform 0.1s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  display: inline-block; line-height: 1.3;
 }
 .price-pin.cheap { background: var(--lupulo); }
 .price-pin.mid   { background: var(--cobre);  }
@@ -794,7 +794,7 @@ body {
       <div class="hero">
         <div class="hero-eyebrow">El mapa de la cerveza en Madrid</div>
         <h1 class="hero-h1">DAME UNA<br><em>DOBLE</em></h1>
-        <p class="hero-sub">Busca un bar, ve el precio del doble, y decide si merece la pena. Precios reportados por la comunidad de Madrid.</p>
+        <p class="hero-sub">De bar en bar por Madrid. Los precios los ponemos entre todos.</p>
         <div class="hero-stats">
           <div class="hero-stat">
             <div class="hero-stat-num" id="h-bares">—</div>
@@ -1155,7 +1155,9 @@ function renderMapMarkers() {
     const icon = L.divIcon({
       className: '',
       html: `<div class="price-pin ${cls}" id="pin-${b.id}">€${b._precio.toFixed(2)}${dist}</div>`,
-      iconAnchor: [28, 14],
+      iconSize: [60, 26],
+      iconAnchor: [30, 13],
+      popupAnchor: [0, -16],
     });
     const mk = L.marker([b.lat, b.lng], { icon })
       .addTo(map)
