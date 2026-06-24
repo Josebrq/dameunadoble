@@ -3,728 +3,1416 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dame Una Doble 🍺 — El mapa de la cerveza en España</title>
-<meta name="description" content="Descubre cuánto cuesta un doble de cerveza en cada rincón de España. Datos reales, bares reales, precios reales.">
-<meta property="og:title" content="Dame Una Doble — El mapa de la cerveza en España">
-<meta property="og:description" content="Cuánto cuesta un doble en cada comunidad autónoma de España">
+<title>Dame Una Doble 🍺 — Madrid</title>
+<meta name="description" content="Descubre el doble más barato cerca de ti. Precios reales de bares de Madrid, actualizados por la comunidad.">
+<meta property="og:title" content="Dame Una Doble — Madrid">
+<meta property="og:description" content="El mapa de precios de cerveza más completo de Madrid.">
 <meta property="og:type" content="website">
+
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TFHP9CYS3R"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-TFHP9CYS3R');</script>
+
+<!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<!-- Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
 <style>
+/* ─────────────────────────────
+   DESIGN TOKENS — Beer ad palette
+   Inspiración: Mahou, San Miguel, Amstel
+   Rojo pasión · Dorado lager · Espuma crema · Malta oscura
+───────────────────────────── */
 :root {
-  --amber: #F5A800;
-  --amber-light: #FAEEDA;
-  --amber-dark: #BA7517;
-  --red: #D94F3D;
-  --red-dark: #8B1A1A;
-  --espresso: #1A0F00;
-  --foam: #FFF8ED;
-  --slate: #3D3530;
-  --slate-light: #6B5E57;
-  --border: rgba(61,53,48,0.15);
-  --border-strong: rgba(61,53,48,0.3);
+  --roja:          #C8102E;  /* Mahou red — acción, urgencia, identidad */
+  --roja-dark:     #8B0A1E;
+  --roja-light:    #FFE8EC;
+  --dorada:        #E8A020;  /* Lager gold — calidez, calidad, sed */
+  --dorada-light:  #FFF4D6;
+  --espuma:        #FFFCF4;  /* Foam cream — fondo, frescura */
+  --malta:         #180900;  /* Dark malt — tipografía principal */
+  --malta-mid:     #3D1A08;
+  --malta-soft:    #7A5038;
+  --lupulo:        #166B24;  /* Hops green — precio barato */
+  --cobre:         #9C4A1A;  /* Copper amber — precio medio */
+  --border:        rgba(24,9,0,0.11);
+  --border-strong: rgba(24,9,0,0.22);
+  --shadow:        0 2px 12px rgba(24,9,0,0.07);
+  --shadow-lg:     0 8px 32px rgba(24,9,0,0.14);
+  --radius:        8px;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 body {
   font-family: 'Inter', sans-serif;
-  background: var(--foam);
-  color: var(--espresso);
+  background: var(--espuma);
+  color: var(--malta);
   overflow-x: hidden;
+  padding-bottom: 68px; /* room for bottom nav */
 }
+@media (min-width: 768px) { body { padding-bottom: 0; } }
 
-/* NAV */
-nav {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-  background: rgba(255,248,237,0.92);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
-  padding: 0 2rem;
-  height: 60px;
+/* ─────────────────────────────
+   TOP NAV
+───────────────────────────── */
+.top-nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  height: 56px; background: var(--malta);
   display: flex; align-items: center; justify-content: space-between;
+  padding: 0 1.25rem;
+  border-bottom: 2px solid var(--roja);
 }
-.nav-logo { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 1px; color: var(--espresso); text-decoration: none; }
-.nav-logo span { color: var(--amber-dark); }
-.nav-links { display: flex; gap: 2rem; align-items: center; }
-.nav-links a { font-size: 14px; color: var(--slate); text-decoration: none; transition: color 0.2s; }
-.nav-links a:hover { color: var(--amber-dark); }
-.lang-switcher { display: flex; gap: 4px; }
-.lang-btn { font-size: 12px; padding: 4px 8px; border: 1px solid var(--border-strong); border-radius: 4px; cursor: pointer; background: transparent; color: var(--slate); transition: all 0.2s; }
-.lang-btn.active { background: var(--amber-dark); color: var(--amber-light); border-color: var(--amber-dark); }
-.nav-menu-btn { display: none; background: none; border: none; cursor: pointer; flex-direction: column; gap: 5px; padding: 4px; }
-.nav-menu-btn span { display: block; width: 22px; height: 2px; background: var(--espresso); border-radius: 2px; }
-
-/* HERO */
-.hero {
-  min-height: 100vh;
-  padding: 100px 2rem 4rem;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  text-align: center;
-  background: radial-gradient(ellipse at 50% 0%, rgba(245,168,0,0.12) 0%, transparent 70%);
-  position: relative;
-}
-.hero-eyebrow { font-size: 13px; font-weight: 500; color: var(--amber-dark); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 1rem; }
-.hero h1 {
+.nav-logo {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(56px, 12vw, 120px);
-  line-height: 0.95;
-  color: var(--espresso);
-  letter-spacing: 2px;
-  margin-bottom: 1.5rem;
+  font-size: 22px; letter-spacing: 1px;
+  color: var(--espuma); text-decoration: none; white-space: nowrap;
 }
-.hero h1 em { color: var(--amber-dark); font-style: normal; }
-.hero-sub { font-size: clamp(16px, 2.5vw, 20px); color: var(--slate-light); max-width: 560px; line-height: 1.6; margin-bottom: 2.5rem; }
-.hero-stats { display: flex; gap: 3rem; justify-content: center; flex-wrap: wrap; margin-bottom: 3rem; }
-.hero-stat { text-align: center; }
-.hero-stat-num { font-family: 'Bebas Neue', sans-serif; font-size: 48px; color: var(--amber-dark); line-height: 1; }
-.hero-stat-label { font-size: 13px; color: var(--slate-light); margin-top: 4px; }
-.scroll-hint { position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--slate-light); font-size: 12px; animation: bounce 2s infinite; }
-.scroll-arrow { width: 20px; height: 20px; border-right: 2px solid var(--amber-dark); border-bottom: 2px solid var(--amber-dark); transform: rotate(45deg); }
-@keyframes bounce { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(6px); } }
-
-/* SECTIONS */
-section { padding: 5rem 2rem; }
-.section-inner { max-width: 1100px; margin: 0 auto; }
-.section-header { margin-bottom: 3rem; }
-.section-eyebrow { font-size: 12px; font-weight: 600; color: var(--amber-dark); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 0.5rem; }
-.section-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(32px, 6vw, 56px); letter-spacing: 1px; color: var(--espresso); line-height: 1; }
-.section-desc { font-size: 16px; color: var(--slate-light); margin-top: 0.75rem; max-width: 540px; }
-
-/* MAP SECTION */
-#mapa { background: #fff; }
-.map-layout { display: grid; grid-template-columns: 1fr 300px; gap: 2rem; align-items: start; }
-.map-wrap { position: relative; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; background: var(--foam); }
-#spain-map { width: 100%; display: block; }
-.map-tooltip {
-  position: absolute; pointer-events: none; display: none;
-  background: var(--espresso); color: var(--foam);
-  border-radius: 8px; padding: 10px 14px; font-size: 13px;
-  z-index: 10; min-width: 140px;
+.nav-logo span { color: var(--dorada); }
+.nav-tabs { display: none; gap: 2px; }
+@media (min-width: 768px) { .nav-tabs { display: flex; } }
+.nav-tab-btn {
+  padding: 6px 14px; border: none; background: transparent;
+  font-size: 13px; font-weight: 500; color: rgba(255,252,244,0.5);
+  cursor: pointer; border-radius: 4px; transition: color 0.15s;
+  font-family: 'Inter', sans-serif;
 }
-.map-tooltip-name { font-weight: 600; margin-bottom: 4px; }
-.map-tooltip-price { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--amber); line-height: 1; }
-.map-tooltip-bars { font-size: 11px; color: rgba(255,248,237,0.6); margin-top: 4px; }
-.map-legend { display: flex; align-items: center; gap: 8px; padding: 1rem; border-top: 1px solid var(--border); }
-.map-legend-bar { flex: 1; height: 8px; border-radius: 4px; background: linear-gradient(to right, #FAEEDA, #EF9F27, #BA7517, #D94F3D, #8B1A1A); }
-.map-legend-label { font-size: 11px; color: var(--slate-light); }
-.map-sidebar { display: flex; flex-direction: column; gap: 1rem; }
-
-/* RANKING PANEL */
-.panel { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
-.panel-title { font-size: 14px; font-weight: 600; color: var(--espresso); margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; }
-.sort-tabs { display: flex; gap: 4px; }
-.sort-tab { font-size: 11px; padding: 3px 8px; border: 1px solid var(--border-strong); border-radius: 20px; cursor: pointer; background: transparent; color: var(--slate); }
-.sort-tab.active { background: var(--amber-dark); color: var(--amber-light); border-color: var(--amber-dark); }
-.rank-item { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); }
-.rank-item:last-child { border-bottom: none; }
-.rank-num { font-size: 11px; color: var(--slate-light); width: 18px; text-align: right; flex-shrink: 0; }
-.rank-name { font-size: 13px; flex: 1; color: var(--espresso); }
-.rank-price { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--espresso); }
-.rank-bar-wrap { height: 3px; background: var(--border); border-radius: 2px; margin-top: 2px; }
-.rank-bar-fill { height: 3px; border-radius: 2px; }
-
-/* LEADERBOARD SECTION */
-#ranking { background: var(--foam); }
-.leaderboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
-.lb-card {
-  background: #fff; border: 1px solid var(--border); border-radius: 12px;
-  overflow: hidden;
+.nav-tab-btn:hover { color: var(--espuma); }
+.nav-tab-btn.active { color: var(--dorada); }
+.nav-login-btn {
+  font-size: 12px; font-weight: 600; padding: 6px 14px;
+  background: var(--roja); color: var(--espuma);
+  border: none; border-radius: 4px; cursor: pointer;
+  font-family: 'Inter', sans-serif; transition: background 0.15s;
+  white-space: nowrap; flex-shrink: 0;
 }
-.lb-card-header {
-  padding: 1rem 1.25rem;
+.nav-login-btn:hover { background: var(--roja-dark); }
+
+/* ─────────────────────────────
+   TICKER — live price strip
+───────────────────────────── */
+.ticker {
+  position: fixed; top: 56px; left: 0; right: 0; z-index: 190;
+  height: 34px; background: var(--roja); overflow: hidden;
+  display: flex; align-items: center;
+}
+.ticker-mask {
+  position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(to right, var(--roja) 0%, transparent 5%, transparent 95%, var(--roja) 100%);
+  z-index: 1;
+}
+.ticker-track {
+  display: flex; white-space: nowrap;
+  animation: ticker-scroll 55s linear infinite;
+}
+@keyframes ticker-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) { .ticker-track { animation: none; } }
+.ticker-item {
+  display: inline-flex; align-items: center; gap: 6px; padding: 0 20px;
+  font-family: 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: 0.5px;
+  color: rgba(255,252,244,0.85);
+}
+.ticker-price { color: var(--dorada); font-size: 15px; }
+.ticker-sep { color: rgba(255,252,244,0.3); margin: 0 4px; }
+
+/* ─────────────────────────────
+   MAIN
+───────────────────────────── */
+.main { padding-top: 90px; min-height: 100dvh; }
+
+/* ─────────────────────────────
+   TAB SYSTEM
+───────────────────────────── */
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* ─────────────────────────────
+   MAP TAB
+───────────────────────────── */
+.map-filters {
+  position: sticky; top: 90px; z-index: 100;
+  background: var(--espuma); border-bottom: 1px solid var(--border);
+  padding: 8px 12px; display: flex; gap: 6px; overflow-x: auto;
+  scrollbar-width: none;
+}
+.map-filters::-webkit-scrollbar { display: none; }
+.filter-chip {
+  white-space: nowrap; padding: 5px 13px;
+  border: 1.5px solid var(--border-strong); border-radius: 20px;
+  background: transparent; font-size: 12px; font-weight: 500;
+  cursor: pointer; color: var(--malta-soft); transition: all 0.15s;
+  font-family: 'Inter', sans-serif;
+}
+.filter-chip:hover { border-color: var(--malta); color: var(--malta); }
+.filter-chip.active {
+  background: var(--malta); color: var(--espuma);
+  border-color: var(--malta);
+}
+#map {
+  width: 100%;
+  height: calc(100dvh - 90px - 40px - 68px);
+}
+@media (min-width: 768px) {
+  #map { height: calc(100dvh - 90px - 40px); }
+}
+/* Custom Leaflet marker */
+.price-pin {
+  background: var(--malta); color: var(--espuma);
+  border: 1.5px solid rgba(255,252,244,0.3);
+  border-radius: 4px; padding: 2px 7px;
+  font-family: 'Bebas Neue', sans-serif; font-size: 14px;
+  white-space: nowrap; cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  transition: transform 0.1s;
+}
+.price-pin.cheap { background: var(--lupulo); }
+.price-pin.mid   { background: var(--cobre);  }
+.price-pin.exp   { background: var(--roja);   }
+.price-pin.sel   { border-color: var(--dorada); border-width: 2.5px; transform: scale(1.15); z-index: 9999 !important; }
+
+/* ─────────────────────────────
+   BAR DETAIL SHEET
+───────────────────────────── */
+.sheet-overlay {
+  display: none; position: fixed; inset: 0; z-index: 300;
+  background: rgba(24,9,0,0.55); backdrop-filter: blur(2px);
+}
+.sheet-overlay.open { display: block; }
+
+.bar-sheet {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 301;
+  background: var(--espuma); border-radius: 14px 14px 0 0;
+  border-top: 2px solid var(--malta); max-height: 88dvh;
+  overflow-y: auto;
+  transform: translateY(105%);
+  transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.bar-sheet.open { transform: translateY(0); }
+
+@media (min-width: 768px) {
+  .bar-sheet {
+    left: auto; bottom: 1.5rem; right: 1.5rem;
+    width: 380px; border-radius: 12px;
+    border: 2px solid var(--malta);
+    transform: translateX(calc(100% + 2.5rem));
+    max-height: calc(100dvh - 110px - 3rem);
+  }
+  .bar-sheet.open { transform: translateX(0); }
+}
+
+.sheet-drag {
+  display: flex; justify-content: center; padding: 10px 0 4px;
+}
+.sheet-drag-bar {
+  width: 36px; height: 4px;
+  background: var(--border-strong); border-radius: 2px;
+}
+@media (min-width: 768px) { .sheet-drag { display: none; } }
+
+.sheet-cover {
+  height: 170px; background: var(--malta-mid);
+  position: relative; overflow: hidden; flex-shrink: 0;
+}
+.sheet-cover-gradient {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 70%;
+  background: linear-gradient(to top, var(--malta) 0%, transparent 100%);
+}
+.sheet-close-btn, .sheet-fav-btn {
+  position: absolute; top: 10px;
+  width: 30px; height: 30px; border-radius: 50%;
+  background: rgba(255,252,244,0.92); border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: var(--malta);
+}
+.sheet-close-btn { right: 10px; }
+.sheet-fav-btn   { right: 46px; font-size: 15px; }
+
+.sheet-cover-info {
+  position: absolute; bottom: 10px; left: 14px; right: 14px;
+}
+.sheet-zona {
+  font-size: 10px; font-weight: 600; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--dorada); margin-bottom: 3px;
+}
+.sheet-bar-name {
+  font-family: 'Bebas Neue', sans-serif; font-size: 26px;
+  line-height: 1; letter-spacing: 0.5px; color: var(--espuma);
+}
+
+.sheet-body { padding: 14px 16px 20px; }
+
+.sheet-hero-price {
+  display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px;
+}
+.sheet-price-big {
+  font-family: 'Bebas Neue', sans-serif; font-size: 52px;
+  line-height: 1; letter-spacing: -1px;
+}
+.sheet-price-label { font-size: 13px; color: var(--malta-soft); }
+.sheet-delta {
+  margin-left: auto; font-size: 11px; font-weight: 600;
+  padding: 3px 8px; border-radius: 4px;
+}
+.sheet-delta.cheaper { background: #E6F4EA; color: var(--lupulo); }
+.sheet-delta.pricier { background: var(--roja-light); color: var(--roja-dark); }
+
+.sheet-extras {
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 7px; margin: 12px 0;
+}
+.sheet-extra {
+  background: white; border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 9px 12px;
+}
+.sheet-extra-label { font-size: 11px; color: var(--malta-soft); margin-bottom: 2px; }
+.sheet-extra-val {
+  font-family: 'Bebas Neue', sans-serif; font-size: 20px; line-height: 1;
+}
+.sheet-extra-val.nd { color: var(--border-strong); font-size: 14px; font-family: 'Inter', sans-serif; }
+
+.sheet-addr {
+  display: flex; align-items: flex-start; gap: 6px;
+  font-size: 13px; color: var(--malta-soft); margin-bottom: 14px; line-height: 1.4;
+}
+
+.sheet-actions { display: flex; gap: 8px; margin-bottom: 16px; }
+.btn-report {
+  flex: 1; padding: 10px; border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius); background: transparent; cursor: pointer;
+  font-size: 13px; font-weight: 500; font-family: 'Inter', sans-serif;
+  color: var(--malta); transition: all 0.15s;
+}
+.btn-report:hover { border-color: var(--roja); color: var(--roja); }
+
+.sheet-reviews-title {
+  font-size: 12px; font-weight: 600; letter-spacing: 0.5px;
+  text-transform: uppercase; color: var(--malta-soft);
+  margin-bottom: 10px; padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+.review-row { padding: 10px 0; border-bottom: 1px solid var(--border); }
+.review-row:last-child { border-bottom: none; }
+.review-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.review-av {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--malta); color: var(--espuma);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 600; flex-shrink: 0;
+}
+.review-name { font-size: 13px; font-weight: 500; }
+.review-stars { font-size: 11px; color: var(--dorada); }
+.review-date { font-size: 11px; color: var(--malta-soft); margin-left: auto; }
+.review-comment { font-size: 13px; color: var(--malta-mid); line-height: 1.5; }
+
+/* ─────────────────────────────
+   RANKING TAB
+───────────────────────────── */
+.ranking-wrap { max-width: 600px; margin: 0 auto; padding-bottom: 2rem; }
+
+.ranking-header {
+  padding: 18px 16px 14px;
   border-bottom: 1px solid var(--border);
+}
+.ranking-vol {
+  font-size: 10px; font-weight: 600; letter-spacing: 1.8px;
+  text-transform: uppercase; color: var(--roja); margin-bottom: 6px;
+}
+.ranking-h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(34px, 8vw, 50px);
+  line-height: 0.95; letter-spacing: 0.5px; margin-bottom: 12px;
+}
+.ranking-h1 em { color: var(--roja); font-style: normal; }
+.ranking-meta-row { display: flex; align-items: flex-end; justify-content: space-between; }
+.ranking-avg-lbl { font-size: 10px; color: var(--malta-soft); text-transform: uppercase; letter-spacing: 0.8px; }
+.ranking-avg-num {
+  font-family: 'Bebas Neue', sans-serif; font-size: 26px; line-height: 1;
+}
+.ranking-trend { font-size: 12px; font-weight: 600; color: var(--lupulo); }
+
+.metric-pills {
+  display: flex; gap: 6px; padding: 10px 16px;
+  border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none;
+}
+.metric-pills::-webkit-scrollbar { display: none; }
+.metric-pill {
+  white-space: nowrap; padding: 5px 13px;
+  border-radius: 20px; border: 1.5px solid var(--border-strong);
+  background: transparent; font-size: 12px; font-weight: 500;
+  cursor: pointer; color: var(--malta-soft); transition: all 0.15s;
+  font-family: 'Inter', sans-serif;
+}
+.metric-pill.active { background: var(--malta); color: var(--espuma); border-color: var(--malta); }
+
+.seg-bar {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 90px; z-index: 100; background: var(--espuma);
+}
+.seg-btn {
+  padding: 11px; text-align: center;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;
+  border: none; background: transparent; cursor: pointer;
+  color: var(--malta-soft); border-bottom: 2px solid transparent;
+  transition: all 0.15s; font-family: 'Inter', sans-serif;
+}
+.seg-btn.active { color: var(--malta); border-bottom-color: var(--roja); }
+
+/* Podium */
+.podium {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 6px; align-items: end; padding: 20px 16px 0;
+}
+.podium-col {
+  display: flex; flex-direction: column;
+  align-items: center; text-align: center; cursor: pointer;
+}
+.podium-col:hover .podium-block { filter: brightness(1.08); }
+.podium-nm {
+  font-family: 'Bebas Neue', sans-serif; font-size: 14px; line-height: 1.1;
+  margin-bottom: 3px;
+  overflow: hidden; display: -webkit-box;
+  -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+}
+.podium-sub { font-size: 10px; color: var(--malta-soft); margin-bottom: 5px; }
+.podium-block {
+  width: 100%; border-radius: 5px 5px 0 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 2px;
+  padding: 8px 4px; transition: filter 0.15s;
+}
+.podium-blk-1 { height: 100px; background: var(--roja); }
+.podium-blk-2 { height: 80px; background: var(--malta); }
+.podium-blk-3 { height: 64px; background: var(--malta-mid); }
+.podium-price {
+  font-family: 'Bebas Neue', sans-serif; font-size: 22px;
+  color: var(--espuma); line-height: 1;
+}
+.podium-medal { font-size: 10px; color: rgba(255,252,244,0.6); }
+
+/* Bar list */
+.bar-list { border-top: 2px solid var(--malta); }
+.bar-row {
+  display: grid; grid-template-columns: 2.25rem 1fr auto;
+  gap: 8px; padding: 11px 16px;
+  border-bottom: 1px solid var(--border);
+  align-items: center; cursor: pointer; transition: background 0.12s;
+}
+.bar-row:hover { background: var(--dorada-light); }
+.bar-num {
+  font-family: 'Bebas Neue', sans-serif; font-size: 20px;
+  color: var(--border-strong); text-align: right; line-height: 1;
+}
+.bar-nm {
+  font-family: 'Bebas Neue', sans-serif; font-size: 18px; line-height: 1;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.bar-sub {
+  font-size: 11px; color: var(--malta-soft); margin-top: 2px;
+  display: flex; align-items: center; gap: 6px;
+}
+.bar-val {
+  font-family: 'Bebas Neue', sans-serif; font-size: 22px;
+  text-align: right; line-height: 1;
+}
+
+/* ─────────────────────────────
+   FEED TAB
+───────────────────────────── */
+.feed-wrap { max-width: 600px; margin: 0 auto; }
+.feed-segs {
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 90px; z-index: 100; background: var(--espuma);
+}
+.feed-seg-btn {
+  padding: 12px; text-align: center;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;
+  border: none; background: transparent; cursor: pointer;
+  color: var(--malta-soft); border-bottom: 2px solid transparent;
+  transition: all 0.15s; font-family: 'Inter', sans-serif;
+}
+.feed-seg-btn.active { color: var(--malta); border-bottom-color: var(--roja); }
+
+.feed-item {
+  display: flex; align-items: flex-start; gap: 11px;
+  padding: 13px 16px; border-bottom: 1px solid var(--border);
+  cursor: pointer; transition: background 0.12s;
+}
+.feed-item:hover { background: var(--dorada-light); }
+.feed-av {
+  width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+  background: var(--malta); color: var(--espuma);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600;
+}
+.feed-body { flex: 1; min-width: 0; }
+.feed-line1 { font-size: 13px; line-height: 1.4; }
+.feed-line1 strong { font-family: 'Bebas Neue', sans-serif; font-size: 16px; }
+.feed-line2 { font-size: 12px; color: var(--malta-soft); margin-top: 2px; }
+.feed-time { font-size: 10px; color: var(--malta-soft); flex-shrink: 0; padding-top: 2px; }
+
+.drop-item {
+  display: flex; align-items: center; gap: 11px;
+  padding: 13px 16px; border-bottom: 1px solid var(--border);
+  cursor: pointer; transition: background 0.12s;
+}
+.drop-item:hover { background: #EAF5EB; }
+.drop-icon {
+  width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
+  background: #EAF5EB; color: var(--lupulo);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 700;
+}
+.drop-body { flex: 1; min-width: 0; }
+.drop-nm { font-family: 'Bebas Neue', sans-serif; font-size: 18px; line-height: 1; }
+.drop-sub { font-size: 12px; color: var(--malta-soft); margin-top: 2px; }
+.drop-prices { text-align: right; flex-shrink: 0; }
+.drop-old { font-size: 11px; color: var(--malta-soft); text-decoration: line-through; }
+.drop-new { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--lupulo); line-height: 1; }
+
+/* ─────────────────────────────
+   PROFILE TAB
+───────────────────────────── */
+.profile-wrap { max-width: 480px; margin: 0 auto; padding: 20px 16px 2rem; }
+
+.profile-login-screen {
+  text-align: center; padding: 3rem 1rem;
+}
+.profile-login-icon { font-size: 52px; margin-bottom: 1rem; }
+.profile-login-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 30px; margin-bottom: 8px;
+}
+.profile-login-sub {
+  font-size: 14px; color: var(--malta-soft);
+  margin-bottom: 2rem; line-height: 1.6; max-width: 300px; margin-inline: auto;
+}
+.btn-google {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 12px 24px; background: var(--malta);
+  color: var(--espuma); border: none; border-radius: var(--radius);
+  font-size: 14px; font-weight: 500; cursor: pointer;
+  font-family: 'Inter', sans-serif; transition: background 0.15s;
+}
+.btn-google:hover { background: var(--malta-mid); }
+
+.profile-hdr {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 24px; padding-bottom: 18px;
+  border-bottom: 1px solid var(--border);
+}
+.profile-pic {
+  width: 52px; height: 52px; border-radius: 50%; overflow: hidden;
+  background: var(--roja); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.profile-pic img { width: 100%; height: 100%; object-fit: cover; }
+.profile-initials {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px; color: var(--espuma);
+}
+.profile-name { font-family: 'Bebas Neue', sans-serif; font-size: 22px; line-height: 1; }
+.profile-email { font-size: 12px; color: var(--malta-soft); margin-top: 2px; }
+.btn-logout {
+  margin-left: auto; padding: 6px 12px;
+  border: 1.5px solid var(--border-strong);
+  border-radius: 6px; background: transparent;
+  font-size: 12px; cursor: pointer; color: var(--malta-soft);
+  font-family: 'Inter', sans-serif; transition: all 0.15s;
+}
+.btn-logout:hover { border-color: var(--roja); color: var(--roja); }
+
+.profile-section-title {
+  font-size: 11px; font-weight: 600; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--malta-soft);
+  margin-bottom: 10px;
+}
+.fav-row {
   display: flex; align-items: center; gap: 10px;
+  padding: 10px 0; border-bottom: 1px solid var(--border); cursor: pointer;
 }
-.lb-medal { font-family: 'Bebas Neue', sans-serif; font-size: 32px; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.medal-1 { background: #FFF3CD; color: #856404; }
-.medal-2 { background: #F0F0F0; color: #555; }
-.medal-3 { background: #FFE8D6; color: #7D3C0A; }
-.lb-card-name { font-weight: 600; font-size: 16px; color: var(--espresso); }
-.lb-card-sub { font-size: 12px; color: var(--slate-light); }
-.lb-card-price { font-family: 'Bebas Neue', sans-serif; font-size: 36px; color: var(--amber-dark); margin-left: auto; }
-.lb-card-body { padding: 1rem 1.25rem; }
-.lb-row { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; color: var(--slate); border-bottom: 1px solid var(--border); }
-.lb-row:last-child { border-bottom: none; }
-.lb-row-price { font-weight: 500; color: var(--espresso); }
-
-/* BARS TABLE */
-#bares { background: #fff; }
-.bars-controls { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: center; }
-.search-input { flex: 1; min-width: 200px; padding: 10px 14px; border: 1px solid var(--border-strong); border-radius: 8px; font-size: 14px; font-family: 'Inter', sans-serif; background: var(--foam); color: var(--espresso); outline: none; }
-.search-input:focus { border-color: var(--amber-dark); }
-.filter-select { padding: 10px 14px; border: 1px solid var(--border-strong); border-radius: 8px; font-size: 14px; font-family: 'Inter', sans-serif; background: var(--foam); color: var(--espresso); outline: none; cursor: pointer; }
-.bars-table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); }
-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-thead { background: var(--espresso); }
-thead th { padding: 12px 16px; text-align: left; color: var(--foam); font-weight: 500; font-size: 13px; white-space: nowrap; }
-tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
-tbody tr:last-child { border-bottom: none; }
-tbody tr:hover { background: var(--amber-light); }
-tbody td { padding: 11px 16px; color: var(--espresso); }
-.price-cell { font-family: 'Bebas Neue', sans-serif; font-size: 20px; }
-.price-cheap { color: #3B6D11; }
-.price-mid { color: var(--amber-dark); }
-.price-exp { color: var(--red); }
-.badge-region { font-size: 11px; padding: 3px 8px; border-radius: 20px; background: var(--amber-light); color: var(--amber-dark); font-weight: 500; }
-.bot-badge { font-size: 11px; padding: 2px 7px; border-radius: 4px; background: #E8F5E9; color: #2E7D32; font-weight: 500; }
-
-/* FOOTER */
-footer {
-  background: var(--espresso); color: var(--foam);
-  padding: 3rem 2rem;
-  text-align: center;
+.fav-row:last-child { border-bottom: none; }
+.fav-row:hover .fav-nm { color: var(--roja); }
+.fav-nm { font-family: 'Bebas Neue', sans-serif; font-size: 18px; flex: 1; line-height: 1; }
+.fav-zona { font-size: 11px; color: var(--malta-soft); }
+.fav-price { font-size: 14px; color: var(--malta-soft); }
+.fav-rm {
+  font-size: 15px; color: var(--border-strong);
+  padding: 4px; cursor: pointer; line-height: 1;
 }
-.footer-logo { font-family: 'Bebas Neue', sans-serif; font-size: 36px; letter-spacing: 2px; margin-bottom: 0.5rem; }
-.footer-logo span { color: var(--amber); }
-.footer-sub { font-size: 13px; color: rgba(255,248,237,0.5); margin-bottom: 2rem; }
-.footer-links { display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2rem; }
-.footer-links a { font-size: 13px; color: rgba(255,248,237,0.6); text-decoration: none; transition: color 0.2s; }
-.footer-links a:hover { color: var(--amber); }
-.footer-copy { font-size: 12px; color: rgba(255,248,237,0.3); }
-
-/* MOBILE */
-@media (max-width: 768px) {
-  nav { padding: 0 1rem; }
-  .nav-links { display: none; }
-  .nav-links.open { display: flex; flex-direction: column; position: fixed; top: 60px; left: 0; right: 0; background: var(--foam); border-bottom: 1px solid var(--border); padding: 1rem 1.5rem 1.5rem; gap: 1rem; z-index: 99; }
-  .nav-menu-btn { display: flex; }
-  .hero { padding: 80px 1.25rem 4rem; }
-  .hero-stats { gap: 1.5rem; }
-  .map-layout { grid-template-columns: 1fr; }
-  .map-sidebar { display: grid; grid-template-columns: 1fr; }
-  section { padding: 3.5rem 1.25rem; }
-  .bars-controls { flex-direction: column; }
-  .search-input, .filter-select { width: 100%; }
+.fav-rm:hover { color: var(--roja); }
+.empty-state {
+  padding: 2rem; text-align: center;
+  color: var(--malta-soft); font-size: 14px; line-height: 1.6;
 }
+
+/* ─────────────────────────────
+   BOTTOM NAV (mobile)
+───────────────────────────── */
+.bottom-nav {
+  display: flex; position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+  background: var(--malta); border-top: 2px solid var(--roja); height: 64px;
+}
+@media (min-width: 768px) { .bottom-nav { display: none; } }
+.bot-tab {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 2px;
+  border: none; background: transparent; cursor: pointer;
+  color: rgba(255,252,244,0.4); transition: color 0.15s;
+  font-family: 'Inter', sans-serif;
+}
+.bot-tab.active { color: var(--dorada); }
+.bot-tab-icon { font-size: 20px; line-height: 1; }
+.bot-tab-label { font-size: 10px; font-weight: 500; }
+
+/* ─────────────────────────────
+   TOAST
+───────────────────────────── */
+.toast {
+  position: fixed; bottom: 80px; left: 50%;
+  transform: translateX(-50%) translateY(16px);
+  background: var(--malta); color: var(--espuma);
+  padding: 9px 18px; border-radius: 20px;
+  font-size: 13px; opacity: 0;
+  transition: all 0.25s; pointer-events: none; z-index: 500;
+  white-space: nowrap;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ─────────────────────────────
+   FOOTER
+───────────────────────────── */
+.site-footer {
+  background: var(--malta); color: var(--espuma);
+  padding: 2rem 1.25rem; text-align: center; margin-top: 2rem;
+}
+.footer-logo { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 1px; }
+.footer-logo span { color: var(--dorada); }
+.footer-sub { font-size: 12px; color: rgba(255,252,244,0.4); margin: 4px 0 1rem; }
+.footer-links { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; }
+.footer-links a {
+  font-size: 12px; color: rgba(255,252,244,0.5);
+  text-decoration: none; transition: color 0.15s;
+}
+.footer-links a:hover { color: var(--dorada); }
+
+/* ─────────────────────────────
+   UTILITIES
+───────────────────────────── */
+.loading-state {
+  padding: 3rem; text-align: center;
+  color: var(--malta-soft); font-size: 14px;
+}
+.loading-spinner {
+  width: 28px; height: 28px; border: 2px solid var(--border);
+  border-top-color: var(--roja); border-radius: 50%;
+  animation: spin 0.8s linear infinite; margin: 0 auto 12px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
 
-<!-- NAV -->
-<nav>
-  <a href="#" class="nav-logo">Dame Una <span>Doble</span> 🍺</a>
-  <div class="nav-links" id="nav-links">
-    <a href="#mapa" data-i18n="nav-map">Mapa</a>
-    <a href="#ranking" data-i18n="nav-ranking">Ranking</a>
-    <a href="#bares" data-i18n="nav-bars">Bares</a>
-    <div class="lang-switcher">
-      <button class="lang-btn active" onclick="setLang('es')">ES</button>
-      <button class="lang-btn" onclick="setLang('en')">EN</button>
-      <button class="lang-btn" onclick="setLang('it')">IT</button>
-      <button class="lang-btn" onclick="setLang('fr')">FR</button>
+<!-- ── TOP NAV ── -->
+<nav class="top-nav">
+  <a href="#" class="nav-logo" onclick="switchTab('mapa');return false;">
+    Dame Una <span>Doble</span> 🍺
+  </a>
+  <div class="nav-tabs">
+    <button class="nav-tab-btn active" data-tab="mapa"    onclick="switchTab('mapa')">🗺️ Mapa</button>
+    <button class="nav-tab-btn"        data-tab="ranking" onclick="switchTab('ranking')">🏆 Ranking</button>
+    <button class="nav-tab-btn"        data-tab="feed"    onclick="switchTab('feed')">📡 Feed</button>
+    <button class="nav-tab-btn"        data-tab="perfil"  onclick="switchTab('perfil')">👤 Perfil</button>
+  </div>
+  <button class="nav-login-btn" id="nav-login-btn" onclick="handleAuthBtn()">Entrar</button>
+</nav>
+
+<!-- ── PRICE TICKER ── -->
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-mask"></div>
+  <div class="ticker-track" id="ticker-track">
+    <span class="ticker-item">Cargando precios<span class="ticker-sep">·</span></span>
+  </div>
+</div>
+
+<!-- ── MAIN ── -->
+<main class="main">
+
+  <!-- TAB: MAPA -->
+  <section id="tab-mapa" class="tab-content active">
+    <div class="map-filters">
+      <button class="filter-chip active" data-filter="all"   onclick="setMapFilter('all',this)">Todos</button>
+      <button class="filter-chip"        data-filter="cheap" onclick="setMapFilter('cheap',this)">🟢 &lt; €2.50</button>
+      <button class="filter-chip"        data-filter="fav"   onclick="setMapFilter('fav',this)">❤️ Favoritos</button>
+    </div>
+    <div id="map"></div>
+  </section>
+
+  <!-- TAB: RANKING -->
+  <section id="tab-ranking" class="tab-content">
+    <div class="ranking-wrap">
+
+      <div class="ranking-header">
+        <div class="ranking-vol">Madrid · Temporada 2025</div>
+        <h1 class="ranking-h1" id="rk-h1">Los dobles<br>más baratos<em>.</em></h1>
+        <div class="ranking-meta-row">
+          <div>
+            <div class="ranking-avg-lbl">Media ciudad</div>
+            <div class="ranking-avg-num" id="rk-avg">€—</div>
+          </div>
+          <div class="ranking-trend" id="rk-trend">↓ actualizado hoy</div>
+        </div>
+      </div>
+
+      <div class="metric-pills">
+        <button class="metric-pill active" data-metric="precio"          onclick="setMetric('precio',this)">🍺 Doble</button>
+        <button class="metric-pill"        data-metric="cana_precio"     onclick="setMetric('cana_precio',this)">🥤 Caña</button>
+        <button class="metric-pill"        data-metric="bravas_precio"   onclick="setMetric('bravas_precio',this)">🔥 Bravas</button>
+        <button class="metric-pill"        data-metric="tortilla_precio" onclick="setMetric('tortilla_precio',this)">🍳 Tortilla</button>
+        <button class="metric-pill"        data-metric="croquetas_precio"onclick="setMetric('croquetas_precio',this)">⚪ Croquetas</button>
+      </div>
+
+      <div class="seg-bar">
+        <button class="seg-btn active" onclick="setRkSeg('ranking',this)">Ranking</button>
+        <button class="seg-btn"        onclick="setRkSeg('live',this)">En vivo</button>
+        <button class="seg-btn"        id="drops-seg-btn" onclick="setRkSeg('drops',this)">Bajadas</button>
+      </div>
+
+      <div id="rk-body">
+        <div class="loading-state">
+          <div class="loading-spinner"></div>
+          Cargando bares…
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- TAB: FEED -->
+  <section id="tab-feed" class="tab-content">
+    <div class="feed-wrap">
+      <div class="feed-segs">
+        <button class="feed-seg-btn active" onclick="setFeedSeg('live',this)">📡 En vivo</button>
+        <button class="feed-seg-btn"        onclick="setFeedSeg('drops',this)">↘ Bajadas</button>
+      </div>
+      <div id="feed-body">
+        <div class="loading-state">
+          <div class="loading-spinner"></div>
+          Cargando actividad…
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAB: PERFIL -->
+  <section id="tab-perfil" class="tab-content">
+    <div class="profile-wrap" id="profile-content">
+      <div class="loading-state"><div class="loading-spinner"></div></div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ── BAR DETAIL SHEET ── -->
+<div class="sheet-overlay" id="sheet-overlay" onclick="closeSheet()"></div>
+<aside class="bar-sheet" id="bar-sheet" role="dialog" aria-label="Detalles del bar">
+  <div class="sheet-drag"><div class="sheet-drag-bar"></div></div>
+  <div class="sheet-cover" id="sheet-cover">
+    <div class="sheet-cover-gradient"></div>
+    <button class="sheet-close-btn" onclick="closeSheet()" aria-label="Cerrar">✕</button>
+    <button class="sheet-fav-btn"   id="sheet-fav-btn" onclick="toggleFav()" aria-label="Favorito">🤍</button>
+    <div class="sheet-cover-info">
+      <div class="sheet-zona" id="sheet-zona"></div>
+      <div class="sheet-bar-name" id="sheet-bar-name">—</div>
     </div>
   </div>
-  <button class="nav-menu-btn" id="menu-btn" onclick="toggleMenu()" aria-label="Menú">
-    <span></span><span></span><span></span>
+  <div class="sheet-body">
+    <div class="sheet-hero-price">
+      <div>
+        <div class="sheet-price-label">Doble de Mahou</div>
+        <div class="sheet-price-big" id="sheet-price-big">—</div>
+      </div>
+      <div class="sheet-delta" id="sheet-delta"></div>
+    </div>
+    <div class="sheet-extras" id="sheet-extras"></div>
+    <div class="sheet-addr" id="sheet-addr">📍 <span>—</span></div>
+    <div class="sheet-actions">
+      <button class="btn-report" onclick="openReport()">✏️ Reportar precio</button>
+    </div>
+    <div class="sheet-reviews-title">Reseñas</div>
+    <div id="sheet-reviews-body">
+      <div class="empty-state">Próximamente · Sé el primero en reseñar este bar.</div>
+    </div>
+  </div>
+</aside>
+
+<!-- ── BOTTOM NAV ── -->
+<nav class="bottom-nav" aria-label="Navegación principal">
+  <button class="bot-tab active" id="bt-mapa"    onclick="switchTab('mapa')">
+    <div class="bot-tab-icon">🗺️</div>
+    <div class="bot-tab-label">Mapa</div>
+  </button>
+  <button class="bot-tab" id="bt-ranking" onclick="switchTab('ranking')">
+    <div class="bot-tab-icon">🏆</div>
+    <div class="bot-tab-label">Ranking</div>
+  </button>
+  <button class="bot-tab" id="bt-feed"    onclick="switchTab('feed')">
+    <div class="bot-tab-icon">📡</div>
+    <div class="bot-tab-label">Feed</div>
+  </button>
+  <button class="bot-tab" id="bt-perfil"  onclick="switchTab('perfil')">
+    <div class="bot-tab-icon">👤</div>
+    <div class="bot-tab-label">Perfil</div>
   </button>
 </nav>
 
-<!-- HERO -->
-<section class="hero">
-  <p class="hero-eyebrow" data-i18n="hero-eyebrow">El mapa de la cerveza en España</p>
-  <h1>DAME UNA<br><em>DOBLE</em></h1>
-  <p class="hero-sub" data-i18n="hero-sub">Descubre cuánto cuesta un doble de cerveza en cada rincón de España. Datos reales recogidos bar a bar.</p>
-  <div class="hero-stats">
-    <div class="hero-stat">
-      <div class="hero-stat-num" id="h-bars">2.847</div>
-      <div class="hero-stat-label" data-i18n="hero-stat-bars">bares llamados</div>
-    </div>
-    <div class="hero-stat">
-      <div class="hero-stat-num" id="h-regions">17</div>
-      <div class="hero-stat-label" data-i18n="hero-stat-regions">comunidades</div>
-    </div>
-    <div class="hero-stat">
-      <div class="hero-stat-num" id="h-avg">2.38€</div>
-      <div class="hero-stat-label" data-i18n="hero-stat-avg">precio medio</div>
-    </div>
-  </div>
-  <div class="scroll-hint">
-    <div class="scroll-arrow"></div>
-  </div>
-</section>
+<!-- ── TOAST ── -->
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<!-- MAPA -->
-<section id="mapa">
-  <div class="section-inner">
-    <div class="section-header">
-      <div class="section-eyebrow" data-i18n="map-eyebrow">Comunidades Autónomas</div>
-      <div class="section-title" data-i18n="map-title">EL MAPA DEL DOBLE</div>
-      <div class="section-desc" data-i18n="map-desc">Precio medio del doble por comunidad autónoma. Del más barato al más caro.</div>
-    </div>
-    <div class="map-layout">
-      <div>
-        <div class="map-wrap">
-          <svg id="spain-map" viewBox="0 0 700 460" role="img" aria-label="Mapa de precios del doble de cerveza por comunidad autónoma"></svg>
-          <div class="map-tooltip" id="map-tooltip">
-            <div class="map-tooltip-name" id="tt-name"></div>
-            <div class="map-tooltip-price" id="tt-price"></div>
-            <div class="map-tooltip-bars" id="tt-bars"></div>
-          </div>
-          <div class="map-legend">
-            <span class="map-legend-label" data-i18n="legend-cheap">Barato</span>
-            <div class="map-legend-bar"></div>
-            <span class="map-legend-label" data-i18n="legend-exp">Caro</span>
-          </div>
-        </div>
-        <div style="display:flex;justify-content:space-between;padding:0 1rem;margin-top:4px;">
-          <span style="font-size:11px;color:var(--slate-light)">1.50€</span>
-          <span style="font-size:11px;color:var(--slate-light)">2.00€</span>
-          <span style="font-size:11px;color:var(--slate-light)">2.50€</span>
-          <span style="font-size:11px;color:var(--slate-light)">3.00€</span>
-          <span style="font-size:11px;color:var(--slate-light)">3.50€+</span>
-        </div>
-      </div>
-      <div class="map-sidebar">
-        <div class="panel">
-          <div class="panel-title">
-            <span data-i18n="ranking-title">🏆 Ranking</span>
-            <div class="sort-tabs">
-              <button class="sort-tab active" onclick="setSort('asc',this)" data-i18n="sort-cheap">+ barato</button>
-              <button class="sort-tab" onclick="setSort('desc',this)" data-i18n="sort-exp">+ caro</button>
-            </div>
-          </div>
-          <div id="ranking-list"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- Supabase JS -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
-<!-- RANKING LEADERBOARD -->
-<section id="ranking">
-  <div class="section-inner">
-    <div class="section-header">
-      <div class="section-eyebrow" data-i18n="lb-eyebrow">Leaderboard</div>
-      <div class="section-title" data-i18n="lb-title">PODIO REGIONAL</div>
-      <div class="section-desc" data-i18n="lb-desc">Las tres comunidades más baratas y las tres más caras del ranking nacional.</div>
-    </div>
-    <div style="margin-bottom:1.5rem;">
-      <div style="font-size:13px;font-weight:600;color:var(--slate-light);letter-spacing:1px;text-transform:uppercase;margin-bottom:1rem;" data-i18n="lb-cheapest">🥇 Más baratas</div>
-      <div class="leaderboard-grid" id="lb-cheap"></div>
-    </div>
-
-  </div>
-</section>
-
-<!-- BARES -->
-<section id="bares">
-  <div class="section-inner">
-    <div class="section-header">
-      <div class="section-eyebrow" data-i18n="bars-eyebrow">Base de datos</div>
-      <div class="section-title" data-i18n="bars-title">TODOS LOS BARES</div>
-      <div class="section-desc" data-i18n="bars-desc">Listado completo de bares registrados con su precio del doble.</div>
-    </div>
-    <div class="bars-controls">
-      <input class="search-input" id="bar-search" type="text" data-i18n-placeholder="search-placeholder" placeholder="Buscar bar o ciudad...">
-      <select class="filter-select" id="region-filter" onchange="filterBars()">
-        <option value="" data-i18n="all-regions">Todas las comunidades</option>
-      </select>
-      <select class="filter-select" id="price-filter" onchange="filterBars()">
-        <option value="" data-i18n="all-prices">Todos los precios</option>
-        <option value="cheap" data-i18n="price-cheap">Menos de 2€</option>
-        <option value="mid" data-i18n="price-mid">2€ – 3€</option>
-        <option value="exp" data-i18n="price-exp">Más de 3€</option>
-      </select>
-    </div>
-    <div class="bars-table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th data-i18n="th-bar">Bar</th>
-            <th data-i18n="th-city">Ciudad</th>
-            <th data-i18n="th-region">Comunidad</th>
-            <th data-i18n="th-price">Doble</th>
-            <th data-i18n="th-source">Fuente</th>
-          </tr>
-        </thead>
-        <tbody id="bars-tbody"></tbody>
-      </table>
-    </div>
-    <div style="text-align:center;margin-top:1.5rem;font-size:13px;color:var(--slate-light)" id="bars-count"></div>
-  </div>
-</section>
-
-<!-- FOOTER -->
-<footer>
-  <div class="footer-logo">Dame Una <span>Doble</span> 🍺</div>
-  <div class="footer-sub">dameunadoble.com · <span data-i18n="footer-sub">El mapa de la cerveza en España</span></div>
-  <div class="footer-links">
-    <a href="#mapa" data-i18n="nav-map">Mapa</a>
-    <a href="#ranking" data-i18n="nav-ranking">Ranking</a>
-    <a href="#bares" data-i18n="nav-bars">Bares</a>
-  </div>
-  <div class="footer-copy" data-i18n="footer-copy">Datos recogidos por bots. Precios orientativos.</div>
-</footer>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
 <script>
+/* ══════════════════════════════
+   CONFIG
+══════════════════════════════ */
+const SUPABASE_URL = 'https://cldpkjdzikjzqrfbsghh.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZHBramR6aWtqenFyZmJzZ2hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4NzE0NzEsImV4cCI6MjA5NzQ0NzQ3MX0.-OFHTqGUan5e9thGp8B38eOeo5aJvwD99oDE7aW53Ws';
+const MADRID = [40.4168, -3.7038];
 
-/* ── TRANSLATIONS ── */
-const i18n = {
-  es: {
-    'nav-map':'Mapa','nav-ranking':'Ranking','nav-bars':'Bares',
-    'hero-eyebrow':'El mapa de la cerveza en España',
-    'hero-sub':'Descubre cuánto cuesta un doble de cerveza en cada rincón de España. Datos reales recogidos bar a bar.',
-    'hero-stat-bars':'bares llamados','hero-stat-regions':'comunidades','hero-stat-avg':'precio medio',
-    'map-eyebrow':'Comunidades Autónomas','map-title':'EL MAPA DEL DOBLE',
-    'map-desc':'Precio medio del doble por comunidad autónoma. Del más barato al más caro.',
-    'legend-cheap':'Barato','legend-exp':'Caro',
-    'ranking-title':'🏆 Ranking','sort-cheap':'+ barato','sort-exp':'+ caro',
-    'lb-eyebrow':'Leaderboard','lb-title':'PODIO REGIONAL',
-    'lb-desc':'Las tres comunidades más baratas del ranking nacional.',
-    'lb-cheapest':'🥇 Más baratas','lb-expensive':'💸 Más caras',
-    'bars-eyebrow':'Base de datos','bars-title':'TODOS LOS BARES',
-    'bars-desc':'Listado completo de bares registrados con su precio del doble.',
-    'search-placeholder':'Buscar bar o ciudad...',
-    'all-regions':'Todas las comunidades','all-prices':'Todos los precios',
-    'price-cheap':'Menos de 2€','price-mid':'2€ – 3€','price-exp':'Más de 3€',
-    'th-bar':'Bar','th-city':'Ciudad','th-region':'Comunidad','th-price':'Doble','th-source':'Fuente',
-    'footer-sub':'El mapa de la cerveza en España','footer-copy':'Datos recogidos por bots. Precios orientativos.',
-    'source-bot':'Bot 🤖','bars-showing':'Mostrando',
-    'bars-of':'de','bars-bars':'bares',
-  },
-  en: {
-    'nav-map':'Map','nav-ranking':'Ranking','nav-bars':'Bars',
-    'hero-eyebrow':'Spain\'s beer price map',
-    'hero-sub':'Find out how much a double beer costs in every corner of Spain. Real data collected bar by bar.',
-    'hero-stat-bars':'bars called','hero-stat-regions':'regions','hero-stat-avg':'avg price',
-    'map-eyebrow':'Autonomous Communities','map-title':'THE DOBLE MAP',
-    'map-desc':'Average double beer price by autonomous community. From cheapest to most expensive.',
-    'legend-cheap':'Cheap','legend-exp':'Expensive',
-    'ranking-title':'🏆 Ranking','sort-cheap':'cheapest','sort-exp':'priciest',
-    'lb-eyebrow':'Leaderboard','lb-title':'REGIONAL PODIUM',
-    'lb-desc':'The three cheapest regions in the national ranking.',
-    'lb-cheapest':'🥇 Cheapest','lb-expensive':'💸 Most expensive',
-    'bars-eyebrow':'Database','bars-title':'ALL BARS',
-    'bars-desc':'Full list of registered bars with their double beer price.',
-    'search-placeholder':'Search bar or city...',
-    'all-regions':'All regions','all-prices':'All prices',
-    'price-cheap':'Under 2€','price-mid':'2€ – 3€','price-exp':'Over 3€',
-    'th-bar':'Bar','th-city':'City','th-region':'Region','th-price':'Double','th-source':'Source',
-    'footer-sub':'Spain\'s beer price map','footer-copy':'Data collected by bots. Prices are approximate.',
-    'source-bot':'Bot 🤖','bars-showing':'Showing',
-    'bars-of':'of','bars-bars':'bars',
-  },
-  it: {
-    'nav-map':'Mappa','nav-ranking':'Classifica','nav-bars':'Bar',
-    'hero-eyebrow':'La mappa della birra in Spagna',
-    'hero-sub':'Scopri quanto costa una birra doppia in ogni angolo della Spagna. Dati reali raccolti bar per bar.',
-    'hero-stat-bars':'bar chiamati','hero-stat-regions':'comunità','hero-stat-avg':'prezzo medio',
-    'map-eyebrow':'Comunità Autonome','map-title':'LA MAPPA DEL DOPPIO',
-    'map-desc':'Prezzo medio della birra doppia per comunità autonoma. Dal più economico al più caro.',
-    'legend-cheap':'Economico','legend-exp':'Caro',
-    'ranking-title':'🏆 Classifica','sort-cheap':'+ economico','sort-exp':'+ caro',
-    'lb-eyebrow':'Leaderboard','lb-title':'PODIO REGIONALE',
-    'lb-desc':'Le tre comunità più economiche della classifica nazionale.',
-    'lb-cheapest':'🥇 Più economiche','lb-expensive':'💸 Più care',
-    'bars-eyebrow':'Database','bars-title':'TUTTI I BAR',
-    'bars-desc':'Elenco completo dei bar registrati con il prezzo della birra doppia.',
-    'search-placeholder':'Cerca bar o città...',
-    'all-regions':'Tutte le comunità','all-prices':'Tutti i prezzi',
-    'price-cheap':'Meno di 2€','price-mid':'2€ – 3€','price-exp':'Più di 3€',
-    'th-bar':'Bar','th-city':'Città','th-region':'Comunità','th-price':'Doppio','th-source':'Fonte',
-    'footer-sub':'La mappa della birra in Spagna','footer-copy':'Dati raccolti da bot. Prezzi indicativi.',
-    'source-bot':'Bot 🤖','bars-showing':'Mostrando',
-    'bars-of':'di','bars-bars':'bar',
-  },
-  fr: {
-    'nav-map':'Carte','nav-ranking':'Classement','nav-bars':'Bars',
-    'hero-eyebrow':'La carte de la bière en Espagne',
-    'hero-sub':'Découvrez combien coûte une bière double dans chaque coin de l\'Espagne. Données réelles collectées bar par bar.',
-    'hero-stat-bars':'bars appelés','hero-stat-regions':'communautés','hero-stat-avg':'prix moyen',
-    'map-eyebrow':'Communautés Autonomes','map-title':'LA CARTE DE LA DOUBLE',
-    'map-desc':'Prix moyen de la bière double par communauté autonome. Du moins cher au plus cher.',
-    'legend-cheap':'Pas cher','legend-exp':'Cher',
-    'ranking-title':'🏆 Classement','sort-cheap':'+ pas cher','sort-exp':'+ cher',
-    'lb-eyebrow':'Leaderboard','lb-title':'PODIUM RÉGIONAL',
-    'lb-desc':'Les trois communautés les moins chères du classement national.',
-    'lb-cheapest':'🥇 Moins chères','lb-expensive':'💸 Plus chères',
-    'bars-eyebrow':'Base de données','bars-title':'TOUS LES BARS',
-    'bars-desc':'Liste complète des bars enregistrés avec leur prix de la bière double.',
-    'search-placeholder':'Rechercher un bar ou une ville...',
-    'all-regions':'Toutes les communautés','all-prices':'Tous les prix',
-    'price-cheap':'Moins de 2€','price-mid':'2€ – 3€','price-exp':'Plus de 3€',
-    'th-bar':'Bar','th-city':'Ville','th-region':'Communauté','th-price':'Double','th-source':'Source',
-    'footer-sub':'La carte de la bière en Espagne','footer-copy':'Données collectées par des bots. Prix indicatifs.',
-    'source-bot':'Bot 🤖','bars-showing':'Affichage de',
-    'bars-of':'sur','bars-bars':'bars',
+/* ══════════════════════════════
+   STATE
+══════════════════════════════ */
+let allBars     = [];
+let reportes    = [];
+let currentMetric  = 'precio';
+let currentRkSeg   = 'ranking';
+let currentFeedSeg = 'live';
+let mapFilter      = 'all';
+let favorites      = JSON.parse(localStorage.getItem('dud_favs') || '[]');
+let activeBarId    = null;
+let currentUser    = null;
+let map            = null;
+let leafletMarkers = {};
+let mapInited      = false;
+
+/* ══════════════════════════════
+   SUPABASE CLIENT + AUTH
+══════════════════════════════ */
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+sb.auth.onAuthStateChange((_event, session) => {
+  currentUser = session?.user || null;
+  updateNavBtn();
+  renderProfile();
+});
+
+function updateNavBtn() {
+  const btn = document.getElementById('nav-login-btn');
+  btn.textContent = currentUser
+    ? (currentUser.user_metadata?.name?.split(' ')[0] || 'Yo')
+    : 'Entrar';
+}
+
+async function handleAuthBtn() {
+  if (currentUser) {
+    switchTab('perfil');
+  } else {
+    await sb.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.href }
+    });
   }
-};
+}
 
-let currentLang = 'es';
-function t(key) { return i18n[currentLang][key] || i18n['es'][key] || key; }
+async function logout() {
+  await sb.auth.signOut();
+  currentUser = null;
+  updateNavBtn();
+  renderProfile();
+  showToast('Sesión cerrada');
+}
 
-function setLang(lang) {
-  currentLang = lang;
-  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.lang-btn').forEach(b => { if(b.textContent===lang.toUpperCase()) b.classList.add('active'); });
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.getAttribute('data-i18n');
-    el.textContent = t(key);
+/* ══════════════════════════════
+   DATA LOADING
+══════════════════════════════ */
+async function loadBars() {
+  try {
+    const { data, error } = await sb.from('bares').select('*').order('nombre');
+    if (error) throw error;
+    allBars = (data || []).map(b => ({
+      ...b,
+      _precio: parseFloat(b.precio) || 0,
+    }));
+    renderTicker();
+    renderRanking();
+    if (mapInited) renderMapMarkers();
+  } catch (err) {
+    console.error('Error cargando bares:', err);
+  }
+}
+
+async function loadReportes() {
+  try {
+    const { data } = await sb
+      .from('reportes')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(40);
+    reportes = data || [];
+    renderFeed();
+  } catch (err) {
+    console.error('Error cargando reportes:', err);
+  }
+}
+
+/* ══════════════════════════════
+   MAP
+══════════════════════════════ */
+function initMap() {
+  if (mapInited) { map.invalidateSize(); return; }
+  mapInited = true;
+
+  map = L.map('map', {
+    center: MADRID, zoom: 13,
+    zoomControl: false,
   });
-  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-    el.placeholder = t(el.getAttribute('data-i18n-placeholder'));
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '© <a href="https://www.openstreetmap.org/copyright">OSM</a> © <a href="https://carto.com/">CARTO</a>',
+    subdomains: 'abcd', maxZoom: 19,
+  }).addTo(map);
+
+  L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+  // Geolocation button
+  const LocBtn = L.Control.extend({
+    options: { position: 'bottomright' },
+    onAdd() {
+      const btn = L.DomUtil.create('button', '');
+      btn.innerHTML = '📍';
+      btn.title = 'Mi ubicación';
+      btn.style.cssText = 'width:34px;height:34px;border:2px solid var(--malta);border-radius:50%;background:var(--espuma);cursor:pointer;font-size:16px;margin-bottom:6px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.2)';
+      L.DomEvent.on(btn, 'click', () => geolocate());
+      return btn;
+    }
   });
-  document.getElementById('region-filter').options[0].textContent = t('all-regions');
-  document.getElementById('price-filter').options[0].textContent = t('all-prices');
-  document.getElementById('price-filter').options[1].textContent = t('price-cheap');
-  document.getElementById('price-filter').options[2].textContent = t('price-mid');
-  document.getElementById('price-filter').options[3].textContent = t('price-exp');
-  updateRanking();
-  renderLeaderboard();
-  filterBars();
+  new LocBtn().addTo(map);
+
+  if (allBars.length) renderMapMarkers();
 }
 
-/* ── DATA ── */
-const REGIONS = [
-  { id:'01', name:'Andalucía',         price:2.00, bars:312 },
-  { id:'02', name:'Aragón',            price:2.10, bars:87  },
-  { id:'03', name:'Asturias',          price:2.20, bars:94  },
-  { id:'04', name:'Baleares',          price:3.20, bars:143 },
-  { id:'05', name:'Canarias',          price:2.80, bars:188 },
-  { id:'06', name:'Cantabria',         price:2.30, bars:72  },
-  { id:'07', name:'Castilla-La Mancha',price:1.80, bars:134 },
-  { id:'08', name:'Castilla y León',   price:1.90, bars:156 },
-  { id:'09', name:'Cataluña',          price:3.10, bars:287 },
-  { id:'10', name:'Extremadura',       price:1.60, bars:98  },
-  { id:'11', name:'Galicia',           price:1.90, bars:201 },
-  { id:'12', name:'La Rioja',          price:2.00, bars:54  },
-  { id:'13', name:'Madrid',            price:3.40, bars:412 },
-  { id:'14', name:'Murcia',            price:2.10, bars:103 },
-  { id:'15', name:'Navarra',           price:2.40, bars:78  },
-  { id:'16', name:'País Vasco',        price:2.80, bars:178 },
-  { id:'17', name:'Valencia',          price:2.50, bars:224 },
-];
-
-const BARS = [
-  { name:'Bar El Patio',       city:'Sevilla',     region:'Andalucía',          price:1.80 },
-  { name:'La Taberna',         city:'Córdoba',     region:'Andalucía',          price:2.00 },
-  { name:'Bar Manolo',         city:'Granada',     region:'Andalucía',          price:2.20 },
-  { name:'El Rincón',          city:'Zaragoza',    region:'Aragón',             price:2.10 },
-  { name:'Cafetería Centro',   city:'Huesca',      region:'Aragón',             price:2.00 },
-  { name:'Sidrería Pepe',      city:'Oviedo',      region:'Asturias',           price:2.20 },
-  { name:'Bar del Puerto',     city:'Avilés',      region:'Asturias',           price:2.30 },
-  { name:'Chiringuito Sol',    city:'Palma',       region:'Baleares',           price:3.50 },
-  { name:'Bar Mediterráneo',   city:'Ibiza',       region:'Baleares',           price:3.80 },
-  { name:'La Playa',           city:'Las Palmas',  region:'Canarias',           price:2.80 },
-  { name:'El Guachinche',      city:'Santa Cruz',  region:'Canarias',           price:2.60 },
-  { name:'Bar La Marina',      city:'Santander',   region:'Cantabria',          price:2.30 },
-  { name:'Mesón El Quijote',   city:'Toledo',      region:'Castilla-La Mancha', price:1.70 },
-  { name:'Bar La Plaza',       city:'Albacete',    region:'Castilla-La Mancha', price:1.80 },
-  { name:'El Portón',          city:'Valladolid',  region:'Castilla y León',    price:1.90 },
-  { name:'Bar Catedral',       city:'Burgos',      region:'Castilla y León',    price:1.80 },
-  { name:'Bar Gòtic',          city:'Barcelona',   region:'Cataluña',           price:3.20 },
-  { name:'La Cervecería',      city:'Barcelona',   region:'Cataluña',           price:2.90 },
-  { name:'El Xampanyet',       city:'Barcelona',   region:'Cataluña',           price:3.50 },
-  { name:'Bar Extremeño',      city:'Badajoz',     region:'Extremadura',        price:1.50 },
-  { name:'La Fonda',           city:'Cáceres',     region:'Extremadura',        price:1.70 },
-  { name:'O Garaxe',           city:'Santiago',    region:'Galicia',            price:1.90 },
-  { name:'A Taberna',          city:'Vigo',        region:'Galicia',            price:2.00 },
-  { name:'Bar Logroño',        city:'Logroño',     region:'La Rioja',           price:2.00 },
-  { name:'El Cañas',           city:'Madrid',      region:'Madrid',             price:3.20 },
-  { name:'Cervecería Alemana', city:'Madrid',      region:'Madrid',             price:3.80 },
-  { name:'Bar Moratin',        city:'Madrid',      region:'Madrid',             price:3.00 },
-  { name:'La Huertana',        city:'Murcia',      region:'Murcia',             price:2.00 },
-  { name:'Bar Navarro',        city:'Pamplona',    region:'Navarra',            price:2.40 },
-  { name:'El Txoko',           city:'Bilbao',      region:'País Vasco',         price:2.90 },
-  { name:'Sagardi',            city:'San Sebastián',region:'País Vasco',        price:3.20 },
-  { name:'La Pepica',          city:'Valencia',    region:'Valencia',           price:2.50 },
-  { name:'Bar Albufera',       city:'Valencia',    region:'Valencia',           price:2.40 },
-];
-
-/* ── HELPERS ── */
-function priceColor(price) {
-  const t = Math.min(Math.max((price - 1.5) / 2.0, 0), 1);
-  const stops = ['#FAEEDA','#F5C47A','#EF9F27','#D94F3D','#8B1A1A'];
-  const idx = t * (stops.length - 1);
-  const i = Math.floor(idx), f = idx - i;
-  if (i >= stops.length - 1) return stops[stops.length - 1];
-  const hex = h => [parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];
-  const a = hex(stops[i]), b = hex(stops[i+1]);
-  return `rgb(${Math.round(a[0]+(b[0]-a[0])*f)},${Math.round(a[1]+(b[1]-a[1])*f)},${Math.round(a[2]+(b[2]-a[2])*f)})`;
+function pinClass(price) {
+  if (price < 2.5)  return 'cheap';
+  if (price <= 3.5) return 'mid';
+  return 'exp';
 }
 
-function priceClass(price) {
-  if (price < 2) return 'price-cheap';
-  if (price <= 3) return 'price-mid';
-  return 'price-exp';
+function renderMapMarkers() {
+  // Remove old markers
+  Object.values(leafletMarkers).forEach(m => map.removeLayer(m));
+  leafletMarkers = {};
+
+  const visible = allBars.filter(b => {
+    if (!b.lat || !b.lng || !b._precio) return false;
+    if (mapFilter === 'cheap') return b._precio < 2.5;
+    if (mapFilter === 'fav')   return favorites.includes(b.id);
+    return true;
+  });
+
+  visible.forEach(b => {
+    const cls  = pinClass(b._precio);
+    const icon = L.divIcon({
+      className: '',
+      html: `<div class="price-pin ${cls}" id="pin-${b.id}">€${b._precio.toFixed(2)}</div>`,
+      iconAnchor: [28, 14],
+    });
+    const mk = L.marker([b.lat, b.lng], { icon })
+      .addTo(map)
+      .on('click', () => openSheet(b.id));
+    leafletMarkers[b.id] = mk;
+  });
 }
 
-/* ── RANKING ── */
-let sortAsc = true;
-function setSort(dir, btn) {
-  sortAsc = dir === 'asc';
-  document.querySelectorAll('.sort-tab').forEach(t => t.classList.remove('active'));
-  btn.classList.add('active');
-  updateRanking();
+function setMapFilter(filter, el) {
+  mapFilter = filter;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  if (mapInited) renderMapMarkers();
 }
 
-function updateRanking() {
-  const sorted = [...REGIONS].sort((a,b) => sortAsc ? a.price-b.price : b.price-a.price);
-  const maxP = Math.max(...REGIONS.map(r=>r.price));
-  const minP = Math.min(...REGIONS.map(r=>r.price));
-  const list = document.getElementById('ranking-list');
-  list.innerHTML = sorted.map((r,i) => {
-    const pct = Math.round(((r.price-minP)/(maxP-minP))*100);
-    const col = priceColor(r.price);
-    return `<div class="rank-item">
-      <span class="rank-num">${i+1}</span>
-      <div style="flex:1">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <span class="rank-name">${r.name}</span>
-          <span class="rank-price">${r.price.toFixed(2)}€</span>
+function geolocate() {
+  if (!navigator.geolocation) return;
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      const latlng = [pos.coords.latitude, pos.coords.longitude];
+      map.setView(latlng, 15);
+      L.circleMarker(latlng, {
+        radius: 8, fillColor: '#2563eb', fillOpacity: 1,
+        color: '#fff', weight: 3,
+      }).addTo(map);
+    },
+    () => showToast('No se pudo obtener tu ubicación')
+  );
+}
+
+/* ══════════════════════════════
+   TICKER
+══════════════════════════════ */
+function renderTicker() {
+  const sorted = [...allBars]
+    .filter(b => b._precio > 0 && b.nombre)
+    .sort((a, b) => a._precio - b._precio)
+    .slice(0, 22);
+
+  const items = sorted.map(b =>
+    `<span class="ticker-item">${b.nombre}<span class="ticker-sep">·</span><span class="ticker-price">€${b._precio.toFixed(2)}</span></span>`
+  ).join('');
+
+  const track = document.getElementById('ticker-track');
+  track.innerHTML = items + items; // duplicate for seamless loop
+}
+
+/* ══════════════════════════════
+   TAB NAVIGATION
+══════════════════════════════ */
+function switchTab(tab) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.bot-tab').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-tab-btn').forEach(el => el.classList.remove('active'));
+
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.getElementById('bt-'  + tab)?.classList.add('active');
+  document.querySelector(`.nav-tab-btn[data-tab="${tab}"]`)?.classList.add('active');
+
+  if (tab === 'mapa') {
+    setTimeout(() => {
+      if (!mapInited) initMap();
+      else map.invalidateSize();
+    }, 80);
+  }
+}
+
+/* ══════════════════════════════
+   BAR DETAIL SHEET
+══════════════════════════════ */
+function openSheet(barId) {
+  const bar = allBars.find(b => b.id === barId);
+  if (!bar) return;
+  activeBarId = barId;
+
+  const zona = extractZona(bar.direccion || '') || bar.ciudad || 'Madrid';
+  document.getElementById('sheet-zona').textContent     = zona.toUpperCase();
+  document.getElementById('sheet-bar-name').textContent = bar.nombre || '—';
+
+  // Price + delta
+  const avg  = avgPrice();
+  const del  = bar._precio - avg;
+  const pBig = document.getElementById('sheet-price-big');
+  pBig.textContent = bar._precio > 0 ? `€${bar._precio.toFixed(2)}` : '—';
+  pBig.style.color = bar._precio < 2.5 ? 'var(--lupulo)' : bar._precio > 3.5 ? 'var(--roja)' : 'var(--malta)';
+
+  const dEl = document.getElementById('sheet-delta');
+  if (bar._precio > 0) {
+    dEl.textContent  = `${del >= 0 ? '+' : ''}€${del.toFixed(2)} vs media`;
+    dEl.className    = 'sheet-delta ' + (del < 0 ? 'cheaper' : 'pricier');
+  } else {
+    dEl.textContent = ''; dEl.className = 'sheet-delta';
+  }
+
+  // Cover background (colour-coded by price)
+  const cover = document.getElementById('sheet-cover');
+  const hue   = bar._precio < 2.5 ? '#1B6B24' : bar._precio > 3.5 ? '#8B0A1E' : '#9C4A1A';
+  cover.style.background = `linear-gradient(135deg, ${hue} 0%, var(--malta) 100%)`;
+
+  // Extras grid
+  const extras = [
+    { label: 'Caña',      key: 'cana_precio'      },
+    { label: 'Bravas',    key: 'bravas_precio'     },
+    { label: 'Tortilla',  key: 'tortilla_precio'   },
+    { label: 'Croquetas', key: 'croquetas_precio'  },
+  ];
+  document.getElementById('sheet-extras').innerHTML = extras.map(e => {
+    const raw = bar[e.key];
+    const val = raw ? `€${parseFloat(raw).toFixed(2)}` : null;
+    return `<div class="sheet-extra">
+      <div class="sheet-extra-label">${e.label}</div>
+      <div class="sheet-extra-val${val ? '' : ' nd'}">${val || 'N/D'}</div>
+    </div>`;
+  }).join('');
+
+  // Address
+  document.querySelector('#sheet-addr span').textContent =
+    bar.direccion || 'Dirección no disponible';
+
+  // Fav button
+  document.getElementById('sheet-fav-btn').textContent =
+    favorites.includes(barId) ? '❤️' : '🤍';
+
+  // Open
+  document.getElementById('sheet-overlay').classList.add('open');
+  document.getElementById('bar-sheet').classList.add('open');
+
+  // Highlight map pin
+  highlightPin(barId);
+}
+
+function highlightPin(barId) {
+  Object.entries(leafletMarkers).forEach(([id, mk]) => {
+    const el = mk.getElement()?.querySelector('.price-pin');
+    if (!el) return;
+    el.classList.toggle('sel', String(id) === String(barId));
+  });
+}
+
+function closeSheet() {
+  document.getElementById('sheet-overlay').classList.remove('open');
+  document.getElementById('bar-sheet').classList.remove('open');
+  activeBarId = null;
+  Object.values(leafletMarkers).forEach(mk =>
+    mk.getElement()?.querySelector('.price-pin')?.classList.remove('sel')
+  );
+}
+
+function toggleFav() {
+  if (!activeBarId) return;
+  const idx = favorites.indexOf(activeBarId);
+  if (idx === -1) {
+    favorites.push(activeBarId);
+    document.getElementById('sheet-fav-btn').textContent = '❤️';
+    showToast('Añadido a favoritos ❤️');
+  } else {
+    favorites.splice(idx, 1);
+    document.getElementById('sheet-fav-btn').textContent = '🤍';
+    showToast('Eliminado de favoritos');
+  }
+  localStorage.setItem('dud_favs', JSON.stringify(favorites));
+  renderProfile();
+}
+
+function openReport() {
+  closeSheet();
+  showToast('Función de reporte próximamente ✏️');
+  // TODO: open report form / redirect to quick.html
+}
+
+/* ══════════════════════════════
+   RANKING
+══════════════════════════════ */
+function setMetric(metric, el) {
+  currentMetric = metric;
+  document.querySelectorAll('.metric-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  renderRanking();
+}
+
+function setRkSeg(seg, el) {
+  currentRkSeg = seg;
+  document.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderRkBody();
+}
+
+function metricLabel(key) {
+  return ({ precio:'dobles', cana_precio:'cañas', bravas_precio:'bravas',
+            tortilla_precio:'tortillas', croquetas_precio:'croquetas' })[key] || key;
+}
+
+function sortedByMetric() {
+  return allBars
+    .map(b => {
+      let v = 0;
+      if (currentMetric === 'precio') {
+        v = b._precio;
+      } else {
+        const raw = b[currentMetric];
+        v = raw ? parseFloat(raw) : 0;
+      }
+      return { ...b, _val: v };
+    })
+    .filter(b => b._val > 0)
+    .sort((a, b) => a._val - b._val);
+}
+
+function renderRanking() {
+  const sorted = sortedByMetric();
+  if (!sorted.length) return;
+
+  const avg = sorted.reduce((s, b) => s + b._val, 0) / sorted.length;
+  document.getElementById('rk-avg').textContent = `€${avg.toFixed(2)}`;
+  document.getElementById('rk-h1').innerHTML =
+    `Los ${metricLabel(currentMetric)}<br>más baratos<em>.</em>`;
+
+  renderRkBody();
+}
+
+function renderRkBody() {
+  const sorted  = sortedByMetric();
+  const body    = document.getElementById('rk-body');
+
+  if (currentRkSeg === 'ranking') {
+    const top3  = sorted.slice(0, 3);
+    const rest  = sorted.slice(3, 50);
+    // Column order: [2nd, 1st, 3rd] for podium visual
+    const order     = [1, 0, 2];
+    const blkCls    = ['podium-blk-2', 'podium-blk-1', 'podium-blk-3'];
+    const medals    = ['🥈', '🥇', '🥉'];
+    const positions = [2, 1, 3];
+
+    const podiumHTML = order.map((idx, col) => {
+      const b = top3[idx];
+      if (!b) return '<div></div>';
+      const zona = extractZona(b.direccion || '') || b.ciudad || '—';
+      return `<div class="podium-col" onclick="openSheet(${b.id})">
+        <div class="podium-nm">${b.nombre}</div>
+        <div class="podium-sub">${zona}</div>
+        <div class="podium-block ${blkCls[col]}">
+          <div class="podium-price">€${b._val.toFixed(2)}</div>
+          <div class="podium-medal">${medals[col]} #${positions[col]}</div>
         </div>
-        <div class="rank-bar-wrap"><div class="rank-bar-fill" style="width:${Math.max(pct,4)}%;background:${col}"></div></div>
+      </div>`;
+    }).join('');
+
+    const listHTML = rest.map((b, i) => {
+      const zona  = extractZona(b.direccion || '') || b.ciudad || '—';
+      const color = b._val < 2.5 ? 'var(--lupulo)' : b._val > 3.5 ? 'var(--roja)' : 'var(--cobre)';
+      return `<li class="bar-row" onclick="openSheet(${b.id})">
+        <div class="bar-num">${String(i + 4).padStart(2, '0')}</div>
+        <div>
+          <div class="bar-nm">${b.nombre}</div>
+          <div class="bar-sub">
+            <span>${zona}</span>
+            ${favorites.includes(b.id) ? '<span>❤️</span>' : ''}
+          </div>
+        </div>
+        <div class="bar-val" style="color:${color}">€${b._val.toFixed(2)}</div>
+      </li>`;
+    }).join('');
+
+    body.innerHTML =
+      `<div class="podium">${podiumHTML}</div>
+       <ol class="bar-list">${listHTML}</ol>`;
+
+  } else if (currentRkSeg === 'live') {
+    body.innerHTML = buildFeedHTML();
+
+  } else if (currentRkSeg === 'drops') {
+    body.innerHTML = buildDropsHTML();
+  }
+}
+
+/* ══════════════════════════════
+   FEED
+══════════════════════════════ */
+function setFeedSeg(seg, el) {
+  currentFeedSeg = seg;
+  document.querySelectorAll('.feed-seg-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderFeed();
+}
+
+function renderFeed() {
+  const body = document.getElementById('feed-body');
+  if (!body) return;
+  body.innerHTML = currentFeedSeg === 'live' ? buildFeedHTML() : buildDropsHTML();
+}
+
+function buildFeedHTML() {
+  if (!reportes.length) {
+    return `<div class="empty-state">Sin actividad reciente.<br>Sé el primero en reportar un precio.</div>`;
+  }
+  return reportes.map(r => {
+    const initials = (r.usuario || r.email || 'AN').slice(0, 2).toUpperCase();
+    const barName  = r.nombre_bar || r.bar_nombre || '—';
+    const ago      = timeAgo(r.created_at);
+    const precio   = r.precio ? `€${parseFloat(r.precio).toFixed(2)}` : '';
+    return `<div class="feed-item" onclick="openSheetByName('${esc(barName)}')">
+      <div class="feed-av">${initials}</div>
+      <div class="feed-body">
+        <div class="feed-line1">Reportado en <strong>${barName}</strong></div>
+        <div class="feed-line2">${precio} ${r.mensaje || ''}</div>
+      </div>
+      <div class="feed-time">${ago}</div>
+    </div>`;
+  }).join('');
+}
+
+function buildDropsHTML() {
+  const cheap = [...allBars]
+    .filter(b => b._precio > 0)
+    .sort((a, b) => a._precio - b._precio)
+    .slice(0, 12);
+  if (!cheap.length) return `<div class="empty-state">Sin datos disponibles.</div>`;
+  return cheap.map(b => {
+    const zona = extractZona(b.direccion || '') || b.ciudad || 'Madrid';
+    return `<div class="drop-item" onclick="openSheet(${b.id})">
+      <div class="drop-icon">↘</div>
+      <div class="drop-body">
+        <div class="drop-nm">${b.nombre}</div>
+        <div class="drop-sub">${zona} · Doble</div>
+      </div>
+      <div class="drop-prices">
+        <div class="drop-new">€${b._precio.toFixed(2)}</div>
       </div>
     </div>`;
   }).join('');
 }
 
-/* ── LEADERBOARD ── */
-function renderLeaderboard() {
-  const sorted = [...REGIONS].sort((a,b) => a.price-b.price);
-  const cheapest = sorted.slice(0,3);
-  const medals = ['🥇','🥈','🥉'];
+/* ══════════════════════════════
+   PROFILE
+══════════════════════════════ */
+function renderProfile() {
+  const c = document.getElementById('profile-content');
+  if (!c) return;
 
-  function makeCards(list, container) {
-    container.innerHTML = list.map((r,i) => {
-      const topBars = BARS.filter(b=>b.region===r.name).sort((a,b)=>a.price-b.price).slice(0,3);
-      return `<div class="lb-card">
-        <div class="lb-card-header">
-          <div class="lb-medal ${i===0?'medal-1':i===1?'medal-2':'medal-3'}">${medals[i]}</div>
-          <div>
-            <div class="lb-card-name">${r.name}</div>
-            <div class="lb-card-sub">${r.bars} bares · ${r.price.toFixed(2)}€ media</div>
-          </div>
-          <div class="lb-card-price">${r.price.toFixed(2)}€</div>
-        </div>
-        <div class="lb-card-body">
-          ${topBars.map(b=>`<div class="lb-row"><span>${b.name} <span style="color:var(--slate-light);font-size:11px">${b.city}</span></span><span class="lb-row-price">${b.price.toFixed(2)}€</span></div>`).join('')}
-        </div>
+  if (!currentUser) {
+    c.innerHTML = `
+      <div class="profile-login-screen">
+        <div class="profile-login-icon">🍺</div>
+        <div class="profile-login-title">Únete a la comunidad</div>
+        <p class="profile-login-sub">Guarda tus bares favoritos, reporta precios y ayuda a hacer el mapa más completo.</p>
+        <button class="btn-google" onclick="handleAuthBtn()">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908C16.607 14.009 17.64 11.768 17.64 9.2z" fill="#4285F4"/>
+            <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z" fill="#34A853"/>
+            <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
+            <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+          </svg>
+          Entrar con Google
+        </button>
       </div>`;
-    }).join('');
+    return;
   }
-  makeCards(cheapest, document.getElementById('lb-cheap'));
+
+  const favBars  = allBars.filter(b => favorites.includes(b.id));
+  const name     = currentUser.user_metadata?.name || currentUser.email || 'Usuario';
+  const avatar   = currentUser.user_metadata?.avatar_url;
+  const initials = name.slice(0, 2).toUpperCase();
+
+  c.innerHTML = `
+    <div class="profile-hdr">
+      <div class="profile-pic">
+        ${avatar
+          ? `<img src="${avatar}" alt="${name}">`
+          : `<div class="profile-initials">${initials}</div>`}
+      </div>
+      <div>
+        <div class="profile-name">${name}</div>
+        <div class="profile-email">${currentUser.email || ''}</div>
+      </div>
+      <button class="btn-logout" onclick="logout()">Salir</button>
+    </div>
+
+    <div class="profile-section-title">❤️ Mis favoritos (${favBars.length})</div>
+    ${favBars.length === 0
+      ? `<div class="empty-state">Aún no tienes favoritos.<br>Toca el ❤️ en cualquier bar.</div>`
+      : favBars.map(b => {
+          const zona = extractZona(b.direccion || '') || b.ciudad || 'Madrid';
+          return `<div class="fav-row" onclick="openSheet(${b.id})">
+            <div>
+              <div class="fav-nm">${b.nombre}</div>
+              <div class="fav-zona">${zona}</div>
+            </div>
+            <div class="fav-price">€${b._precio.toFixed(2)}</div>
+            <div class="fav-rm" onclick="event.stopPropagation();removeFav(${b.id})">✕</div>
+          </div>`;
+        }).join('')
+    }`;
 }
 
-/* ── BARS TABLE ── */
-let filteredBars = [...BARS];
-
-function filterBars() {
-  const q = document.getElementById('bar-search').value.toLowerCase();
-  const reg = document.getElementById('region-filter').value;
-  const price = document.getElementById('price-filter').value;
-  filteredBars = BARS.filter(b => {
-    if (q && !b.name.toLowerCase().includes(q) && !b.city.toLowerCase().includes(q)) return false;
-    if (reg && b.region !== reg) return false;
-    if (price === 'cheap' && b.price >= 2) return false;
-    if (price === 'mid' && (b.price < 2 || b.price > 3)) return false;
-    if (price === 'exp' && b.price <= 3) return false;
-    return true;
-  });
-  renderBarsTable();
+function removeFav(id) {
+  favorites = favorites.filter(f => f !== id);
+  localStorage.setItem('dud_favs', JSON.stringify(favorites));
+  renderProfile();
+  if (mapInited) renderMapMarkers();
+  showToast('Eliminado de favoritos');
 }
 
-function renderBarsTable() {
-  const tbody = document.getElementById('bars-tbody');
-  tbody.innerHTML = filteredBars.map(b => `<tr>
-    <td style="font-weight:500">${b.name}</td>
-    <td>${b.city}</td>
-    <td><span class="badge-region">${b.region}</span></td>
-    <td class="price-cell ${priceClass(b.price)}">${b.price.toFixed(2)}€</td>
-    <td><span class="bot-badge">${t('source-bot')}</span></td>
-  </tr>`).join('');
-  document.getElementById('bars-count').textContent = `${t('bars-showing')} ${filteredBars.length} ${t('bars-of')} ${BARS.length} ${t('bars-bars')}`;
+/* ══════════════════════════════
+   UTILITIES
+══════════════════════════════ */
+function avgPrice() {
+  const valid = allBars.filter(b => b._precio > 0);
+  if (!valid.length) return 0;
+  return valid.reduce((s, b) => s + b._precio, 0) / valid.length;
 }
 
-function populateRegionFilter() {
-  const sel = document.getElementById('region-filter');
-  [...REGIONS].sort((a,b)=>a.name.localeCompare(b.name)).forEach(r => {
-    const opt = document.createElement('option');
-    opt.value = r.name; opt.textContent = r.name;
-    sel.appendChild(opt);
-  });
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2600);
 }
 
-/* ── MAP ── */
-const NAME_MAP = {
-  'Andalucía':'Andalucía','Andalusia':'Andalucía',
-  'Aragón':'Aragón','Aragon':'Aragón',
-  'Asturias':'Asturias','Principality of Asturias':'Asturias',
-  'Illes Balears':'Baleares','Balearic Islands':'Baleares',
-  'Canary Islands':'Canarias','Canarias':'Canarias',
-  'Cantabria':'Cantabria',
-  'Castile-La Mancha':'Castilla-La Mancha','Castilla-La Mancha':'Castilla-La Mancha',
-  'Castile and León':'Castilla y León','Castilla y León':'Castilla y León',
-  'Catalonia':'Cataluña','Catalunya':'Cataluña','Cataluña':'Cataluña',
-  'Extremadura':'Extremadura',
-  'Galicia':'Galicia',
-  'La Rioja':'La Rioja',
-  'Community of Madrid':'Madrid','Madrid':'Madrid',
-  'Murcia':'Murcia','Region of Murcia':'Murcia',
-  'Navarre':'Navarra','Navarra':'Navarra',
-  'Basque Country':'País Vasco','País Vasco':'País Vasco',
-  'Valencian Community':'Valencia','Valencia':'Valencia',
-};
-
-const svg = d3.select('#spain-map');
-
-function getRegion(d) {
-  const raw = d.properties && (d.properties.name || d.properties.NAME || '');
-  return NAME_MAP[raw] || raw;
+function timeAgo(dateStr) {
+  if (!dateStr) return '';
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1)  return 'ahora';
+  if (m < 60) return `${m}m`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h`;
+  return `${Math.floor(h / 24)}d`;
 }
 
-d3.json('https://cdn.jsdelivr.net/npm/es-atlas@0.6.0/es/autonomous_regions.json').then(topo => {
-  const key = Object.keys(topo.objects)[0];
-  const features = topojson.feature(topo, topo.objects[key]).features;
-  const proj = d3.geoConicConformal().parallels([35,44]).rotate([5,0]).fitSize([700,440],{type:'FeatureCollection',features});
-  const path = d3.geoPath(proj);
-
-  svg.selectAll('path')
-    .data(features).join('path')
-    .attr('d', path)
-    .attr('stroke', '#fff')
-    .attr('stroke-width', 0.8)
-    .attr('cursor', 'pointer')
-    .attr('fill', d => {
-      const name = getRegion(d);
-      const reg = REGIONS.find(r=>r.name===name);
-      return reg ? priceColor(reg.price) : '#e0d8d0';
-    })
-    .on('mousemove', function(event, d) {
-      const name = getRegion(d);
-      const reg = REGIONS.find(r=>r.name===name);
-      const tt = document.getElementById('map-tooltip');
-      const wrap = document.querySelector('.map-wrap');
-      const wr = wrap.getBoundingClientRect();
-      document.getElementById('tt-name').textContent = name;
-      document.getElementById('tt-price').textContent = reg ? reg.price.toFixed(2)+'€ / doble' : '—';
-      document.getElementById('tt-bars').textContent = reg ? `${reg.bars} bares` : '';
-      tt.style.display = 'block';
-      let x = event.clientX - wr.left + 14;
-      let y = event.clientY - wr.top + 14;
-      if (x + 160 > wr.width) x = event.clientX - wr.left - 170;
-      tt.style.left = x+'px'; tt.style.top = y+'px';
-    })
-    .on('mouseleave', () => { document.getElementById('map-tooltip').style.display = 'none'; });
-}).catch(() => {
-  svg.append('text').attr('x',350).attr('y',220).attr('text-anchor','middle')
-    .attr('fill','#888').attr('font-size',14).text('No se pudo cargar el mapa.');
-});
-
-/* ── NAV ── */
-function toggleMenu() {
-  document.getElementById('nav-links').classList.toggle('open');
+function openSheetByName(name) {
+  const bar = allBars.find(b => b.nombre === name);
+  if (bar) openSheet(bar.id);
 }
 
-/* ── INIT ── */
-document.getElementById('bar-search').addEventListener('input', filterBars);
-populateRegionFilter();
-updateRanking();
-renderLeaderboard();
-filterBars();
-setLang('es');
+function esc(str) {
+  return (str || '').replace(/'/g, "\\'");
+}
+
+function extractZona(dir) {
+  if (!dir) return '';
+  const d = dir.toLowerCase();
+  if (d.includes('malasaña') || d.includes('manuela mal'))  return 'Malasaña';
+  if (d.includes('fuencarral'))                              return 'Malasaña';
+  if (d.includes('chueca') || d.includes('pelayo'))         return 'Chueca';
+  if (d.includes('hortaleza'))                               return 'Chueca';
+  if (d.includes('lavap'))                                   return 'Lavapiés';
+  if (d.includes('sol') || d.includes('mayor') ||
+      d.includes('gran vía') || d.includes('gran via'))     return 'Centro';
+  if (d.includes('retiro') || d.includes('alcalá'))         return 'Retiro';
+  if (d.includes('salamanca') || d.includes('serrano') ||
+      d.includes('velázquez') || d.includes('goya'))        return 'Salamanca';
+  if (d.includes('chamberí') || d.includes('chamberi') ||
+      d.includes('ríos rosas') || d.includes('almagro'))    return 'Chamberí';
+  if (d.includes('moncloa') || d.includes('argüelles') ||
+      d.includes('arguelles'))                               return 'Moncloa';
+  if (d.includes('la latina') || d.includes('cava'))        return 'La Latina';
+  if (d.includes('embajadores') || d.includes('rastro'))    return 'Embajadores';
+  if (d.includes('huertas') || d.includes('atocha'))        return 'Huertas';
+  return '';
+}
+
+/* ══════════════════════════════
+   INIT
+══════════════════════════════ */
+(async () => {
+  // Check auth
+  const { data: { session } } = await sb.auth.getSession();
+  currentUser = session?.user || null;
+  updateNavBtn();
+  renderProfile();
+
+  // Load data
+  await Promise.all([loadBars(), loadReportes()]);
+
+  // Init map (mapa tab is active by default)
+  initMap();
+})();
 </script>
 </body>
 </html>
