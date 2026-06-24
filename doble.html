@@ -1833,8 +1833,8 @@ function renderProfile() {
     c.innerHTML = `
       <div class="profile-login-screen">
         <div class="profile-login-icon">🍺</div>
-        <div class="profile-login-title">Únete a la comunidad</div>
-        <p class="profile-login-sub">Guarda tus bares favoritos, reporta precios y ayuda a hacer el mapa más completo.</p>
+        <div class="profile-login-title">Únete a la barra</div>
+        <p class="profile-login-sub">Guarda tus bares favoritos, reporta precios y ayuda a hacer el mapa más completo de Madrid.</p>
         <button class="btn-google" onclick="handleAuthBtn()">
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
             <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908C16.607 14.009 17.64 11.768 17.64 9.2z" fill="#4285F4"/>
@@ -1842,7 +1842,7 @@ function renderProfile() {
             <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
             <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
           </svg>
-          Entrar con Google
+          Entrar a la barra (con Google)
         </button>
       </div>`;
     return;
@@ -1857,7 +1857,12 @@ function renderProfile() {
   let listHTML = '';
   if (profileSection === 'favs') {
     listHTML = favBars.length === 0
-      ? `<div class="empty-state">🍺<br>Aún no tienes favoritos.<br><small>Toca el ❤️ en cualquier bar.</small></div>`
+      ? `<div class="empty-state">
+          <div style="font-size:48px;margin-bottom:1rem">🌵</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--malta);margin-bottom:8px">Tu ruta está más seca que el esparto.</div>
+          <p style="font-size:13px;color:var(--malta-soft);line-height:1.6;max-width:280px;margin:0 auto 1.5rem">Aún no has guardado ningún bar. Pásate por el mapa y dale al ❤️ a esos sitios donde te tratan como en casa (o donde la cerveza está regalada).</p>
+          <button onclick="switchTab('mapa')" style="background:var(--roja);color:var(--espuma);border:none;border-radius:6px;padding:10px 20px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.5px;cursor:pointer">🗺️ Vámonos de bares</button>
+        </div>`
       : favBars.map(b => {
           const zona = extractZona(b.direccion || '') || b.ciudad || 'Madrid';
           return `<div class="profile-list-item" onclick="openSheet(${b.id})">
@@ -1875,7 +1880,11 @@ function renderProfile() {
 
   } else if (profileSection === 'reviews') {
     listHTML = userReviews.length === 0
-      ? `<div class="empty-state">★<br>Todavía no has dejado ninguna reseña.<br><small>Abre un bar y comparte tu experiencia.</small></div>`
+      ? `<div class="empty-state">
+          <div style="font-size:48px;margin-bottom:1rem">🍺</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--malta);margin-bottom:8px">¿Con dos dedos de crema o parecía caldo?</div>
+          <p style="font-size:13px;color:var(--malta-soft);line-height:1.6;max-width:280px;margin:0 auto">Todavía no has dejado ninguna reseña. Madrid necesita saber si ese bar pone buena tapa con el doble o si los vasos huelen a lavavajillas. ¡Sé el crítico que merecemos!</p>
+        </div>`
       : userReviews.map(r => {
           const barName = r.bares?.nombre || '—';
           const stars = [1,2,3,4,5].map(i =>
@@ -1893,7 +1902,11 @@ function renderProfile() {
 
   } else {
     listHTML = userReports.length === 0
-      ? `<div class="empty-state">✏️<br>Todavía no has reportado ningún precio.</div>`
+      ? `<div class="empty-state">
+          <div style="font-size:48px;margin-bottom:1rem">✏️</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--malta);margin-bottom:8px">Si encuentras un doble a 2€, es tu deber moral contarlo.</div>
+          <p style="font-size:13px;color:var(--malta-soft);line-height:1.6;max-width:280px;margin:0 auto">Todavía no has reportado ningún precio. El pueblo de Madrid confía en ti.</p>
+        </div>`
       : userReports.map(r => {
           const barName = r.nombre_bar || r.bar_nombre || '—';
           return `<div class="profile-list-item">
