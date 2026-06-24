@@ -1076,6 +1076,9 @@ async function loadBars() {
     if (mapInited) renderMapMarkers();
   } catch (err) {
     console.error('Error cargando bares:', err);
+    showToast('⚠️ Error cargando datos: ' + (err.message || err));
+    document.getElementById('home-top3').innerHTML =
+      `<div class="empty-state">Error al conectar con Supabase.<br><small>${err.message || ''}</small></div>`;
   }
 }
 
