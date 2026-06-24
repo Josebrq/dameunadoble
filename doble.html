@@ -794,7 +794,7 @@ body {
       <div class="hero">
         <div class="hero-eyebrow">El mapa de la cerveza en Madrid</div>
         <h1 class="hero-h1">DAME UNA<br><em>DOBLE</em></h1>
-        <p class="hero-sub">Que no te claven. Precios reales de dobles en Madrid, actualizados por la comunidad.</p>
+        <p class="hero-sub">Busca un bar, ve el precio del doble, y decide si merece la pena. Precios reportados por la comunidad de Madrid.</p>
         <div class="hero-stats">
           <div class="hero-stat">
             <div class="hero-stat-num" id="h-bares">—</div>
@@ -1140,16 +1140,9 @@ function renderMapMarkers() {
     if (!b.lat || !b.lng || !b._precio) return false;
     if (mapFilter === 'cheap') return b._precio < 2.5;
     if (mapFilter === 'fav')   return favorites.includes(b.id);
-    return true;
-  });
-
-  const visible = allBars.filter(b => {
-    if (!b.lat || !b.lng || !b._precio) return false;
-    if (mapFilter === 'cheap') return b._precio < 2.5;
-    if (mapFilter === 'fav')   return favorites.includes(b.id);
     if (mapFilter === 'cerca') {
       if (!geoActive) return true;
-      return haversine(userLat, userLng, b.lat, b.lng) <= 1.0; // 1km radius
+      return haversine(userLat, userLng, b.lat, b.lng) <= 1.0;
     }
     return true;
   });
