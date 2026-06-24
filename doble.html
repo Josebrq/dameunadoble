@@ -61,9 +61,11 @@ body {
 ───────────────────────────── */
 .top-nav {
   position: fixed; top: 0; left: 0; right: 0; z-index: 200;
-  height: 56px; background: var(--malta);
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 1.25rem;
+  background: var(--malta);
+}
+.nav-row {
+  height: 56px; display: flex; align-items: center;
+  justify-content: space-between; padding: 0 1.25rem;
   border-bottom: 2px solid var(--roja);
 }
 .nav-logo {
@@ -95,8 +97,8 @@ body {
    TICKER — live price strip
 ───────────────────────────── */
 .ticker {
-  position: fixed; top: 56px; left: 0; right: 0; z-index: 190;
   height: 34px; background: var(--roja);
+  overflow: hidden;
   display: flex; align-items: center;
 }
 .ticker-inner {
@@ -763,27 +765,27 @@ body {
 
 <!-- ── TOP NAV ── -->
 <nav class="top-nav">
-  <a href="#" class="nav-logo" onclick="switchTab('home');return false;">
-    Ponme Una <span>Doble</span> 🍺
-  </a>
-  <div class="nav-tabs">
-    <button class="nav-tab-btn active" data-tab="home"    onclick="switchTab('home')">🏠 Inicio</button>
-    <button class="nav-tab-btn"        data-tab="mapa"    onclick="switchTab('mapa')">🗺️ Mapa</button>
-    <button class="nav-tab-btn"        data-tab="ranking" onclick="switchTab('ranking')">🏆 Ranking</button>
-    <button class="nav-tab-btn"        data-tab="feed"    onclick="switchTab('feed')">📡 Feed</button>
-    <button class="nav-tab-btn"        data-tab="perfil"  onclick="switchTab('perfil')">👤 Perfil</button>
+  <div class="nav-row">
+    <a href="#" class="nav-logo" onclick="switchTab('home');return false;">
+      Ponme Una <span>Doble</span> 🍺
+    </a>
+    <div class="nav-tabs">
+      <button class="nav-tab-btn active" data-tab="home"    onclick="switchTab('home')">🏠 Inicio</button>
+      <button class="nav-tab-btn"        data-tab="mapa"    onclick="switchTab('mapa')">🗺️ Mapa</button>
+      <button class="nav-tab-btn"        data-tab="ranking" onclick="switchTab('ranking')">🏆 Ranking</button>
+      <button class="nav-tab-btn"        data-tab="feed"    onclick="switchTab('feed')">📡 Feed</button>
+      <button class="nav-tab-btn"        data-tab="perfil"  onclick="switchTab('perfil')">👤 Perfil</button>
+    </div>
+    <button class="nav-login-btn" id="nav-login-btn" onclick="handleAuthBtn()">Entrar</button>
   </div>
-  <button class="nav-login-btn" id="nav-login-btn" onclick="handleAuthBtn()">Entrar</button>
-</nav>
-
-<!-- ── PRICE TICKER ── -->
-<div class="ticker" aria-hidden="true">
-  <div class="ticker-inner">
-    <div class="ticker-track" id="ticker-track">
-      <span class="ticker-item">Cargando precios<span class="ticker-sep">·</span></span>
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker-inner">
+      <div class="ticker-track" id="ticker-track">
+        <span class="ticker-item">Cargando precios<span class="ticker-sep">·</span></span>
+      </div>
     </div>
   </div>
-</div>
+</nav>
 
 <!-- ── MAIN ── -->
 <main class="main">
