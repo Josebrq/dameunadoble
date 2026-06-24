@@ -503,73 +503,132 @@ body {
 ───────────────────────────── */
 .profile-wrap { width: 100%; padding-bottom: 2rem; }
 
-/* Hero oscuro */
+/* ── PROFILE HEADER ── */
 .profile-hero {
-  background: var(--malta); padding: 2rem 1.5rem 0;
-  position: relative; text-align: center;
+  background: var(--malta);
+  padding: 1.25rem 1.5rem 0;
+  position: relative;
+}
+.profile-hero-top {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 1.25rem; flex-wrap: wrap;
 }
 .profile-avatar {
-  width: 76px; height: 76px; border-radius: 50%;
+  width: 72px; height: 72px; border-radius: 50%; flex-shrink: 0;
   overflow: hidden; background: var(--roja);
   display: flex; align-items: center; justify-content: center;
-  margin: 0 auto 1rem;
-  border: 3px solid rgba(255,252,244,0.12);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  border: 3px solid rgba(255,252,244,0.15);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
 }
 .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
 .profile-av-initials {
-  font-family: 'Bebas Neue', sans-serif; font-size: 30px; color: var(--espuma);
+  font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--espuma);
 }
+.profile-hero-info { flex: 1; min-width: 0; }
 .profile-hero-name {
-  font-family: 'Bebas Neue', sans-serif; font-size: 26px;
-  color: var(--espuma); letter-spacing: 0.5px; line-height: 1; margin-bottom: 4px;
+  font-family: 'Bebas Neue', sans-serif; font-size: 22px;
+  color: var(--espuma); letter-spacing: 0.5px; line-height: 1; margin-bottom: 2px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.profile-hero-email { font-size: 12px; color: rgba(255,252,244,0.4); margin-bottom: 1.75rem; }
+.profile-hero-email { font-size: 11px; color: rgba(255,252,244,0.4); }
+.profile-stat-chips {
+  display: flex; gap: 8px; flex-shrink: 0;
+}
+.profile-stat-chip {
+  display: flex; flex-direction: column; align-items: center;
+  background: rgba(255,252,244,0.07); border: 1px solid rgba(255,252,244,0.1);
+  border-radius: 10px; padding: 8px 14px; cursor: pointer;
+  transition: all 0.15s; min-width: 72px; text-align: center;
+}
+.profile-stat-chip:hover { background: rgba(255,252,244,0.12); }
+.profile-stat-chip.active {
+  background: rgba(232,160,32,0.15); border-color: rgba(232,160,32,0.4);
+}
+.psc-icon { font-size: 18px; margin-bottom: 2px; }
+.psc-num {
+  font-family: 'Bebas Neue', sans-serif; font-size: 22px; line-height: 1;
+  color: rgba(255,252,244,0.35);
+}
+.profile-stat-chip.active .psc-num { color: var(--dorada); }
+.psc-lbl {
+  font-size: 8px; text-transform: uppercase; letter-spacing: 0.8px;
+  color: rgba(255,252,244,0.3); margin-top: 2px;
+}
+.profile-stat-chip.active .psc-lbl { color: rgba(255,252,244,0.6); }
 .btn-logout-hero {
-  position: absolute; top: 1.25rem; right: 1.25rem;
   font-size: 11px; padding: 5px 12px;
   border: 1px solid rgba(255,252,244,0.2); border-radius: 20px;
   background: transparent; color: rgba(255,252,244,0.45);
   cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.15s;
+  flex-shrink: 0; align-self: flex-start;
 }
 .btn-logout-hero:hover { border-color: var(--roja); color: var(--roja); }
 
-/* Stat tabs dentro del hero */
-.profile-stat-tabs {
+/* Tab bar */
+.profile-tab-bar {
   display: flex; border-top: 1px solid rgba(255,252,244,0.08);
 }
-.profile-stat-tab {
-  flex: 1; padding: 1rem 0.5rem; text-align: center;
-  cursor: pointer; border-bottom: 2px solid transparent;
-  transition: all 0.15s;
+.ptb-btn {
+  flex: 1; padding: 12px 0; text-align: center;
+  font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+  border: none; background: transparent; cursor: pointer;
+  color: rgba(255,252,244,0.3); border-bottom: 2px solid transparent;
+  font-family: 'Inter', sans-serif; transition: all 0.15s;
 }
-.profile-stat-tab:hover { background: rgba(255,252,244,0.04); }
-.profile-stat-tab.active { border-bottom-color: var(--dorada); }
-.profile-stat-tab-num {
-  font-family: 'Bebas Neue', sans-serif; font-size: 28px; line-height: 1;
-  color: rgba(255,252,244,0.3); transition: color 0.15s;
+.ptb-btn:hover { color: rgba(255,252,244,0.6); }
+.ptb-btn.active { color: var(--dorada); border-bottom-color: var(--dorada); }
+
+/* ── PROFILE CARDS ── */
+.profile-cards { padding: 12px; display: flex; flex-direction: column; gap: 10px; max-width: 700px; margin: 0 auto; }
+.pcard {
+  background: white; border-radius: 10px;
+  border: 1px solid var(--border);
+  display: flex; overflow: hidden;
+  box-shadow: var(--shadow); transition: box-shadow 0.15s;
 }
-.profile-stat-tab.active .profile-stat-tab-num { color: var(--dorada); }
-.profile-stat-tab-lbl {
-  font-size: 9px; text-transform: uppercase; letter-spacing: 1px;
-  margin-top: 3px; color: rgba(255,252,244,0.3); transition: color 0.15s;
+.pcard:hover { box-shadow: var(--shadow-lg); }
+.pcard-img {
+  width: 90px; flex-shrink: 0;
+  background: var(--malta-mid); position: relative; overflow: hidden;
 }
-.profile-stat-tab.active .profile-stat-tab-lbl { color: rgba(255,252,244,0.65); }
+.pcard-img-inner {
+  width: 100%; height: 100%;
+  background-size: cover; background-position: center;
+}
+.pcard-price-badge {
+  position: absolute; top: 6px; right: 6px;
+  background: var(--dorada); color: var(--malta);
+  font-family: 'Bebas Neue', sans-serif; font-size: 14px;
+  padding: 2px 6px; border-radius: 4px; line-height: 1.3;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+.pcard-body { flex: 1; padding: 10px 12px; min-width: 0; }
+.pcard-name {
+  font-family: 'Bebas Neue', sans-serif; font-size: 18px;
+  line-height: 1; color: var(--malta); margin-bottom: 3px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pcard-sub { font-size: 11px; color: var(--malta-soft); margin-bottom: 7px; }
+.pcard-canas { display: flex; align-items: center; gap: 2px; margin-bottom: 7px; }
+.cana-icon { font-size: 15px; line-height: 1; }
+.cana-icon.empty { opacity: 0.2; }
+.pcard-cana-label { font-size: 10px; color: var(--malta-soft); margin-left: 5px; }
+.pcard-comment { font-size: 12px; color: var(--malta-mid); font-style: italic; line-height: 1.4; margin-bottom: 7px; }
+.pcard-actions { display: flex; justify-content: flex-end; }
+.pcard-del {
+  font-size: 11px; padding: 5px 12px;
+  border: 1.5px solid var(--border-strong);
+  border-radius: 6px; background: transparent;
+  color: var(--malta-soft); cursor: pointer;
+  font-family: 'Inter', sans-serif; transition: all 0.15s;
+}
+.pcard-del:hover { border-color: var(--roja); color: var(--roja); }
 
 /* Área de contenido */
 .profile-content-area { max-width: 480px; margin: 0 auto; padding: 0 1.25rem; }
 
-/* Items de lista */
-.profile-list-item {
-  display: flex; align-items: center; gap: 12px;
-  padding: 14px 0; border-bottom: 1px solid var(--border);
-  cursor: pointer; transition: all 0.12s;
-}
-.profile-list-item:last-child { border-bottom: none; }
-.profile-list-item:hover { background: var(--dorada-light); padding-left: 8px; padding-right: 8px; margin: 0 -8px; border-radius: 6px; }
+/* Items legacy (reportes) */
 .pli-accent { width: 3px; border-radius: 2px; flex-shrink: 0; align-self: stretch; min-height: 36px; }
-.pli-accent.fav    { background: var(--roja); }
-.pli-accent.review { background: var(--dorada); }
 .pli-accent.report { background: var(--lupulo); }
 .pli-body { flex: 1; min-width: 0; }
 .pli-name { font-family: 'Bebas Neue', sans-serif; font-size: 18px; line-height: 1; }
@@ -1912,7 +1971,7 @@ async function loadReviews(barId) {
       html += `<div class="review-form">
         <div class="review-form-lbl">Tu reseña</div>
         <div class="star-picker" id="star-picker">
-          ${[1,2,3,4,5].map(i => `<span class="star-pick" data-v="${i}" onclick="pickStar(${i})">★</span>`).join('')}
+          ${[1,2,3,4,5].map(i => `<span class="star-pick" data-v="${i}" onclick="pickStar(${i})" style="font-size:24px">🍺</span>`).join('')}
         </div>
         <textarea class="review-textarea" id="review-text" placeholder="¿Cómo fue la experiencia?"></textarea>
         <button class="btn-submit-review" onclick="submitReview(${barId})">Publicar reseña</button>
@@ -1930,7 +1989,7 @@ async function loadReviews(barId) {
     html += list.map(r => {
       const initials = (r.user_name || 'AN').slice(0,2).toUpperCase();
       const ago = timeAgo(r.created_at);
-      const stars = [1,2,3,4,5].map(i => `<span class="star ${i <= r.rating ? 'filled' : ''}">★</span>`).join('');
+      const stars = [1,2,3,4,5].map(i => `<span class="cana-icon ${i<=r.rating?'':'empty'}">🍺</span>`).join('');
       return `<div class="review-row">
         <div class="review-meta">
           <div class="review-av">${r.user_avatar
@@ -2210,15 +2269,19 @@ function renderProfile() {
         </div>`
       : favBars.map(b => {
           const zona = extractZona(b.direccion || '') || b.ciudad || 'Madrid';
-          return `<div class="profile-list-item" onclick="openSheet(${b.id})">
-            <div class="pli-accent fav"></div>
-            <div class="pli-body">
-              <div class="pli-name">${b.nombre}</div>
-              <div class="pli-sub">${zona}</div>
+          const bgColor = priceColor(b._precio).replace('var(--roja)', '#C8102E');
+          return `<div class="pcard" onclick="openSheet(${b.id})">
+            <div class="pcard-img">
+              <div class="pcard-img-inner" style="background:linear-gradient(135deg,${bgColor}88,var(--malta));min-height:100px"></div>
+              <div class="pcard-price-badge">€${b._precio.toFixed(2)}</div>
             </div>
-            <div class="pli-right">
-              <div class="pli-price">€${b._precio.toFixed(2)}</div>
-              <div class="pli-rm" onclick="event.stopPropagation();removeFav(${b.id})">✕</div>
+            <div class="pcard-body">
+              <div class="pcard-name">${b.nombre}</div>
+              <div class="pcard-sub">📍 ${b.ciudad || 'Madrid'} · ${zona}</div>
+              <div class="pcard-canas">${cañasHTML(3)}</div>
+              <div class="pcard-actions">
+                <button class="pcard-del" onclick="event.stopPropagation();removeFav(${b.id})">${currentLang === 'en' ? 'Remove' : 'Eliminar'}</button>
+              </div>
             </div>
           </div>`;
         }).join('');
@@ -2232,18 +2295,21 @@ function renderProfile() {
         </div>`
       : userReviews.map(r => {
           const barName = r.bares?.nombre || '—';
-          const stars = [1,2,3,4,5].map(i =>
-            `<span style="color:${i<=r.rating?'var(--dorada)':'rgba(0,0,0,0.15)'}">★</span>`
-          ).join('');
-          return `<div class="profile-list-item" onclick="openSheet(${r.bar_id})">
-            <div class="pli-accent review"></div>
-            <div class="pli-body">
-              <div class="pli-name">${barName}</div>
-              <div class="pli-sub">${stars} · ${timeAgo(r.created_at)}</div>
-              ${r.comment ? `<div class="pli-comment">"${r.comment}"</div>` : ''}
+          const bar = allBars.find(b => b.id === r.bar_id);
+          const bgColor = bar ? priceColor(bar._precio).replace('var(--roja)', '#C8102E') : '#3D1A08';
+          return `<div class="pcard" onclick="openSheet(${r.bar_id})">
+            <div class="pcard-img">
+              <div class="pcard-img-inner" style="background:linear-gradient(135deg,${bgColor}88,var(--malta));min-height:100px"></div>
+              ${bar ? `<div class="pcard-price-badge">€${bar._precio.toFixed(2)}</div>` : ''}
             </div>
-            <div class="pli-right">
-              <div class="pli-rm" onclick="event.stopPropagation();deleteReview('${r.id}')">✕</div>
+            <div class="pcard-body">
+              <div class="pcard-name">${barName}</div>
+              <div class="pcard-sub">📍 ${bar?.ciudad || 'Madrid'} · ${timeAgo(r.created_at)}</div>
+              <div class="pcard-canas">${cañasHTML(r.rating || 0)}</div>
+              ${r.comment ? `<div class="pcard-comment">"${r.comment}"</div>` : ''}
+              <div class="pcard-actions">
+                <button class="pcard-del" onclick="event.stopPropagation();deleteReview('${r.id}')">${currentLang === 'en' ? 'Delete' : 'Eliminar'}</button>
+              </div>
             </div>
           </div>`;
         }).join('');
@@ -2257,45 +2323,65 @@ function renderProfile() {
         </div>`
       : userReports.map(r => {
           const barName = r.nombre_bar || r.bar_nombre || '—';
-          return `<div class="profile-list-item">
-            <div class="pli-accent report"></div>
-            <div class="pli-body">
-              <div class="pli-name">${barName}</div>
-              <div class="pli-sub">${timeAgo(r.created_at)}</div>
-              ${r.mensaje ? `<div class="pli-comment">"${r.mensaje}"</div>` : ''}
+          return `<div class="pcard">
+            <div class="pcard-img">
+              <div class="pcard-img-inner" style="background:linear-gradient(135deg,#166B2488,var(--malta));min-height:100px"></div>
+              ${r.precio ? `<div class="pcard-price-badge">€${parseFloat(r.precio).toFixed(2)}</div>` : ''}
             </div>
-            ${r.precio ? `<div class="pli-right"><div class="pli-price">€${parseFloat(r.precio).toFixed(2)}</div></div>` : ''}
+            <div class="pcard-body">
+              <div class="pcard-name">${barName}</div>
+              <div class="pcard-sub">✏️ ${timeAgo(r.created_at)}</div>
+              ${r.mensaje ? `<div class="pcard-comment">"${r.mensaje}"</div>` : ''}
+            </div>
           </div>`;
         }).join('');
   }
 
   c.innerHTML = `
     <div class="profile-hero">
-      <button class="btn-logout-hero" onclick="logout()">Salir</button>
-      <div class="profile-avatar">
-        ${avatar
-          ? `<img src="${avatar}" alt="${name}">`
-          : `<div class="profile-av-initials">${initials}</div>`}
+      <div class="profile-hero-top">
+        <div class="profile-avatar">
+          ${avatar
+            ? `<img src="${avatar}" alt="${name}">`
+            : `<div class="profile-av-initials">${initials}</div>`}
+        </div>
+        <div class="profile-hero-info">
+          <div class="profile-hero-name">${name}</div>
+          <div class="profile-hero-email">${currentUser.email || ''}</div>
+        </div>
+        <div class="profile-stat-chips">
+          <div class="profile-stat-chip ${profileSection==='favs'?'active':''}" onclick="setProfileSection('favs')">
+            <div class="psc-icon">❤️</div>
+            <div class="psc-num">${favBars.length}</div>
+            <div class="psc-lbl">${t('profile-favs')}</div>
+          </div>
+          <div class="profile-stat-chip ${profileSection==='reviews'?'active':''}" onclick="setProfileSection('reviews')">
+            <div class="psc-icon">🍺</div>
+            <div class="psc-num">${userReviews.length}</div>
+            <div class="psc-lbl">${t('profile-reviews')}</div>
+          </div>
+          <div class="profile-stat-chip ${profileSection==='reports'?'active':''}" onclick="setProfileSection('reports')">
+            <div class="psc-icon">✏️</div>
+            <div class="psc-num">${userReports.length}</div>
+            <div class="psc-lbl">${t('profile-reports')}</div>
+          </div>
+        </div>
+        <button class="btn-logout-hero" onclick="logout()">${t('profile-logout')}</button>
       </div>
-      <div class="profile-hero-name">${name}</div>
-      <div class="profile-hero-email">${currentUser.email || ''}</div>
-      <div class="profile-stat-tabs">
-        <div class="profile-stat-tab ${profileSection==='favs'?'active':''}" onclick="setProfileSection('favs')">
-          <div class="profile-stat-tab-num">${favBars.length}</div>
-          <div class="profile-stat-tab-lbl">${t('profile-favs')}</div>
-        </div>
-        <div class="profile-stat-tab ${profileSection==='reviews'?'active':''}" onclick="setProfileSection('reviews')">
-          <div class="profile-stat-tab-num">${userReviews.length}</div>
-          <div class="profile-stat-tab-lbl">${t('profile-reviews')}</div>
-        </div>
-        <div class="profile-stat-tab ${profileSection==='reports'?'active':''}" onclick="setProfileSection('reports')">
-          <div class="profile-stat-tab-num">${userReports.length}</div>
-          <div class="profile-stat-tab-lbl">${t('profile-reports')}</div>
-        </div>
+      <div class="profile-tab-bar">
+        <button class="ptb-btn ${profileSection==='favs'?'active':''}"    onclick="setProfileSection('favs')">${t('profile-favs')}</button>
+        <button class="ptb-btn ${profileSection==='reviews'?'active':''}" onclick="setProfileSection('reviews')">${t('profile-reviews')}</button>
+        <button class="ptb-btn ${profileSection==='reports'?'active':''}" onclick="setProfileSection('reports')">${t('profile-reports')}</button>
       </div>
     </div>
     ${renderBadges()}
-    <div class="profile-content-area">${listHTML}</div>`;
+    <div class="profile-cards">${listHTML}</div>`;
+}
+
+function cañasHTML(rating) {
+  return [1,2,3,4,5].map(i =>
+    `<span class="cana-icon ${i <= rating ? '' : 'empty'}">🍺</span>`
+  ).join('') + `<span class="pcard-cana-label">${rating}/5 cañas</span>`;
 }
 
 async function removeFav(id) {
