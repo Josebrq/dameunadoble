@@ -154,6 +154,10 @@ tbody tr:hover{background:var(--foam);}
           <div class="form-group"><label>Dirección</label><input type="text" id="new-direccion" placeholder="Calle Mayor 12"></div>
           <div class="form-group"><label>Latitud</label><input type="number" id="new-lat" placeholder="40.4168" step="0.0001"></div>
           <div class="form-group"><label>Longitud</label><input type="number" id="new-lng" placeholder="-3.7038" step="0.0001"></div>
+          <div class="form-group"><label>Caña (€)</label><input type="number" id="new-cana" placeholder="1.80" step="0.10" min="0.50" max="15"></div>
+          <div class="form-group"><label>Bravas (€)</label><input type="number" id="new-bravas" placeholder="5.50" step="0.10" min="0.50" max="30"></div>
+          <div class="form-group"><label>Tortilla (€)</label><input type="number" id="new-tortilla" placeholder="4.50" step="0.10" min="0.50" max="30"></div>
+          <div class="form-group"><label>Croquetas (€)</label><input type="number" id="new-croquetas" placeholder="6.00" step="0.10" min="0.50" max="30"></div>
         </div>
         <p style="font-size:12px;color:var(--slate-light);margin-bottom:1rem">💡 Para obtener lat/lng: abre Google Maps → clic derecho en la ubicación → copiar coordenadas</p>
         <button class="btn-add" onclick="addBar()">+ Añadir bar</button>
@@ -182,7 +186,7 @@ tbody tr:hover{background:var(--foam);}
             <thead>
               <tr>
                 <th><input type="checkbox" class="cb" id="check-all" onchange="toggleAll(this)"></th>
-                <th>#</th><th>Bar</th><th>Barrio</th><th>Dirección</th><th>Doble</th><th>Fuente</th><th>Estado</th><th>Acciones</th>
+                <th>#</th><th>Bar</th><th>Barrio</th><th>Dirección</th><th>Doble</th><th>Caña</th><th>Bravas</th><th>Tortilla</th><th>Croquetas</th><th>Fuente</th><th>Estado</th><th>Acciones</th>
               </tr>
             </thead>
             <tbody id="bars-tbody"></tbody>
@@ -436,6 +440,10 @@ function renderBarsTable() {
       <td><span class="badge-region">${extractZona(b.direccion)}</span></td>
       <td style="font-size:13px;color:var(--slate-light);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${b.direccion||''}">${b.direccion||'—'}</td>
       <td class="price-cell ${priceClass(parseFloat(b.precio)||0)}">${parseFloat(b.precio||0).toFixed(2)}€</td>
+      <td style="font-size:13px;color:var(--slate-light)">${b.cana_precio ? parseFloat(b.cana_precio).toFixed(2)+'€' : '—'}</td>
+      <td style="font-size:13px;color:var(--slate-light)">${b.bravas_precio ? parseFloat(b.bravas_precio).toFixed(2)+'€' : '—'}</td>
+      <td style="font-size:13px;color:var(--slate-light)">${b.tortilla_precio ? parseFloat(b.tortilla_precio).toFixed(2)+'€' : '—'}</td>
+      <td style="font-size:13px;color:var(--slate-light)">${b.croquetas_precio ? parseFloat(b.croquetas_precio).toFixed(2)+'€' : '—'}</td>
       <td><span style="font-size:11px;padding:3px 8px;border-radius:20px;background:${b.fuente==='bot'?'#E3F2FD':b.fuente==='comunidad'?'#E8F5E9':b.fuente==='formulario'?'#FFF3E0':b.fuente==='admin'?'#F3E5F5':'#F5F5F5'};color:${b.fuente==='bot'?'#1565C0':b.fuente==='comunidad'?'#2E7D32':b.fuente==='formulario'?'#E65100':b.fuente==='admin'?'#6A1B9A':'#757575'};font-weight:500">${b.fuente==='bot'?'🤖 Bot':b.fuente==='comunidad'?'👥 Comunidad':b.fuente==='formulario'?'📋 Formulario':b.fuente==='admin'?'👤 Admin':'—'}</span></td>
       <td>${approveBtn}</td>
       <td>
@@ -475,15 +483,23 @@ async function addBar() {
   const direccion = document.getElementById('new-direccion').value.trim();
   const lat = parseFloat(document.getElementById('new-lat').value) || null;
   const lng = parseFloat(document.getElementById('new-lng').value) || null;
+  const cana_precio = document.getElementById('new-cana').value ? String(parseFloat(document.getElementById('new-cana').value)) : null;
+  const bravas_precio = document.getElementById('new-bravas').value ? String(parseFloat(document.getElementById('new-bravas').value)) : null;
+  const tortilla_precio = document.getElementById('new-tortilla').value ? String(parseFloat(document.getElementById('new-tortilla').value)) : null;
+  const croquetas_precio = document.getElementById('new-croquetas').value ? String(parseFloat(document.getElementById('new-croquetas').value)) : null;
   if (!nombre||!ciudad||!precio||precio<0.5||precio>15) { showToast('Rellena todos los campos obligatorios','error'); return; }
   try {
-    await api('POST','bares',{nombre,ciudad,region,precio,direccion,lat,lng,aprobado:true,fuente:'admin'});
+    await api('POST','bares',{nombre,ciudad,region,precio,direccion,lat,lng,cana_precio,bravas_precio,tortilla_precio,croquetas_precio,aprobado:true,fuente:'admin'});
     document.getElementById('new-nombre').value='';
     document.getElementById('new-ciudad').value='';
     document.getElementById('new-precio').value='';
     document.getElementById('new-direccion').value='';
     document.getElementById('new-lat').value='';
     document.getElementById('new-lng').value='';
+    document.getElementById('new-cana').value='';
+    document.getElementById('new-bravas').value='';
+    document.getElementById('new-tortilla').value='';
+    document.getElementById('new-croquetas').value='';
     showToast(`✅ "${nombre}" añadido`,'success');
     loadBars();
   } catch(e) { showToast('Error: '+e.message,'error'); }
@@ -523,6 +539,10 @@ function editBar(id) {
     <td><span class="badge-region">${b.region||''}</span></td>
     <td><input style="width:140px;padding:4px 8px;border:1px solid var(--border-strong);border-radius:6px;font-size:13px" id="e-dir-${id}" value="${b.direccion||''}"></td>
     <td><input class="region-price-input" type="number" id="e-precio-${id}" value="${b.precio}" step="0.10" min="0.50" max="15"></td>
+    <td><input class="region-price-input" type="number" id="e-cana-${id}" value="${b.cana_precio||''}" step="0.10" min="0.50" max="15" placeholder="—"></td>
+    <td><input class="region-price-input" type="number" id="e-bravas-${id}" value="${b.bravas_precio||''}" step="0.10" min="0.50" max="30" placeholder="—"></td>
+    <td><input class="region-price-input" type="number" id="e-tortilla-${id}" value="${b.tortilla_precio||''}" step="0.10" min="0.50" max="30" placeholder="—"></td>
+    <td><input class="region-price-input" type="number" id="e-croquetas-${id}" value="${b.croquetas_precio||''}" step="0.10" min="0.50" max="30" placeholder="—"></td>
     <td style="display:flex;gap:4px;align-items:center">
       <input style="width:70px;padding:4px;border:1px solid var(--border-strong);border-radius:4px;font-size:11px" type="number" id="e-lat-${id}" value="${b.lat||''}" placeholder="lat" step="0.0001">
       <input style="width:70px;padding:4px;border:1px solid var(--border-strong);border-radius:4px;font-size:11px" type="number" id="e-lng-${id}" value="${b.lng||''}" placeholder="lng" step="0.0001">
@@ -540,10 +560,14 @@ async function saveBar(id) {
   const precio = parseFloat(document.getElementById(`e-precio-${id}`).value);
   const lat = parseFloat(document.getElementById(`e-lat-${id}`).value) || null;
   const lng = parseFloat(document.getElementById(`e-lng-${id}`).value) || null;
+  const cana_precio = document.getElementById(`e-cana-${id}`).value ? String(parseFloat(document.getElementById(`e-cana-${id}`).value)) : null;
+  const bravas_precio = document.getElementById(`e-bravas-${id}`).value ? String(parseFloat(document.getElementById(`e-bravas-${id}`).value)) : null;
+  const tortilla_precio = document.getElementById(`e-tortilla-${id}`).value ? String(parseFloat(document.getElementById(`e-tortilla-${id}`).value)) : null;
+  const croquetas_precio = document.getElementById(`e-croquetas-${id}`).value ? String(parseFloat(document.getElementById(`e-croquetas-${id}`).value)) : null;
   try {
-    await api('PATCH',`bares?id=eq.${id}`,{nombre,ciudad,direccion,precio,lat,lng});
+    await api('PATCH',`bares?id=eq.${id}`,{nombre,ciudad,direccion,precio,lat,lng,cana_precio,bravas_precio,tortilla_precio,croquetas_precio});
     const bar = allBars.find(b=>b.id===id);
-    Object.assign(bar,{nombre,ciudad,direccion,precio,lat,lng});
+    Object.assign(bar,{nombre,ciudad,direccion,precio,lat,lng,cana_precio,bravas_precio,tortilla_precio,croquetas_precio});
     updateStats(); renderBarsTable();
     showToast(`✅ "${nombre}" actualizado`,'success');
   } catch(e) { showToast('Error: '+e.message,'error'); }
