@@ -764,6 +764,90 @@ body {
 }
 .review-login-prompt span { color: var(--roja); font-weight: 600; }
 
+/* ─────────────────────────────
+   ADD BAR MODAL
+───────────────────────────── */
+.add-bar-cta {
+  background: var(--malta); border-radius: 10px;
+  padding: 1.25rem; display: flex; align-items: center; gap: 12px;
+  cursor: pointer; transition: background 0.15s;
+  border: none; width: 100%; text-align: left; margin-top: 1rem;
+}
+.add-bar-cta:hover { background: var(--malta-mid); }
+.add-bar-cta-icon { font-size: 26px; flex-shrink: 0; }
+.add-bar-cta-title {
+  font-family: 'Bebas Neue', sans-serif; font-size: 18px;
+  color: var(--espuma); line-height: 1; margin-bottom: 2px;
+}
+.add-bar-cta-sub { font-size: 12px; color: rgba(255,252,244,0.5); }
+.add-bar-cta-arrow { font-size: 18px; color: var(--dorada); margin-left: auto; flex-shrink: 0; }
+
+.modal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 1100;
+  background: rgba(24,9,0,0.6); backdrop-filter: blur(2px);
+}
+.modal-overlay.open { display: block; }
+.add-bar-modal {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 1101;
+  background: var(--espuma); border-radius: 16px 16px 0 0;
+  border-top: 2px solid var(--malta); max-height: 90dvh;
+  overflow-y: auto; transform: translateY(105%);
+  transition: transform 0.32s cubic-bezier(0.4,0,0.2,1);
+}
+.add-bar-modal.open { transform: translateY(0); }
+@media (min-width: 768px) {
+  .add-bar-modal {
+    left: 50%; right: auto; bottom: 2rem;
+    transform: translateX(-50%) translateY(calc(100% + 2rem));
+    width: 480px; border-radius: 12px; border: 2px solid var(--malta);
+  }
+  .add-bar-modal.open { transform: translateX(-50%) translateY(0); }
+}
+.modal-drag { display: flex; justify-content: center; padding: 10px 0 4px; }
+.modal-drag-bar { width: 36px; height: 4px; background: var(--border-strong); border-radius: 2px; }
+@media (min-width: 768px) { .modal-drag { display: none; } }
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 16px 14px; border-bottom: 1px solid var(--border);
+}
+.modal-title { font-family: 'Bebas Neue', sans-serif; font-size: 24px; }
+.modal-close {
+  width: 32px; height: 32px; border-radius: 50%; border: none;
+  background: var(--border); cursor: pointer; font-size: 15px;
+  display: flex; align-items: center; justify-content: center;
+}
+.modal-body { padding: 16px; }
+.modal-auth-notice {
+  background: var(--dorada-light); border: 1px solid var(--dorada);
+  border-radius: var(--radius); padding: 12px 14px; margin-bottom: 16px;
+  font-size: 13px; color: var(--malta-mid); line-height: 1.5;
+}
+.add-bar-form { display: flex; flex-direction: column; gap: 12px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.form-field label {
+  display: block; font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.5px;
+  color: var(--malta-soft); margin-bottom: 4px;
+}
+.form-field input {
+  width: 100%; padding: 9px 12px;
+  border: 1.5px solid var(--border-strong); border-radius: 6px;
+  font-size: 14px; font-family: 'Inter', sans-serif;
+  color: var(--malta); background: white; outline: none;
+  transition: border-color 0.15s;
+}
+.form-field input:focus { border-color: var(--roja); }
+.form-field input::placeholder { color: rgba(0,0,0,0.25); }
+.form-hint { font-size: 11px; color: var(--malta-soft); margin-top: 3px; }
+.btn-submit-bar {
+  width: 100%; padding: 13px; background: var(--roja);
+  color: var(--espuma); border: none; border-radius: 6px;
+  font-family: 'Bebas Neue', sans-serif; font-size: 20px;
+  letter-spacing: 0.5px; cursor: pointer; transition: background 0.15s; margin-top: 4px;
+}
+.btn-submit-bar:hover { background: var(--roja-dark); }
+.btn-submit-bar:disabled { opacity: 0.5; cursor: not-allowed; }
+
 .site-footer {
   background: var(--malta); color: var(--espuma);
   padding: 2rem 1.25rem; text-align: center; margin-top: 2rem;
@@ -885,11 +969,19 @@ body {
             <div class="home-quick-sub">Tus bares guardados</div>
           </button>
         </div>
+
+        <button class="add-bar-cta" onclick="openAddBar()">
+          <div class="add-bar-cta-icon">🍻</div>
+          <div>
+            <div class="add-bar-cta-title">¿Conoces un bar que falta?</div>
+            <div class="add-bar-cta-sub">Añádelo al mapa y ayuda a la comunidad</div>
+          </div>
+          <div class="add-bar-cta-arrow">→</div>
+        </button>
+
       </div>
     </div>
   </section>
-
-  <!-- TAB: MAPA -->
   <section id="tab-mapa" class="tab-content">
     <div class="map-filters">
       <button class="filter-chip active" data-filter="all"   onclick="setMapFilter('all',this)">Todos</button>
@@ -995,6 +1087,19 @@ body {
     <div id="sheet-reviews-body"></div>
   </div>
 </aside>
+
+<!-- ── ADD BAR MODAL ── -->
+<div class="modal-overlay" id="add-bar-overlay" onclick="closeAddBar()"></div>
+<div class="add-bar-modal" id="add-bar-modal">
+  <div class="modal-drag"><div class="modal-drag-bar"></div></div>
+  <div class="modal-header">
+    <div class="modal-title">Añadir un bar 🍺</div>
+    <button class="modal-close" onclick="closeAddBar()">✕</button>
+  </div>
+  <div class="modal-body" id="add-bar-body">
+    <!-- filled by JS -->
+  </div>
+</div>
 
 <!-- ── BOTTOM NAV ── -->
 <nav class="bottom-nav" aria-label="Navegación principal">
@@ -1509,8 +1614,113 @@ function openReport() {
 }
 
 /* ══════════════════════════════
-   REVIEWS & RATINGS
+   ADD BAR MODAL
 ══════════════════════════════ */
+function openAddBar() {
+  const body = document.getElementById('add-bar-body');
+
+  if (!currentUser) {
+    body.innerHTML = `
+      <div class="modal-auth-notice">
+        🔐 Para añadir o actualizar bares necesitas iniciar sesión. Así sabemos que eres una persona real y no un bot con sed.
+      </div>
+      <button class="btn-google" onclick="handleAuthBtn()" style="width:100%;justify-content:center">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908C16.607 14.009 17.64 11.768 17.64 9.2z" fill="#4285F4"/>
+          <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z" fill="#34A853"/>
+          <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
+          <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+        </svg>
+        Entrar a la barra (con Google)
+      </button>`;
+  } else {
+    body.innerHTML = `
+      <div class="add-bar-form">
+        <div class="form-field">
+          <label>Nombre del bar *</label>
+          <input id="nb-nombre" type="text" placeholder="Ej: Casa Labra">
+        </div>
+        <div class="form-field">
+          <label>Dirección *</label>
+          <input id="nb-dir" type="text" placeholder="Ej: Calle de Tetuan, 12">
+          <div class="form-hint">📍 Las coordenadas se obtienen automáticamente</div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label>Precio doble (€) *</label>
+            <input id="nb-precio" type="number" placeholder="2.50" step="0.10" min="0.50" max="15">
+          </div>
+          <div class="form-field">
+            <label>Precio caña (€)</label>
+            <input id="nb-cana" type="number" placeholder="1.80" step="0.10" min="0.50" max="10">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label>Bravas (€)</label>
+            <input id="nb-bravas" type="number" placeholder="5.50" step="0.10" min="0.50" max="30">
+          </div>
+          <div class="form-field">
+            <label>Tortilla (€)</label>
+            <input id="nb-tortilla" type="number" placeholder="4.00" step="0.10" min="0.50" max="30">
+          </div>
+        </div>
+        <div class="form-field">
+          <label>Croquetas (€)</label>
+          <input id="nb-croquetas" type="number" placeholder="6.00" step="0.10" min="0.50" max="30">
+        </div>
+        <button class="btn-submit-bar" id="btn-submit-bar" onclick="submitNewBar()">
+          🍺 Poner en el mapa
+        </button>
+      </div>`;
+  }
+
+  document.getElementById('add-bar-overlay').classList.add('open');
+  document.getElementById('add-bar-modal').classList.add('open');
+}
+
+function closeAddBar() {
+  document.getElementById('add-bar-overlay').classList.remove('open');
+  document.getElementById('add-bar-modal').classList.remove('open');
+}
+
+async function submitNewBar() {
+  const nombre  = document.getElementById('nb-nombre')?.value.trim();
+  const dir     = document.getElementById('nb-dir')?.value.trim();
+  const precio  = parseFloat(document.getElementById('nb-precio')?.value);
+  const cana    = document.getElementById('nb-cana')?.value ? String(parseFloat(document.getElementById('nb-cana').value)) : null;
+  const bravas  = document.getElementById('nb-bravas')?.value ? String(parseFloat(document.getElementById('nb-bravas').value)) : null;
+  const tortilla= document.getElementById('nb-tortilla')?.value ? String(parseFloat(document.getElementById('nb-tortilla').value)) : null;
+  const croquetas=document.getElementById('nb-croquetas')?.value ? String(parseFloat(document.getElementById('nb-croquetas').value)) : null;
+
+  if (!nombre) { showToast('Falta el nombre del bar'); return; }
+  if (!dir)    { showToast('Falta la dirección'); return; }
+  if (!precio || precio < 0.5 || precio > 15) { showToast('Precio del doble inválido'); return; }
+
+  const btn = document.getElementById('btn-submit-bar');
+  btn.disabled = true; btn.textContent = '🌍 Buscando coordenadas...';
+
+  const coords = await geocodeAddress(dir, 'Madrid');
+  btn.textContent = '⏳ Guardando...';
+
+  try {
+    await sb.from('bares').insert({
+      nombre, direccion: dir, ciudad: 'Madrid',
+      region: 'Comunidad de Madrid',
+      precio: String(precio),
+      lat: coords.lat, lng: coords.lng,
+      cana_precio: cana, bravas_precio: bravas,
+      tortilla_precio: tortilla, croquetas_precio: croquetas,
+      aprobado: false, fuente: 'usuario'
+    });
+    closeAddBar();
+    showToast('✅ Bar añadido, pendiente de revisión. ¡Gracias!');
+    await loadBars();
+  } catch(e) {
+    showToast('Error al guardar el bar');
+    btn.disabled = false; btn.textContent = '🍺 Poner en el mapa';
+  }
+}
 let selectedRating = 0;
 
 function starsHTML(score) {
