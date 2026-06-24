@@ -186,10 +186,12 @@ body {
   box-shadow: 0 2px 8px rgba(0,0,0,0.3);
   display: inline-block; line-height: 1.3;
 }
-/* Map pins — colores relativos al dataset */
-.price-pin.cheap { background: #2D7A3A; }   /* verde suave */
-.price-pin.mid   { background: #5A5A5A; }   /* gris neutro */
-.price-pin.exp   { background: #B84040; }   /* rojo apagado */
+/* Map pins — escala de 5 colores relativa a la media */
+.price-pin.t1 { background: #1B7A2A; }  /* verde oscuro — muy barato */
+.price-pin.t2 { background: #5DAB3D; }  /* verde claro — por debajo de media */
+.price-pin.t3 { background: #C9A800; }  /* amarillo — en la media */
+.price-pin.t4 { background: #E06820; }  /* naranja — por encima */
+.price-pin.t5 { background: #C8102E; }  /* rojo — caro */
 .price-pin.sel   { border-color: var(--dorada); border-width: 2.5px; transform: scale(1.15); z-index: 9999 !important; }
 
 /* ─────────────────────────────
@@ -1297,24 +1299,43 @@ function initMap() {
   if (allBars.length) renderMapMarkers();
 }
 
-// Thresholds calculated dynamically from actual data
-let priceP33 = 2.5;
-let priceP66 = 3.5;
+// 5-tier color scale relative to mean
+let priceMean = 3.0;
+let priceP33  = 3.0;  // alias for cheap filter
+let priceP66  = 4.5;
+
+// Tier boundaries (dynamic, based on mean)
+let t1Max, t2Max, t3Max, t4Max; // t5 = everything above t4Max
 
 function calcPriceThresholds() {
-  const prices = allBars
-    .map(b => b._precio)
-    .filter(p => p > 0)
-    .sort((a, b) => a - b);
+  const prices = allBars.map(b => b._precio).filter(p => p > 0);
   if (prices.length < 3) return;
-  priceP33 = prices[Math.floor(prices.length * 0.33)];
-  priceP66 = prices[Math.floor(prices.length * 0.66)];
+  priceMean = prices.reduce((s, p) => s + p, 0) / prices.length;
+  priceP33  = priceMean;        // below mean = cheap filter
+  priceP66  = priceMean + 1.0;  // for ranking colors
+
+  // 5 tiers centered on mean
+  t1Max = priceMean - 1.0;   // very cheap (dark green)
+  t2Max = priceMean;          // below average (light green)
+  t3Max = priceMean + 0.5;   // around average (yellow)
+  t4Max = priceMean + 1.5;   // above average (orange)
+  // > t4Max = red
 }
 
 function pinClass(price) {
-  if (price <= priceP33) return 'cheap';
-  if (price <= priceP66) return 'mid';
-  return 'exp';
+  if (price <= t1Max) return 't1';
+  if (price <= t2Max) return 't2';
+  if (price <= t3Max) return 't3';
+  if (price <= t4Max) return 't4';
+  return 't5';
+}
+
+function priceColor(price) {
+  if (price <= t1Max) return '#1B7A2A';
+  if (price <= t2Max) return '#5DAB3D';
+  if (price <= t3Max) return '#C9A800';
+  if (price <= t4Max) return '#E06820';
+  return 'var(--roja)';
 }
 
 function renderMapMarkers() {
@@ -1514,7 +1535,7 @@ function openSheet(barId) {
   const del  = bar._precio - avg;
   const pBig = document.getElementById('sheet-price-big');
   pBig.textContent = bar._precio > 0 ? `€${bar._precio.toFixed(2)}` : '—';
-  pBig.style.color = bar._precio < 2.5 ? 'var(--lupulo)' : bar._precio > 3.5 ? 'var(--roja)' : 'var(--malta)';
+  pBig.style.color = priceColor(bar._precio);
 
   const dEl = document.getElementById('sheet-delta');
   if (bar._precio > 0) {
@@ -1956,7 +1977,7 @@ function renderRkBody() {
 
     const listHTML = rest.map((b, i) => {
       const zona  = extractZona(b.direccion || '') || b.ciudad || '—';
-      const color = b._val < 2.5 ? 'var(--lupulo)' : b._val > 3.5 ? 'var(--roja)' : 'var(--cobre)';
+      const color = priceColor(b._val);
       return `<li class="bar-row" onclick="openSheet(${b.id})">
         <div class="bar-num">${String(i + 4).padStart(2, '0')}</div>
         <div>
