@@ -107,6 +107,11 @@ body {
 .ticker-track {
   display: flex; white-space: nowrap;
   animation: ticker-scroll 55s linear infinite;
+  will-change: transform;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 @keyframes ticker-scroll {
   from { transform: translateX(0); }
@@ -587,8 +592,87 @@ body {
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
 /* ─────────────────────────────
-   FOOTER
+   HOME TAB (landing)
 ───────────────────────────── */
+.home-wrap {
+  min-height: calc(100dvh - 90px - 68px);
+  display: flex; flex-direction: column;
+}
+.hero {
+  padding: 2.5rem 1.25rem 2rem;
+  background: radial-gradient(ellipse at 50% 0%, rgba(200,16,46,0.10) 0%, transparent 70%);
+  text-align: center; border-bottom: 1px solid var(--border);
+}
+.hero-eyebrow {
+  font-size: 10px; font-weight: 600; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--roja); margin-bottom: 0.75rem;
+}
+.hero-h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(52px, 14vw, 96px);
+  line-height: 0.9; letter-spacing: 1px;
+  color: var(--malta); margin-bottom: 1rem;
+}
+.hero-h1 em { color: var(--roja); font-style: normal; }
+.hero-sub {
+  font-size: 15px; color: var(--malta-soft);
+  max-width: 420px; margin: 0 auto 2rem; line-height: 1.6;
+}
+.hero-stats {
+  display: flex; justify-content: center; gap: 2rem;
+  flex-wrap: wrap; margin-bottom: 2rem;
+}
+.hero-stat-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 40px; line-height: 1; color: var(--malta);
+}
+.hero-stat-lbl { font-size: 11px; color: var(--malta-soft); margin-top: 2px; }
+.hero-cta {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 13px 28px; background: var(--roja);
+  color: var(--espuma); border: none; border-radius: 6px;
+  font-family: 'Bebas Neue', sans-serif; font-size: 20px;
+  letter-spacing: 1px; cursor: pointer; transition: background 0.15s;
+}
+.hero-cta:hover { background: var(--roja-dark); }
+
+.home-sections { padding: 1.5rem 1.25rem; max-width: 600px; margin: 0 auto; width: 100%; }
+.home-section-title {
+  font-size: 10px; font-weight: 600; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--malta-soft); margin-bottom: 10px;
+}
+.home-top3 { display: flex; flex-direction: column; gap: 6px; margin-bottom: 1.5rem; }
+.home-bar-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; background: white;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  cursor: pointer; transition: border-color 0.15s;
+}
+.home-bar-row:hover { border-color: var(--roja); }
+.home-bar-medal { font-size: 18px; flex-shrink: 0; }
+.home-bar-info { flex: 1; min-width: 0; }
+.home-bar-name {
+  font-family: 'Bebas Neue', sans-serif; font-size: 18px; line-height: 1;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.home-bar-zona { font-size: 11px; color: var(--malta-soft); }
+.home-bar-price {
+  font-family: 'Bebas Neue', sans-serif; font-size: 22px;
+  color: var(--lupulo); flex-shrink: 0;
+}
+.home-quick-btns {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 1.5rem;
+}
+.home-quick-btn {
+  padding: 14px; border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius); background: transparent;
+  cursor: pointer; text-align: left; transition: all 0.15s;
+  font-family: 'Inter', sans-serif;
+}
+.home-quick-btn:hover { border-color: var(--malta); background: var(--dorada-light); }
+.home-quick-icon { font-size: 22px; margin-bottom: 4px; }
+.home-quick-label { font-size: 12px; font-weight: 600; color: var(--malta); }
+.home-quick-sub { font-size: 11px; color: var(--malta-soft); margin-top: 1px; }
 .site-footer {
   background: var(--malta); color: var(--espuma);
   padding: 2rem 1.25rem; text-align: center; margin-top: 2rem;
@@ -622,11 +706,12 @@ body {
 
 <!-- ── TOP NAV ── -->
 <nav class="top-nav">
-  <a href="#" class="nav-logo" onclick="switchTab('mapa');return false;">
+  <a href="#" class="nav-logo" onclick="switchTab('home');return false;">
     Dame Una <span>Doble</span> 🍺
   </a>
   <div class="nav-tabs">
-    <button class="nav-tab-btn active" data-tab="mapa"    onclick="switchTab('mapa')">🗺️ Mapa</button>
+    <button class="nav-tab-btn active" data-tab="home"    onclick="switchTab('home')">🏠 Inicio</button>
+    <button class="nav-tab-btn"        data-tab="mapa"    onclick="switchTab('mapa')">🗺️ Mapa</button>
     <button class="nav-tab-btn"        data-tab="ranking" onclick="switchTab('ranking')">🏆 Ranking</button>
     <button class="nav-tab-btn"        data-tab="feed"    onclick="switchTab('feed')">📡 Feed</button>
     <button class="nav-tab-btn"        data-tab="perfil"  onclick="switchTab('perfil')">👤 Perfil</button>
@@ -645,8 +730,65 @@ body {
 <!-- ── MAIN ── -->
 <main class="main">
 
+  <!-- TAB: HOME -->
+  <section id="tab-home" class="tab-content active">
+    <div class="home-wrap">
+      <div class="hero">
+        <div class="hero-eyebrow">El mapa de la cerveza en Madrid</div>
+        <h1 class="hero-h1">DAME UNA<br><em>DOBLE</em></h1>
+        <p class="hero-sub">Encuentra el doble más barato cerca de ti. Precios reales, bares reales, comunidad real.</p>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <div class="hero-stat-num" id="h-bares">—</div>
+            <div class="hero-stat-lbl">bares en el mapa</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-num" id="h-avg">—</div>
+            <div class="hero-stat-lbl">precio medio</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-num" id="h-cheap">—</div>
+            <div class="hero-stat-lbl">el más barato</div>
+          </div>
+        </div>
+        <button class="hero-cta" onclick="switchTab('mapa')">🗺️ Ver el mapa</button>
+      </div>
+
+      <div class="home-sections">
+        <div class="home-section-title">🏆 Top 3 más baratos ahora</div>
+        <div class="home-top3" id="home-top3">
+          <div class="loading-state"><div class="loading-spinner"></div></div>
+        </div>
+
+        <div class="home-section-title">Explorar</div>
+        <div class="home-quick-btns">
+          <button class="home-quick-btn" onclick="switchTab('ranking')">
+            <div class="home-quick-icon">🏆</div>
+            <div class="home-quick-label">Ranking</div>
+            <div class="home-quick-sub">Ordenados por precio</div>
+          </button>
+          <button class="home-quick-btn" onclick="switchTab('feed')">
+            <div class="home-quick-icon">📡</div>
+            <div class="home-quick-label">Feed en vivo</div>
+            <div class="home-quick-sub">Últimas actualizaciones</div>
+          </button>
+          <button class="home-quick-btn" onclick="setMapFilter('cheap', document.querySelector('[data-filter=cheap]'));switchTab('mapa')">
+            <div class="home-quick-icon">🟢</div>
+            <div class="home-quick-label">Menos de €2.50</div>
+            <div class="home-quick-sub">Dobles económicos</div>
+          </button>
+          <button class="home-quick-btn" onclick="switchTab('perfil')">
+            <div class="home-quick-icon">❤️</div>
+            <div class="home-quick-label">Mis favoritos</div>
+            <div class="home-quick-sub">Tus bares guardados</div>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- TAB: MAPA -->
-  <section id="tab-mapa" class="tab-content active">
+  <section id="tab-mapa" class="tab-content">
     <div class="map-filters">
       <button class="filter-chip active" data-filter="all"   onclick="setMapFilter('all',this)">Todos</button>
       <button class="filter-chip"        data-filter="cheap" onclick="setMapFilter('cheap',this)">🟢 &lt; €2.50</button>
@@ -755,17 +897,17 @@ body {
 
 <!-- ── BOTTOM NAV ── -->
 <nav class="bottom-nav" aria-label="Navegación principal">
-  <button class="bot-tab active" id="bt-mapa"    onclick="switchTab('mapa')">
+  <button class="bot-tab active" id="bt-home"    onclick="switchTab('home')">
+    <div class="bot-tab-icon">🏠</div>
+    <div class="bot-tab-label">Inicio</div>
+  </button>
+  <button class="bot-tab" id="bt-mapa"    onclick="switchTab('mapa')">
     <div class="bot-tab-icon">🗺️</div>
     <div class="bot-tab-label">Mapa</div>
   </button>
   <button class="bot-tab" id="bt-ranking" onclick="switchTab('ranking')">
     <div class="bot-tab-icon">🏆</div>
     <div class="bot-tab-label">Ranking</div>
-  </button>
-  <button class="bot-tab" id="bt-feed"    onclick="switchTab('feed')">
-    <div class="bot-tab-icon">📡</div>
-    <div class="bot-tab-label">Feed</div>
   </button>
   <button class="bot-tab" id="bt-perfil"  onclick="switchTab('perfil')">
     <div class="bot-tab-icon">👤</div>
@@ -856,6 +998,7 @@ async function loadBars() {
     }));
     renderTicker();
     renderRanking();
+    renderHome();
     if (mapInited) renderMapMarkers();
   } catch (err) {
     console.error('Error cargando bares:', err);
@@ -964,6 +1107,35 @@ function geolocate() {
     },
     () => showToast('No se pudo obtener tu ubicación')
   );
+}
+
+/* ══════════════════════════════
+   HOME
+══════════════════════════════ */
+function renderHome() {
+  if (!allBars.length) return;
+  const valid  = allBars.filter(b => b._precio > 0);
+  const avg    = valid.reduce((s, b) => s + b._precio, 0) / valid.length;
+  const sorted = [...valid].sort((a, b) => a._precio - b._precio);
+  const cheapest = sorted[0];
+  const medals = ['🥇','🥈','🥉'];
+
+  document.getElementById('h-bares').textContent = valid.length;
+  document.getElementById('h-avg').textContent   = `€${avg.toFixed(2)}`;
+  document.getElementById('h-cheap').textContent = cheapest ? `€${cheapest._precio.toFixed(2)}` : '—';
+
+  const top3 = sorted.slice(0, 3);
+  document.getElementById('home-top3').innerHTML = top3.map((b, i) => {
+    const zona = extractZona(b.direccion || '') || b.ciudad || 'Madrid';
+    return `<div class="home-bar-row" onclick="openSheet(${b.id})">
+      <div class="home-bar-medal">${medals[i]}</div>
+      <div class="home-bar-info">
+        <div class="home-bar-name">${b.nombre}</div>
+        <div class="home-bar-zona">${zona}</div>
+      </div>
+      <div class="home-bar-price">€${b._precio.toFixed(2)}</div>
+    </div>`;
+  }).join('');
 }
 
 /* ══════════════════════════════
