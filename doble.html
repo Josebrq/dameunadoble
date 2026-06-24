@@ -836,6 +836,36 @@ body {
 .add-bar-cta-sub { font-size: 12px; color: rgba(255,252,244,0.5); }
 .add-bar-cta-arrow { font-size: 18px; color: var(--dorada); margin-left: auto; flex-shrink: 0; }
 
+.badge-modal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 1200;
+  background: rgba(24,9,0,0.65); backdrop-filter: blur(3px);
+}
+.badge-modal-overlay.open { display: flex; align-items: center; justify-content: center; padding: 1.5rem; }
+.badge-detail {
+  background: var(--malta); border-radius: 16px;
+  border: 1px solid rgba(232,160,32,0.3);
+  padding: 2rem 1.5rem; max-width: 300px; width: 100%;
+  text-align: center; box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+  transform: scale(0.9); opacity: 0; transition: all 0.2s ease;
+}
+.badge-modal-overlay.open .badge-detail { transform: scale(1); opacity: 1; }
+.badge-detail-icon { font-size: 56px; margin-bottom: 0.75rem; display: block; }
+.badge-detail-title {
+  font-family: 'Bebas Neue', sans-serif; font-size: 26px;
+  color: var(--dorada); line-height: 1; margin-bottom: 8px;
+}
+.badge-detail-desc { font-size: 13px; color: rgba(255,252,244,0.65); line-height: 1.6; margin-bottom: 1rem; }
+.badge-detail-date { font-size: 11px; color: rgba(232,160,32,0.55); margin-bottom: 1.25rem; }
+.badge-prog-label { font-size: 11px; color: rgba(255,252,244,0.35); margin-bottom: 6px; }
+.badge-prog-bg { height: 6px; background: rgba(255,252,244,0.1); border-radius: 3px; overflow: hidden; margin-bottom: 1.25rem; }
+.badge-prog-fill { height: 6px; background: var(--dorada); border-radius: 3px; transition: width 0.5s ease; }
+.badge-detail-close {
+  background: rgba(255,252,244,0.1); border: none; color: rgba(255,252,244,0.7);
+  padding: 9px 28px; border-radius: 8px; cursor: pointer;
+  font-family: 'Inter', sans-serif; font-size: 13px; transition: background 0.15s;
+}
+.badge-detail-close:hover { background: rgba(255,252,244,0.18); }
+
 .modal-overlay {
   display: none; position: fixed; inset: 0; z-index: 1100;
   background: rgba(24,9,0,0.6); backdrop-filter: blur(2px);
@@ -1147,6 +1177,11 @@ body {
     <div id="sheet-reviews-body"></div>
   </div>
 </aside>
+
+<!-- ── BADGE DETAIL MODAL ── -->
+<div class="badge-modal-overlay" id="badge-modal-overlay" onclick="closeBadgeModal()">
+  <div class="badge-detail" onclick="event.stopPropagation()" id="badge-detail-content"></div>
+</div>
 
 <!-- ── ADD BAR MODAL ── -->
 <div class="modal-overlay" id="add-bar-overlay" onclick="closeAddBar()"></div>
@@ -2366,58 +2401,64 @@ const BADGES = [
     id: 'first_review', icon: '🍺',
     es: { title: 'Primer Trago', desc: 'Deja tu primera reseña' },
     en: { title: 'First Round', desc: 'Leave your first review' },
-    check: () => userReviews.length >= 1
+    check: () => userReviews.length >= 1,
+    progress: () => ({ cur: Math.min(userReviews.length, 1), max: 1 })
   },
   {
     id: 'collector_5', icon: '❤️',
     es: { title: 'Coleccionista', desc: 'Guarda 5 bares favoritos' },
     en: { title: 'Collector', desc: 'Save 5 favourite bars' },
-    check: () => favorites.length >= 5
+    check: () => favorites.length >= 5,
+    progress: () => ({ cur: Math.min(favorites.length, 5), max: 5 })
   },
   {
     id: 'bargain_hunter', icon: '💚',
     es: { title: 'Cazaganga', desc: 'Guarda un bar con doble < €2' },
     en: { title: 'Bargain Hunter', desc: 'Save a bar with a pint under €2' },
-    check: () => favorites.some(id => {
-      const b = allBars.find(b => b.id === id);
-      return b && b._precio > 0 && b._precio < 2.0;
-    })
-  },
-  {
-    id: 'reporter_3', icon: '✏️',
-    es: { title: 'Periodista', desc: 'Reporta 3 precios' },
-    en: { title: 'Journalist', desc: 'Report 3 prices' },
-    check: () => userReports.length >= 3
+    check: () => favorites.some(id => { const b = allBars.find(b => b.id === id); return b && b._precio > 0 && b._precio < 2.0; }),
+    progress: () => ({ cur: favorites.some(id => { const b = allBars.find(b => b.id === id); return b && b._precio > 0 && b._precio < 2.0; }) ? 1 : 0, max: 1 })
   },
   {
     id: 'explorer_10', icon: '🗺️',
     es: { title: 'Explorador', desc: 'Descubre 10 bares distintos' },
     en: { title: 'Explorer', desc: 'Discover 10 different bars' },
-    check: () => (JSON.parse(localStorage.getItem('dud_viewed') || '[]')).length >= 10
+    check: () => (JSON.parse(localStorage.getItem('dud_viewed') || '[]')).length >= 10,
+    progress: () => { const v = JSON.parse(localStorage.getItem('dud_viewed') || '[]').length; return { cur: Math.min(v, 10), max: 10 }; }
+  },
+  {
+    id: 'reporter_3', icon: '✏️',
+    es: { title: 'Periodista', desc: 'Reporta 3 precios' },
+    en: { title: 'Journalist', desc: 'Report 3 prices' },
+    check: () => userReports.length >= 3,
+    progress: () => ({ cur: Math.min(userReports.length, 3), max: 3 })
   },
   {
     id: 'critic_5', icon: '⭐',
     es: { title: 'Crítico', desc: 'Escribe 5 reseñas' },
     en: { title: 'Critic', desc: 'Write 5 reviews' },
-    check: () => userReviews.length >= 5
+    check: () => userReviews.length >= 5,
+    progress: () => ({ cur: Math.min(userReviews.length, 5), max: 5 })
   },
   {
     id: 'reporter_10', icon: '📡',
     es: { title: 'Informador', desc: 'Reporta 10 precios' },
     en: { title: 'Informant', desc: 'Report 10 prices' },
-    check: () => userReports.length >= 10
+    check: () => userReports.length >= 10,
+    progress: () => ({ cur: Math.min(userReports.length, 10), max: 10 })
   },
   {
     id: 'collector_20', icon: '👑',
     es: { title: 'Maestro', desc: 'Guarda 20 bares favoritos' },
     en: { title: 'Master', desc: 'Save 20 favourite bars' },
-    check: () => favorites.length >= 20
+    check: () => favorites.length >= 20,
+    progress: () => ({ cur: Math.min(favorites.length, 20), max: 20 })
   },
   {
     id: 'legend', icon: '🎖️',
     es: { title: 'Leyenda Local', desc: 'Escribe 20 reseñas' },
     en: { title: 'Local Legend', desc: 'Write 20 reviews' },
-    check: () => userReviews.length >= 20
+    check: () => userReviews.length >= 20,
+    progress: () => ({ cur: Math.min(userReviews.length, 20), max: 20 })
   },
 ];
 
@@ -2440,15 +2481,46 @@ function checkBadges() {
 }
 
 function showBadgeToast(badge) {
-  const t = document.getElementById('badge-toast');
-  const lang = i18n[currentLang] ? currentLang : 'es';
-  const info = badge[lang] || badge.es;
-  t.innerHTML = `
+  const el = document.getElementById('badge-toast');
+  const info = badge[currentLang] || badge.es;
+  el.innerHTML = `
     <div style="font-size:28px;margin-bottom:4px">${badge.icon}</div>
     <div class="badge-toast-title">${info.title}</div>
-    <div style="font-size:12px;opacity:0.7;margin-top:2px">¡Insignia desbloqueada!</div>`;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3500);
+    <div style="font-size:12px;opacity:0.6;margin-top:2px">¡Insignia desbloqueada!</div>`;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 3500);
+}
+
+function openBadgeModal(badgeId) {
+  const badge = BADGES.find(b => b.id === badgeId);
+  if (!badge) return;
+  const info = badge[currentLang] || badge.es;
+  const unlocked = !!unlockedBadges[badge.id];
+  const prog = badge.progress();
+  const pct = Math.round((prog.cur / prog.max) * 100);
+  const lang = currentLang;
+
+  document.getElementById('badge-detail-content').innerHTML = `
+    <span class="badge-detail-icon">${badge.icon}</span>
+    <div class="badge-detail-title">${info.title}</div>
+    <div class="badge-detail-desc">${info.desc}</div>
+    ${unlocked
+      ? `<div class="badge-detail-date">${lang === 'en' ? 'Unlocked' : 'Desbloqueada'} · ${timeAgo(unlockedBadges[badge.id])}</div>`
+      : ''
+    }
+    <div class="badge-prog-label">${prog.cur} / ${prog.max} · ${pct}%</div>
+    <div class="badge-prog-bg">
+      <div class="badge-prog-fill" style="width:${pct}%"></div>
+    </div>
+    <button class="badge-detail-close" onclick="closeBadgeModal()">
+      ${lang === 'en' ? 'Close' : 'Cerrar'}
+    </button>`;
+
+  document.getElementById('badge-modal-overlay').classList.add('open');
+}
+
+function closeBadgeModal() {
+  document.getElementById('badge-modal-overlay').classList.remove('open');
 }
 
 function trackBarView(barId) {
@@ -2460,20 +2532,31 @@ function trackBarView(barId) {
 }
 
 function renderBadges() {
-  const lang = i18n[currentLang] ? currentLang : 'es';
+  const lang = currentLang;
+  // Sort: unlocked first, locked last
+  const sorted = [...BADGES].sort((a, b) => {
+    const aU = !!unlockedBadges[a.id];
+    const bU = !!unlockedBadges[b.id];
+    return bU - aU;
+  });
+
   return `
     <div class="badges-section">
       <div class="badges-title">${lang === 'en' ? 'Badges' : 'Insignias'}</div>
       <div class="badges-grid">
-        ${BADGES.map(badge => {
+        ${sorted.map(badge => {
           const info = badge[lang] || badge.es;
           const unlocked = !!unlockedBadges[badge.id];
-          const date = unlocked ? timeAgo(unlockedBadges[badge.id]) : null;
-          return `<div class="badge-card ${unlocked ? 'unlocked' : ''}" title="${info.desc}">
+          const prog = badge.progress();
+          return `<div class="badge-card ${unlocked ? 'unlocked' : ''}"
+            onclick="${unlocked ? `openBadgeModal('${badge.id}')` : `openBadgeModal('${badge.id}')`}"
+            style="cursor:pointer">
             <div class="badge-icon ${unlocked ? '' : 'locked'}">${badge.icon}</div>
             <div class="badge-title ${unlocked ? 'unlocked' : ''}">${info.title}</div>
-            <div class="badge-desc ${unlocked ? 'unlocked' : ''}">${info.desc}</div>
-            ${date ? `<div class="badge-date">${date}</div>` : ''}
+            ${unlocked
+              ? `<div class="badge-date">${timeAgo(unlockedBadges[badge.id])}</div>`
+              : `<div class="badge-desc">${prog.cur}/${prog.max}</div>`
+            }
           </div>`;
         }).join('')}
       </div>
