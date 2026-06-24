@@ -778,8 +778,49 @@ body {
 .review-login-prompt span { color: var(--roja); font-weight: 600; }
 
 /* ─────────────────────────────
-   ADD BAR MODAL
+   BADGES / INSIGNIAS
 ───────────────────────────── */
+.badges-section { padding: 1.25rem; border-top: 1px solid rgba(255,252,244,0.08); }
+.badges-title {
+  font-size: 9px; text-transform: uppercase; letter-spacing: 1px;
+  color: rgba(255,252,244,0.4); margin-bottom: 12px; font-weight: 600;
+}
+.badges-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+}
+.badge-card {
+  background: rgba(255,252,244,0.05); border: 1px solid rgba(255,252,244,0.08);
+  border-radius: 8px; padding: 10px 6px; text-align: center;
+  transition: all 0.15s; cursor: default;
+}
+.badge-card.unlocked {
+  background: rgba(232,160,32,0.12); border-color: rgba(232,160,32,0.3);
+}
+.badge-icon { font-size: 24px; margin-bottom: 4px; line-height: 1; }
+.badge-icon.locked { filter: grayscale(1); opacity: 0.3; }
+.badge-title {
+  font-family: 'Bebas Neue', sans-serif; font-size: 13px;
+  color: rgba(255,252,244,0.4); line-height: 1.1;
+}
+.badge-title.unlocked { color: var(--dorada); }
+.badge-desc { font-size: 9px; color: rgba(255,252,244,0.25); margin-top: 3px; line-height: 1.3; }
+.badge-desc.unlocked { color: rgba(255,252,244,0.45); }
+.badge-date { font-size: 8px; color: rgba(232,160,32,0.6); margin-top: 3px; }
+
+/* Toast badge unlock */
+.badge-toast {
+  position: fixed; bottom: 80px; left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--malta); color: var(--espuma);
+  padding: 12px 20px; border-radius: 12px;
+  border: 1px solid var(--dorada);
+  font-size: 14px; opacity: 0;
+  transition: all 0.3s; pointer-events: none; z-index: 500;
+  text-align: center; min-width: 220px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+.badge-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.badge-toast-title { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--dorada); }
 .add-bar-cta {
   background: var(--malta); border-radius: 10px;
   padding: 1.25rem; display: flex; align-items: center; gap: 12px;
@@ -1146,6 +1187,7 @@ body {
 
 <!-- ── TOAST ── -->
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="badge-toast" id="badge-toast"></div>
 
 <!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -1578,6 +1620,9 @@ function openSheet(barId) {
   document.getElementById('sheet-overlay').classList.add('open');
   document.getElementById('bar-sheet').classList.add('open');
 
+  // Track view for Explorer badge
+  trackBarView(barId);
+
   // Load reviews async
   loadReviews(barId);
 
@@ -1628,6 +1673,7 @@ function toggleFav() {
   localStorage.setItem('dud_favs', JSON.stringify(favorites));
   renderProfile();
   if (mapInited) renderMapMarkers();
+  checkBadges();
 }
 
 async function loadFavoritesFromSupabase() {
@@ -1892,6 +1938,8 @@ async function submitReview(barId) {
     });
     showToast('✅ Reseña publicada, ¡gracias!');
     await loadReviews(barId);
+    await loadUserStats();
+    checkBadges();
   } catch(e) {
     showToast('Error al publicar reseña');
     if (btn) btn.disabled = false;
@@ -2211,6 +2259,7 @@ function renderProfile() {
         </div>
       </div>
     </div>
+    ${renderBadges()}
     <div class="profile-content-area">${listHTML}</div>`;
 }
 
@@ -2307,6 +2356,128 @@ function extractZona(dir) {
   if (d.includes('embajadores') || d.includes('rastro'))    return 'Embajadores';
   if (d.includes('huertas') || d.includes('atocha'))        return 'Huertas';
   return '';
+}
+
+/* ══════════════════════════════
+   BADGES / INSIGNIAS
+══════════════════════════════ */
+const BADGES = [
+  {
+    id: 'first_review', icon: '🍺',
+    es: { title: 'Primer Trago', desc: 'Deja tu primera reseña' },
+    en: { title: 'First Round', desc: 'Leave your first review' },
+    check: () => userReviews.length >= 1
+  },
+  {
+    id: 'collector_5', icon: '❤️',
+    es: { title: 'Coleccionista', desc: 'Guarda 5 bares favoritos' },
+    en: { title: 'Collector', desc: 'Save 5 favourite bars' },
+    check: () => favorites.length >= 5
+  },
+  {
+    id: 'bargain_hunter', icon: '💚',
+    es: { title: 'Cazaganga', desc: 'Guarda un bar con doble < €2' },
+    en: { title: 'Bargain Hunter', desc: 'Save a bar with a pint under €2' },
+    check: () => favorites.some(id => {
+      const b = allBars.find(b => b.id === id);
+      return b && b._precio > 0 && b._precio < 2.0;
+    })
+  },
+  {
+    id: 'reporter_3', icon: '✏️',
+    es: { title: 'Periodista', desc: 'Reporta 3 precios' },
+    en: { title: 'Journalist', desc: 'Report 3 prices' },
+    check: () => userReports.length >= 3
+  },
+  {
+    id: 'explorer_10', icon: '🗺️',
+    es: { title: 'Explorador', desc: 'Descubre 10 bares distintos' },
+    en: { title: 'Explorer', desc: 'Discover 10 different bars' },
+    check: () => (JSON.parse(localStorage.getItem('dud_viewed') || '[]')).length >= 10
+  },
+  {
+    id: 'critic_5', icon: '⭐',
+    es: { title: 'Crítico', desc: 'Escribe 5 reseñas' },
+    en: { title: 'Critic', desc: 'Write 5 reviews' },
+    check: () => userReviews.length >= 5
+  },
+  {
+    id: 'reporter_10', icon: '📡',
+    es: { title: 'Informador', desc: 'Reporta 10 precios' },
+    en: { title: 'Informant', desc: 'Report 10 prices' },
+    check: () => userReports.length >= 10
+  },
+  {
+    id: 'collector_20', icon: '👑',
+    es: { title: 'Maestro', desc: 'Guarda 20 bares favoritos' },
+    en: { title: 'Master', desc: 'Save 20 favourite bars' },
+    check: () => favorites.length >= 20
+  },
+  {
+    id: 'legend', icon: '🎖️',
+    es: { title: 'Leyenda Local', desc: 'Escribe 20 reseñas' },
+    en: { title: 'Local Legend', desc: 'Write 20 reviews' },
+    check: () => userReviews.length >= 20
+  },
+];
+
+let unlockedBadges = JSON.parse(localStorage.getItem('dud_badges') || '{}');
+
+function checkBadges() {
+  if (!currentUser) return;
+  let newUnlock = null;
+  BADGES.forEach(badge => {
+    if (!unlockedBadges[badge.id] && badge.check()) {
+      unlockedBadges[badge.id] = new Date().toISOString();
+      newUnlock = badge;
+    }
+  });
+  localStorage.setItem('dud_badges', JSON.stringify(unlockedBadges));
+  if (newUnlock) {
+    showBadgeToast(newUnlock);
+    renderProfile();
+  }
+}
+
+function showBadgeToast(badge) {
+  const t = document.getElementById('badge-toast');
+  const lang = i18n[currentLang] ? currentLang : 'es';
+  const info = badge[lang] || badge.es;
+  t.innerHTML = `
+    <div style="font-size:28px;margin-bottom:4px">${badge.icon}</div>
+    <div class="badge-toast-title">${info.title}</div>
+    <div style="font-size:12px;opacity:0.7;margin-top:2px">¡Insignia desbloqueada!</div>`;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+function trackBarView(barId) {
+  const viewed = JSON.parse(localStorage.getItem('dud_viewed') || '[]');
+  if (!viewed.includes(barId)) {
+    viewed.push(barId);
+    localStorage.setItem('dud_viewed', JSON.stringify(viewed));
+  }
+}
+
+function renderBadges() {
+  const lang = i18n[currentLang] ? currentLang : 'es';
+  return `
+    <div class="badges-section">
+      <div class="badges-title">${lang === 'en' ? 'Badges' : 'Insignias'}</div>
+      <div class="badges-grid">
+        ${BADGES.map(badge => {
+          const info = badge[lang] || badge.es;
+          const unlocked = !!unlockedBadges[badge.id];
+          const date = unlocked ? timeAgo(unlockedBadges[badge.id]) : null;
+          return `<div class="badge-card ${unlocked ? 'unlocked' : ''}" title="${info.desc}">
+            <div class="badge-icon ${unlocked ? '' : 'locked'}">${badge.icon}</div>
+            <div class="badge-title ${unlocked ? 'unlocked' : ''}">${info.title}</div>
+            <div class="badge-desc ${unlocked ? 'unlocked' : ''}">${info.desc}</div>
+            ${date ? `<div class="badge-date">${date}</div>` : ''}
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
 }
 
 /* ══════════════════════════════
