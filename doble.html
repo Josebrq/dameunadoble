@@ -673,6 +673,64 @@ body {
 .home-quick-icon { font-size: 22px; margin-bottom: 4px; }
 .home-quick-label { font-size: 12px; font-weight: 600; color: var(--malta); }
 .home-quick-sub { font-size: 11px; color: var(--malta-soft); margin-top: 1px; }
+/* ─────────────────────────────
+   RATING STARS
+───────────────────────────── */
+.stars-display { display: flex; gap: 2px; align-items: center; }
+.star { font-size: 13px; color: var(--border-strong); }
+.star.filled { color: var(--dorada); }
+.rating-summary {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 12px; padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.rating-score {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 36px; line-height: 1;
+}
+.rating-count { font-size: 11px; color: var(--malta-soft); margin-top: 2px; }
+.rating-bars { flex: 1; display: flex; flex-direction: column; gap: 3px; }
+.rating-bar-row { display: flex; align-items: center; gap: 5px; }
+.rating-bar-lbl { font-size: 10px; color: var(--malta-soft); width: 8px; }
+.rating-bar-bg { flex: 1; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+.rating-bar-fill { height: 4px; background: var(--dorada); border-radius: 2px; }
+.btn-maps-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--malta-soft); text-decoration: none;
+  padding: 4px 8px; border: 1px solid var(--border); border-radius: 4px;
+  transition: all 0.15s; margin-bottom: 12px;
+}
+.btn-maps-link:hover { border-color: var(--malta); color: var(--malta); }
+.star-picker { display: flex; gap: 6px; margin-bottom: 10px; cursor: pointer; }
+.star-pick { font-size: 26px; color: var(--border-strong); transition: color 0.12s; cursor: pointer; }
+.star-pick.sel { color: var(--dorada); }
+.review-form {
+  margin-bottom: 14px; padding: 12px;
+  background: white; border: 1px solid var(--border); border-radius: var(--radius);
+}
+.review-form-lbl { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--malta-soft); margin-bottom: 8px; }
+.review-textarea {
+  width: 100%; padding: 8px 10px;
+  border: 1.5px solid var(--border-strong); border-radius: 6px;
+  font-size: 13px; font-family: 'Inter', sans-serif; color: var(--malta);
+  background: var(--espuma); resize: none; height: 68px; outline: none;
+  transition: border-color 0.15s;
+}
+.review-textarea:focus { border-color: var(--roja); }
+.btn-submit-review {
+  width: 100%; margin-top: 8px; padding: 9px;
+  background: var(--malta); color: var(--espuma);
+  border: none; border-radius: 6px; font-size: 13px; font-weight: 500;
+  cursor: pointer; font-family: 'Inter', sans-serif; transition: background 0.15s;
+}
+.btn-submit-review:hover { background: var(--malta-mid); }
+.btn-submit-review:disabled { opacity: 0.5; cursor: not-allowed; }
+.review-login-prompt {
+  font-size: 13px; color: var(--malta-soft);
+  text-align: center; padding: 10px 0; cursor: pointer;
+}
+.review-login-prompt span { color: var(--roja); font-weight: 600; }
+
 .site-footer {
   background: var(--malta); color: var(--espuma);
   padding: 2rem 1.25rem; text-align: center; margin-top: 2rem;
@@ -736,7 +794,7 @@ body {
       <div class="hero">
         <div class="hero-eyebrow">El mapa de la cerveza en Madrid</div>
         <h1 class="hero-h1">DAME UNA<br><em>DOBLE</em></h1>
-        <p class="hero-sub">Encuentra el doble más barato cerca de ti. Precios reales, bares reales, comunidad real.</p>
+        <p class="hero-sub">Que no te claven. Precios reales de dobles en Madrid, actualizados por la comunidad.</p>
         <div class="hero-stats">
           <div class="hero-stat">
             <div class="hero-stat-num" id="h-bares">—</div>
@@ -900,9 +958,7 @@ body {
       <button class="btn-report" onclick="openReport()">✏️ Reportar precio</button>
     </div>
     <div class="sheet-reviews-title">Reseñas</div>
-    <div id="sheet-reviews-body">
-      <div class="empty-state">Próximamente · Sé el primero en reseñar este bar.</div>
-    </div>
+    <div id="sheet-reviews-body"></div>
   </div>
 </aside>
 
@@ -1325,6 +1381,9 @@ function openSheet(barId) {
   document.getElementById('sheet-overlay').classList.add('open');
   document.getElementById('bar-sheet').classList.add('open');
 
+  // Load reviews async
+  loadReviews(barId);
+
   // Highlight map pin
   highlightPin(barId);
 }
@@ -1366,6 +1425,134 @@ function openReport() {
   closeSheet();
   showToast('Función de reporte próximamente ✏️');
   // TODO: open report form / redirect to quick.html
+}
+
+/* ══════════════════════════════
+   REVIEWS & RATINGS
+══════════════════════════════ */
+let selectedRating = 0;
+
+function starsHTML(score) {
+  const full = Math.round(score);
+  return [1,2,3,4,5].map(i =>
+    `<span class="star ${i <= full ? 'filled' : ''}">★</span>`
+  ).join('');
+}
+
+function bayesianRating(reviews) {
+  const C = 5; const m = 3.5;
+  const n = reviews.length;
+  if (!n) return null;
+  const sum = reviews.reduce((s, r) => s + (r.rating || 0), 0);
+  return (C * m + sum) / (C + n);
+}
+
+function ratingBars(reviews) {
+  return [5,4,3,2,1].map(star => {
+    const count = reviews.filter(r => r.rating === star).length;
+    const pct = reviews.length ? (count / reviews.length) * 100 : 0;
+    return `<div class="rating-bar-row">
+      <div class="rating-bar-lbl">${star}</div>
+      <div class="rating-bar-bg"><div class="rating-bar-fill" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join('');
+}
+
+async function loadReviews(barId) {
+  const container = document.getElementById('sheet-reviews-body');
+  container.innerHTML = '<div class="loading-state" style="padding:1rem"><div class="loading-spinner"></div></div>';
+  const { data: reviews } = await sb.from('reviews').select('*')
+    .eq('bar_id', barId).order('created_at', { ascending: false });
+  const list = reviews || [];
+  const score = bayesianRating(list);
+  const bar = allBars.find(b => b.id === barId);
+  const mapsQ = bar ? encodeURIComponent(`${bar.nombre} ${bar.direccion || ''} Madrid`) : '';
+  let html = '';
+
+  if (list.length > 0) {
+    html += `<div class="rating-summary">
+      <div>
+        <div class="rating-score">${score.toFixed(1)}</div>
+        <div class="stars-display">${starsHTML(score)}</div>
+        <div class="rating-count">${list.length} reseña${list.length !== 1 ? 's' : ''}</div>
+      </div>
+      <div class="rating-bars">${ratingBars(list)}</div>
+    </div>`;
+  }
+
+  html += `<a class="btn-maps-link" href="https://maps.google.com/?q=${mapsQ}" target="_blank" rel="noopener">🗺️ Ver en Google Maps</a>`;
+
+  if (currentUser) {
+    const alreadyReviewed = list.some(r => r.user_id === currentUser.id);
+    if (!alreadyReviewed) {
+      html += `<div class="review-form">
+        <div class="review-form-lbl">Tu reseña</div>
+        <div class="star-picker" id="star-picker">
+          ${[1,2,3,4,5].map(i => `<span class="star-pick" data-v="${i}" onclick="pickStar(${i})">★</span>`).join('')}
+        </div>
+        <textarea class="review-textarea" id="review-text" placeholder="¿Cómo fue la experiencia?"></textarea>
+        <button class="btn-submit-review" onclick="submitReview(${barId})">Publicar reseña</button>
+      </div>`;
+    }
+  } else {
+    html += `<div class="review-login-prompt" onclick="handleAuthBtn()">
+      <span>Entra con Google</span> para dejar tu reseña
+    </div>`;
+  }
+
+  if (list.length === 0) {
+    html += `<div class="empty-state">Sé el primero en reseñar este bar.</div>`;
+  } else {
+    html += list.map(r => {
+      const initials = (r.user_name || 'AN').slice(0,2).toUpperCase();
+      const ago = timeAgo(r.created_at);
+      const stars = [1,2,3,4,5].map(i => `<span class="star ${i <= r.rating ? 'filled' : ''}">★</span>`).join('');
+      return `<div class="review-row">
+        <div class="review-meta">
+          <div class="review-av">${r.user_avatar
+            ? `<img src="${r.user_avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
+            : initials}</div>
+          <div class="review-name">${r.user_name || 'Anónimo'}</div>
+          <div class="review-stars">${stars}</div>
+          <div class="review-date">${ago}</div>
+        </div>
+        ${r.comment ? `<div class="review-comment">${r.comment}</div>` : ''}
+      </div>`;
+    }).join('');
+  }
+
+  container.innerHTML = html;
+  selectedRating = 0;
+}
+
+function pickStar(val) {
+  selectedRating = val;
+  document.querySelectorAll('.star-pick').forEach(s => {
+    s.classList.toggle('sel', parseInt(s.dataset.v) <= val);
+  });
+}
+
+async function submitReview(barId) {
+  if (!currentUser) { handleAuthBtn(); return; }
+  if (!selectedRating) { showToast('Selecciona una puntuación ★'); return; }
+  const comment = document.getElementById('review-text')?.value.trim() || '';
+  const btn = document.querySelector('.btn-submit-review');
+  if (btn) btn.disabled = true;
+  try {
+    await sb.from('reviews').insert({
+      bar_id:     barId,
+      user_id:    currentUser.id,
+      user_name:  currentUser.user_metadata?.name || currentUser.email,
+      user_avatar:currentUser.user_metadata?.avatar_url || null,
+      rating:     selectedRating,
+      comment:    comment || null,
+    });
+    showToast('✅ Reseña publicada, ¡gracias!');
+    await loadReviews(barId);
+  } catch(e) {
+    showToast('Error al publicar reseña');
+    if (btn) btn.disabled = false;
+  }
 }
 
 /* ══════════════════════════════
