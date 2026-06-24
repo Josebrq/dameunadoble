@@ -84,6 +84,16 @@ body {
 }
 .nav-tab-btn:hover { color: var(--espuma); }
 .nav-tab-btn.active { color: var(--dorada); }
+.lang-switcher { display: flex; gap: 3px; }
+.lang-btn {
+  font-size: 11px; font-weight: 600; padding: 4px 8px;
+  border: 1px solid rgba(255,252,244,0.2); border-radius: 4px;
+  cursor: pointer; background: transparent; color: rgba(255,252,244,0.5);
+  font-family: 'Inter', sans-serif; transition: all 0.15s;
+}
+.lang-btn:hover { color: var(--espuma); border-color: rgba(255,252,244,0.4); }
+.lang-btn.active { background: var(--dorada); color: var(--malta); border-color: var(--dorada); }
+
 .nav-login-btn {
   font-size: 12px; font-weight: 600; padding: 6px 14px;
   background: var(--roja); color: var(--espuma);
@@ -887,13 +897,19 @@ body {
       Ponme Una <span>Doble</span> 🍺
     </a>
     <div class="nav-tabs">
-      <button class="nav-tab-btn active" data-tab="home"    onclick="switchTab('home')">🏠 Inicio</button>
-      <button class="nav-tab-btn"        data-tab="mapa"    onclick="switchTab('mapa')">🗺️ Mapa</button>
+      <button class="nav-tab-btn active" data-tab="home"    onclick="switchTab('home')">🏠 <span data-i18n="nav-home">Inicio</span></button>
+      <button class="nav-tab-btn"        data-tab="mapa"    onclick="switchTab('mapa')">🗺️ <span data-i18n="nav-map">Mapa</span></button>
       <button class="nav-tab-btn"        data-tab="ranking" onclick="switchTab('ranking')">🏆 Ranking</button>
       <button class="nav-tab-btn"        data-tab="feed"    onclick="switchTab('feed')">📡 Feed</button>
-      <button class="nav-tab-btn"        data-tab="perfil"  onclick="switchTab('perfil')">👤 Perfil</button>
+      <button class="nav-tab-btn"        data-tab="perfil"  onclick="switchTab('perfil')">👤 <span data-i18n="nav-profile">Perfil</span></button>
     </div>
-    <button class="nav-login-btn" id="nav-login-btn" onclick="handleAuthBtn()">Entrar</button>
+    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+      <div class="lang-switcher">
+        <button class="lang-btn active" onclick="setLang('es')">ES</button>
+        <button class="lang-btn" onclick="setLang('en')">EN</button>
+      </div>
+      <button class="nav-login-btn" id="nav-login-btn" onclick="handleAuthBtn()" data-i18n="nav-login">Entrar</button>
+    </div>
   </div>
   <div class="ticker" aria-hidden="true">
     <div class="ticker-inner">
@@ -911,71 +927,71 @@ body {
   <section id="tab-home" class="tab-content active">
     <div class="home-wrap">
       <div class="hero">
-        <div class="hero-eyebrow">El mapa de la cerveza en Madrid</div>
+        <div class="hero-eyebrow" data-i18n="hero-eyebrow">El mapa de la cerveza en Madrid</div>
         <h1 class="hero-h1">PONME UNA<br><em>DOBLE</em></h1>
-        <p class="hero-sub">De bar en bar por Madrid. Los precios los ponemos entre todos.</p>
+        <p class="hero-sub" data-i18n="hero-sub">De bar en bar por Madrid. Los precios los ponemos entre todos.</p>
         <div class="hero-stats">
           <div class="hero-stat">
             <div class="hero-stat-num" id="h-bares">—</div>
-            <div class="hero-stat-lbl">bares en el mapa</div>
+            <div class="hero-stat-lbl" data-i18n="stat-bars">bares en el mapa</div>
           </div>
           <div class="hero-stat">
             <div class="hero-stat-num" id="h-avg">—</div>
-            <div class="hero-stat-lbl">precio medio</div>
+            <div class="hero-stat-lbl" data-i18n="stat-avg">precio medio</div>
           </div>
           <div class="hero-stat">
             <div class="hero-stat-num" id="h-cheap">—</div>
-            <div class="hero-stat-lbl">el más barato</div>
+            <div class="hero-stat-lbl" data-i18n="stat-cheapest">el más barato</div>
           </div>
         </div>
-        <button class="hero-cta" onclick="switchTab('mapa')">🗺️ Ver el mapa</button>
+        <button class="hero-cta" onclick="switchTab('mapa')" data-i18n="hero-cta">🗺️ Ver el mapa</button>
         <div style="margin-top:1rem">
-          <button onclick="findNearMe()" id="geo-home-btn" style="background:transparent;border:1.5px solid var(--border-strong);color:var(--malta);padding:10px 20px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s">
+          <button onclick="findNearMe()" id="geo-home-btn" data-i18n="hero-near" style="background:transparent;border:1.5px solid var(--border-strong);color:var(--malta);padding:10px 20px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s">
             📍 Bares cerca de mí
           </button>
         </div>
       </div>
 
       <div class="home-sections">
-        <div class="home-section-title">🏆 Top 3 más baratos ahora</div>
+        <div class="home-section-title" data-i18n="home-top3">🏆 Top 3 más baratos ahora</div>
         <div class="home-top3" id="home-top3">
           <div class="loading-state"><div class="loading-spinner"></div></div>
         </div>
 
         <div id="home-cerca-section" style="display:none">
-          <div class="home-section-title">📍 Más cercanos a ti</div>
+          <div class="home-section-title" data-i18n="home-near">📍 Más cercanos a ti</div>
           <div class="home-top3" id="home-cerca-list"></div>
         </div>
 
-        <div class="home-section-title">Explorar</div>
+        <div class="home-section-title" data-i18n="home-explore">Explorar</div>
         <div class="home-quick-btns">
           <button class="home-quick-btn" onclick="switchTab('ranking')">
             <div class="home-quick-icon">🏆</div>
-            <div class="home-quick-label">Ranking</div>
-            <div class="home-quick-sub">Ordenados por precio</div>
+            <div class="home-quick-label" data-i18n="quick-ranking">Ranking</div>
+            <div class="home-quick-sub" data-i18n="quick-ranking-sub">Ordenados por precio</div>
           </button>
           <button class="home-quick-btn" onclick="switchTab('feed')">
             <div class="home-quick-icon">📡</div>
-            <div class="home-quick-label">Feed en vivo</div>
-            <div class="home-quick-sub">Últimas actualizaciones</div>
+            <div class="home-quick-label" data-i18n="quick-feed">Feed en vivo</div>
+            <div class="home-quick-sub" data-i18n="quick-feed-sub">Últimas actualizaciones</div>
           </button>
           <button class="home-quick-btn" onclick="setMapFilter('cheap', document.querySelector('[data-filter=cheap]'));switchTab('mapa')">
             <div class="home-quick-icon">🟢</div>
-            <div class="home-quick-label">Menos de €2.50</div>
-            <div class="home-quick-sub">Dobles económicos</div>
+            <div class="home-quick-label" data-i18n="quick-cheap">Precio bajo</div>
+            <div class="home-quick-sub" data-i18n="quick-cheap-sub">Dobles económicos</div>
           </button>
           <button class="home-quick-btn" onclick="switchTab('perfil')">
             <div class="home-quick-icon">❤️</div>
-            <div class="home-quick-label">Mis favoritos</div>
-            <div class="home-quick-sub">Tus bares guardados</div>
+            <div class="home-quick-label" data-i18n="quick-favs">Mis favoritos</div>
+            <div class="home-quick-sub" data-i18n="quick-favs-sub">Tus bares guardados</div>
           </button>
         </div>
 
         <button class="add-bar-cta" onclick="openAddBar()">
           <div class="add-bar-cta-icon">🍻</div>
           <div>
-            <div class="add-bar-cta-title">¿Conoces un bar que falta?</div>
-            <div class="add-bar-cta-sub">Añádelo al mapa y ayuda a la comunidad</div>
+            <div class="add-bar-cta-title" data-i18n="addbar-cta-title">¿Conoces un bar que falta?</div>
+            <div class="add-bar-cta-sub" data-i18n="addbar-cta-sub">Añádelo al mapa y ayuda a la comunidad</div>
           </div>
           <div class="add-bar-cta-arrow">→</div>
         </button>
@@ -1180,8 +1196,12 @@ sb.auth.onAuthStateChange((_event, session) => {
 function updateNavBtn() {
   const btn = document.getElementById('nav-login-btn');
   btn.textContent = currentUser
-    ? (currentUser.user_metadata?.name?.split(' ')[0] || 'Yo')
-    : 'Entrar';
+    ? (currentUser.user_metadata?.name?.split(' ')[0] || t('nav-profile'))
+    : t('nav-login');
+  // Sync lang buttons
+  document.querySelectorAll('.lang-btn').forEach(b =>
+    b.classList.toggle('active', b.textContent === currentLang.toUpperCase())
+  );
 }
 
 async function handleAuthBtn() {
@@ -2054,8 +2074,8 @@ function renderProfile() {
     c.innerHTML = `
       <div class="profile-login-screen">
         <div class="profile-login-icon">🍺</div>
-        <div class="profile-login-title">Únete a la barra</div>
-        <p class="profile-login-sub">Guarda tus bares favoritos, reporta precios y ayuda a hacer el mapa más completo de Madrid.</p>
+        <div class="profile-login-title">${t('login-title')}</div>
+        <p class="profile-login-sub">${t('login-sub')}</p>
         <button class="btn-google" onclick="handleAuthBtn()">
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
             <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908C16.607 14.009 17.64 11.768 17.64 9.2z" fill="#4285F4"/>
@@ -2063,7 +2083,7 @@ function renderProfile() {
             <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
             <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
           </svg>
-          Entrar a la barra (con Google)
+          ${t('login-btn')}
         </button>
       </div>`;
     return;
@@ -2080,9 +2100,9 @@ function renderProfile() {
     listHTML = favBars.length === 0
       ? `<div class="empty-state">
           <div style="font-size:48px;margin-bottom:1rem">🌵</div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--malta);margin-bottom:8px">Tu ruta está más seca que el esparto.</div>
-          <p style="font-size:13px;color:var(--malta-soft);line-height:1.6;max-width:280px;margin:0 auto 1.5rem">Aún no has guardado ningún bar. Pásate por el mapa y dale al ❤️ a esos sitios donde te tratan como en casa (o donde la cerveza está regalada).</p>
-          <button onclick="switchTab('mapa')" style="background:var(--roja);color:var(--espuma);border:none;border-radius:6px;padding:10px 20px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.5px;cursor:pointer">🗺️ Vámonos de bares</button>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--malta);margin-bottom:8px">${t('empty-favs-title')}</div>
+          <p style="font-size:13px;color:var(--malta-soft);line-height:1.6;max-width:280px;margin:0 auto 1.5rem">${t('empty-favs-sub')}</p>
+          <button onclick="switchTab('mapa')" style="background:var(--roja);color:var(--espuma);border:none;border-radius:6px;padding:10px 20px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.5px;cursor:pointer">${t('empty-favs-btn')}</button>
         </div>`
       : favBars.map(b => {
           const zona = extractZona(b.direccion || '') || b.ciudad || 'Madrid';
@@ -2103,8 +2123,8 @@ function renderProfile() {
     listHTML = userReviews.length === 0
       ? `<div class="empty-state">
           <div style="font-size:48px;margin-bottom:1rem">🍺</div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--malta);margin-bottom:8px">¿Con dos dedos de crema o parecía caldo?</div>
-          <p style="font-size:13px;color:var(--malta-soft);line-height:1.6;max-width:280px;margin:0 auto">Todavía no has dejado ninguna reseña. Madrid necesita saber si ese bar pone buena tapa con el doble o si los vasos huelen a lavavajillas. ¡Sé el crítico que merecemos!</p>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--malta);margin-bottom:8px">${t('empty-reviews-title')}</div>
+          <p style="font-size:13px;color:var(--malta-soft);line-height:1.6;max-width:280px;margin:0 auto">${t('empty-reviews-sub')}</p>
         </div>`
       : userReviews.map(r => {
           const barName = r.bares?.nombre || '—';
@@ -2128,8 +2148,8 @@ function renderProfile() {
     listHTML = userReports.length === 0
       ? `<div class="empty-state">
           <div style="font-size:48px;margin-bottom:1rem">✏️</div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--malta);margin-bottom:8px">Si encuentras un doble a 2€, es tu deber moral contarlo.</div>
-          <p style="font-size:13px;color:var(--malta-soft);line-height:1.6;max-width:280px;margin:0 auto">Todavía no has reportado ningún precio. El pueblo de Madrid confía en ti.</p>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--malta);margin-bottom:8px">${t('empty-reports-title')}</div>
+          <p style="font-size:13px;color:var(--malta-soft);line-height:1.6;max-width:280px;margin:0 auto">${t('empty-reports-sub')}</p>
         </div>`
       : userReports.map(r => {
           const barName = r.nombre_bar || r.bar_nombre || '—';
@@ -2158,15 +2178,15 @@ function renderProfile() {
       <div class="profile-stat-tabs">
         <div class="profile-stat-tab ${profileSection==='favs'?'active':''}" onclick="setProfileSection('favs')">
           <div class="profile-stat-tab-num">${favBars.length}</div>
-          <div class="profile-stat-tab-lbl">Favoritos</div>
+          <div class="profile-stat-tab-lbl">${t('profile-favs')}</div>
         </div>
         <div class="profile-stat-tab ${profileSection==='reviews'?'active':''}" onclick="setProfileSection('reviews')">
           <div class="profile-stat-tab-num">${userReviews.length}</div>
-          <div class="profile-stat-tab-lbl">Reseñas</div>
+          <div class="profile-stat-tab-lbl">${t('profile-reviews')}</div>
         </div>
         <div class="profile-stat-tab ${profileSection==='reports'?'active':''}" onclick="setProfileSection('reports')">
           <div class="profile-stat-tab-num">${userReports.length}</div>
-          <div class="profile-stat-tab-lbl">Reportes</div>
+          <div class="profile-stat-tab-lbl">${t('profile-reports')}</div>
         </div>
       </div>
     </div>
@@ -2269,9 +2289,143 @@ function extractZona(dir) {
 }
 
 /* ══════════════════════════════
+   i18n — Cultural adaptation
+══════════════════════════════ */
+const i18n = {
+  es: {
+    'nav-home':'Inicio','nav-map':'Mapa','nav-profile':'Perfil','nav-login':'Entrar',
+    'hero-eyebrow':'El mapa de la cerveza en Madrid',
+    'hero-sub':'De bar en bar por Madrid. Los precios los ponemos entre todos.',
+    'stat-bars':'bares en el mapa','stat-avg':'precio medio','stat-cheapest':'el más barato',
+    'hero-cta':'🗺️ Ver el mapa','hero-near':'📍 Bares cerca de mí',
+    'home-top3':'🏆 Top 3 más baratos ahora','home-near':'📍 Más cercanos a ti',
+    'home-explore':'Explorar',
+    'quick-ranking':'Ranking','quick-ranking-sub':'Ordenados por precio',
+    'quick-feed':'Feed en vivo','quick-feed-sub':'Últimas actualizaciones',
+    'quick-cheap':'Precio bajo','quick-cheap-sub':'Dobles económicos',
+    'quick-favs':'Mis favoritos','quick-favs-sub':'Tus bares guardados',
+    'addbar-cta-title':'¿Conoces un bar que falta?',
+    'addbar-cta-sub':'Añádelo al mapa y ayuda a la comunidad',
+    'map-all':'Todos','map-cheap':'🟢 Precio bajo','map-near':'📍 Cerca de mí','map-favs':'❤️ Favoritos',
+    'feed-live':'📡 En vivo','feed-drops':'↘ Bajadas',
+    'rk-vol':'Madrid · Temporada 2025',
+    'rk-avg-lbl':'Media ciudad','rk-trend':'↓ actualizado hoy',
+    'metric-precio':'🍺 Doble','metric-cana':'🥤 Caña','metric-bravas':'🔥 Bravas',
+    'metric-tortilla':'🍳 Tortilla','metric-croquetas':'⚪ Croquetas',
+    'rk-seg-ranking':'Ranking','rk-seg-live':'En vivo','rk-seg-drops':'Bajadas',
+    'bot-home':'Inicio','bot-map':'Mapa','bot-ranking':'Ranking','bot-feed':'Feed','bot-profile':'Perfil',
+    'login-title':'Únete a la barra','login-sub':'Guarda tus bares favoritos, reporta precios y ayuda a hacer el mapa más completo de Madrid.',
+    'login-btn':'🍺 Entrar a la barra (con Google)',
+    'profile-favs':'Favoritos','profile-reviews':'Reseñas','profile-reports':'Reportes',
+    'profile-logout':'Salir',
+    'empty-favs-title':'Tu ruta está más seca que el esparto.',
+    'empty-favs-sub':'Aún no has guardado ningún bar. Pásate por el mapa y dale al ❤️ a esos sitios donde te tratan como en casa (o donde la cerveza está regalada).',
+    'empty-favs-btn':'🗺️ Vámonos de bares',
+    'empty-reviews-title':'¿Con dos dedos de crema o parecía caldo?',
+    'empty-reviews-sub':'Todavía no has dejado ninguna reseña. Madrid necesita saber si ese bar pone buena tapa con el doble o si los vasos huelen a lavavajillas. ¡Sé el crítico que merecemos!',
+    'empty-reports-title':'Si encuentras un doble a 2€, es tu deber moral contarlo.',
+    'empty-reports-sub':'Todavía no has reportado ningún precio. El pueblo de Madrid confía en ti.',
+    'addbar-title':'Añadir un bar 🍺',
+    'addbar-auth':'🔐 Para añadir o actualizar bares necesitas iniciar sesión. Así sabemos que eres una persona real y no un bot con sed.',
+    'addbar-name':'Nombre del bar *','addbar-dir':'Dirección *','addbar-geocode':'📍 Las coordenadas se obtienen automáticamente',
+    'addbar-precio':'Precio doble (€) *','addbar-cana':'Precio caña (€)',
+    'addbar-bravas':'Bravas (€)','addbar-tortilla':'Tortilla (€)','addbar-croquetas':'Croquetas (€)',
+    'addbar-btn':'🍺 Poner en el mapa',
+    'geo-active':'📍 Ubicación activa · Desactivar',
+    'toast-fav-add':'Añadido a favoritos ❤️','toast-fav-rm':'Eliminado de favoritos',
+    'toast-review-ok':'✅ Reseña publicada, ¡gracias!','toast-review-rm':'Reseña eliminada',
+    'toast-bar-ok':'✅ Bar añadido, pendiente de revisión. ¡Gracias!',
+    'review-placeholder':'¿Cómo fue tu experiencia?','review-btn':'Publicar reseña',
+    'review-login':'para dejar tu reseña','maps-link':'🗺️ Ver en Google Maps',
+    'sheet-doble-label':'Doble de Mahou',
+    'filter-f':'Favoritos',
+  },
+  en: {
+    'nav-home':'Home','nav-map':'Map','nav-profile':'Profile','nav-login':'Sign in',
+    'hero-eyebrow':'Madrid\'s bar price map',
+    'hero-sub':'Bar by bar across Madrid. Together we keep tabs on the prices.',
+    'stat-bars':'bars on the map','stat-avg':'avg. price','stat-cheapest':'cheapest pint',
+    'hero-cta':'🗺️ See the map','hero-near':'📍 Bars near me',
+    'home-top3':'🏆 Top 3 cheapest right now','home-near':'📍 Closest to you',
+    'home-explore':'Explore',
+    'quick-ranking':'Ranking','quick-ranking-sub':'Sorted by price',
+    'quick-feed':'Live feed','quick-feed-sub':'Latest updates',
+    'quick-cheap':'Cheap pints','quick-cheap-sub':'Budget-friendly',
+    'quick-favs':'My favourites','quick-favs-sub':'Your saved bars',
+    'addbar-cta-title':'Know a bar we\'re missing?',
+    'addbar-cta-sub':'Add it to the map and help the community',
+    'map-all':'All','map-cheap':'🟢 Cheap pints','map-near':'📍 Near me','map-favs':'❤️ Favourites',
+    'feed-live':'📡 Live','feed-drops':'↘ Price drops',
+    'rk-vol':'Madrid · Season 2025',
+    'rk-avg-lbl':'City average','rk-trend':'↓ updated today',
+    'metric-precio':'🍺 Pint','metric-cana':'🥤 Small beer','metric-bravas':'🔥 Bravas',
+    'metric-tortilla':'🍳 Tortilla','metric-croquetas':'⚪ Croquettes',
+    'rk-seg-ranking':'Ranking','rk-seg-live':'Live','rk-seg-drops':'Price drops',
+    'bot-home':'Home','bot-map':'Map','bot-ranking':'Ranking','bot-feed':'Feed','bot-profile':'Profile',
+    'login-title':'Join the bar','login-sub':'Save your favourite bars, report prices and help build the most complete map of Madrid.',
+    'login-btn':'🍺 Get behind the bar (with Google)',
+    'profile-favs':'Favourites','profile-reviews':'Reviews','profile-reports':'Reports',
+    'profile-logout':'Sign out',
+    'empty-favs-title':'Your route is drier than a British summer.',
+    'empty-favs-sub':'You haven\'t saved any bars yet. Head to the map and ❤️ the spots where the pint price is right.',
+    'empty-favs-btn':'🗺️ Let\'s find a bar',
+    'empty-reviews-title':'Was the head perfect, or just fizzy tap water?',
+    'empty-reviews-sub':'You haven\'t left any reviews yet. Madrid needs to know if this bar serves a proper pint or if the glasses smell like a dishwasher. Be the critic we deserve!',
+    'empty-reports-title':'If you find a pint under €2, it\'s your civic duty to report it.',
+    'empty-reports-sub':'You haven\'t reported any prices yet. The people of Madrid are counting on you.',
+    'addbar-title':'Add a bar 🍺',
+    'addbar-auth':'🔐 You need to sign in to add or update bars. This way we know you\'re a real person and not a thirsty bot.',
+    'addbar-name':'Bar name *','addbar-dir':'Address *','addbar-geocode':'📍 Coordinates are obtained automatically',
+    'addbar-precio':'Pint price (€) *','addbar-cana':'Small beer price (€)',
+    'addbar-bravas':'Bravas (€)','addbar-tortilla':'Tortilla (€)','addbar-croquetas':'Croquettes (€)',
+    'addbar-btn':'🍺 Put it on the map',
+    'geo-active':'📍 Location active · Disable',
+    'toast-fav-add':'Added to favourites ❤️','toast-fav-rm':'Removed from favourites',
+    'toast-review-ok':'✅ Review published, thanks!','toast-review-rm':'Review deleted',
+    'toast-bar-ok':'✅ Bar submitted, pending review. Thanks!',
+    'review-placeholder':'How was your experience?','review-btn':'Post review',
+    'review-login':'to leave a review','maps-link':'🗺️ View on Google Maps',
+    'sheet-doble-label':'Draught beer',
+    'filter-f':'Favourites',
+  }
+};
+
+let currentLang = localStorage.getItem('dud_lang') ||
+  (navigator.language?.startsWith('en') ? 'en' : 'es');
+
+function t(key) {
+  return (i18n[currentLang] && i18n[currentLang][key]) || i18n['es'][key] || key;
+}
+
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('dud_lang', lang);
+  document.querySelectorAll('.lang-btn').forEach(b =>
+    b.classList.toggle('active', b.textContent === lang.toUpperCase())
+  );
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.getAttribute('data-i18n'));
+  });
+  // Re-render dynamic sections
+  renderHome();
+  renderRanking();
+  renderFeed();
+  renderProfile();
+  updateNavBtn();
+}
+
+/* ══════════════════════════════
    INIT
 ══════════════════════════════ */
 (async () => {
+  // Apply stored/detected language on load
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.getAttribute('data-i18n'));
+  });
+  document.querySelectorAll('.lang-btn').forEach(b =>
+    b.classList.toggle('active', b.textContent === currentLang.toUpperCase())
+  );
+
   // 1. Cargar datos inmediatamente, sin esperar auth
   loadBars();
   loadReportes();
