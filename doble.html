@@ -185,13 +185,13 @@ body {
    BAR DETAIL SHEET
 ───────────────────────────── */
 .sheet-overlay {
-  display: none; position: fixed; inset: 0; z-index: 300;
+  display: none; position: fixed; inset: 0; z-index: 1100;
   background: rgba(24,9,0,0.55); backdrop-filter: blur(2px);
 }
 .sheet-overlay.open { display: block; }
 
 .bar-sheet {
-  position: fixed; bottom: 0; left: 0; right: 0; z-index: 301;
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 1101;
   background: var(--espuma); border-radius: 14px 14px 0 0;
   border-top: 2px solid var(--malta); max-height: 88dvh;
   overflow-y: auto;
@@ -1155,9 +1155,7 @@ function renderMapMarkers() {
     const icon = L.divIcon({
       className: '',
       html: `<div class="price-pin ${cls}" id="pin-${b.id}">€${b._precio.toFixed(2)}${dist}</div>`,
-      iconSize: [60, 26],
-      iconAnchor: [30, 13],
-      popupAnchor: [0, -16],
+      iconAnchor: [0, 0],
     });
     const mk = L.marker([b.lat, b.lng], { icon })
       .addTo(map)
