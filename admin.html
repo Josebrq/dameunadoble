@@ -137,6 +137,7 @@ tbody tr:hover{background:var(--foam);}
       <button class="tab-btn active" onclick="switchTab('bares',this)">🍺 Bares</button>
       <button class="tab-btn" onclick="switchTab('csv',this)">📂 Importar CSV</button>
       <button class="tab-btn" onclick="switchTab('regiones',this)">🗺️ Regiones</button>
+      <button class="tab-btn" onclick="switchTab('reportes',this)">💬 Reportes</button>
       <button class="tab-btn" onclick="switchTab('pendientes',this)">⏳ Sin precio</button>
       <button class="tab-btn" onclick="switchTab('destacar',this)">⭐ Destacados</button>
     </div>
@@ -163,6 +164,11 @@ tbody tr:hover{background:var(--foam);}
           <span>Todos los bares <span style="font-size:13px;font-weight:400;color:var(--slate-light)" id="bars-count-label"></span></span>
           <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
             <input class="search-bar" type="text" placeholder="Buscar..." id="bars-search" oninput="renderBarsTable()">
+            <select class="search-bar" style="width:auto" id="admin-sort" onchange="adminSort=this.value;renderBarsTable()">
+              <option value="nombre">A-Z</option>
+              <option value="barrio">Barrio</option>
+              <option value="precio">Precio</option>
+            </select>
             <button class="btn-secondary" onclick="exportCSV()">⬇ Exportar CSV</button>
           </div>
         </div>
@@ -176,7 +182,7 @@ tbody tr:hover{background:var(--foam);}
             <thead>
               <tr>
                 <th><input type="checkbox" class="cb" id="check-all" onchange="toggleAll(this)"></th>
-                <th>#</th><th>Bar</th><th>Ciudad</th><th>Comunidad</th><th>Dirección</th><th>Doble</th><th>Estado</th><th>Acciones</th>
+                <th>#</th><th>Bar</th><th>Barrio</th><th>Dirección</th><th>Doble</th><th>Fuente</th><th>Estado</th><th>Acciones</th>
               </tr>
             </thead>
             <tbody id="bars-tbody"></tbody>
@@ -201,6 +207,28 @@ tbody tr:hover{background:var(--foam);}
         <div class="panel-card-title">Plantilla CSV</div>
         <p style="font-size:14px;color:var(--slate-light);margin-bottom:1rem">Descarga la plantilla y rellénala con tus datos.</p>
         <button class="btn-csv" onclick="downloadTemplate()">⬇ Descargar plantilla CSV</button>
+      </div>
+    </div>
+
+    <!-- TAB REPORTES -->
+    <div class="tab-panel" id="tab-reportes">
+      <div class="panel-card">
+        <div class="panel-card-title">
+          <span>💬 Reportes de usuarios <span style="font-size:13px;font-weight:400;color:var(--slate-light)" id="reportes-count"></span></span>
+          <button class="btn-secondary" onclick="loadReportes()">🔄 Actualizar</button>
+        </div>
+        <p style="font-size:13px;color:var(--slate-light);margin-bottom:1rem">Los usuarios reportan precios desde la web. Acepta para actualizar el precio del bar, o rechaza si es incorrecto.</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Bar</th><th>Precio reportado</th><th>Fecha</th><th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="reportes-tbody"></tbody>
+          </table>
+        </div>
+        <div id="reportes-empty" style="text-align:center;padding:2rem;color:var(--slate-light);font-size:14px;display:none">No hay reportes pendientes 🎉</div>
       </div>
     </div>
 
@@ -355,13 +383,39 @@ function updateStats() {
 
 function priceClass(p) { p=parseFloat(p)||0; return p<2?'price-cheap':p<=3?'price-mid':'price-exp'; }
 
+function extractZona(d) {
+  if (!d) return 'Otros';
+  d = d.toLowerCase();
+  if (d.includes('centro') || d.includes('sol') || d.includes('gran via')) return 'Centro';
+  if (d.includes('malasa') || d.includes('acuerdo') || d.includes('pez') || d.includes('san bernardo')) return 'Malasaña';
+  if (d.includes('lavapi') || d.includes('embajadores')) return 'Lavapiés';
+  if (d.includes('chueca') || d.includes('infantas') || d.includes('libertad')) return 'Chueca';
+  if (d.includes('latina') || d.includes('cava baja')) return 'La Latina';
+  if (d.includes('chamber') || d.includes('ponzano') || d.includes('luchana')) return 'Chamberí';
+  if (d.includes('salamanca') || d.includes('serrano') || d.includes('goya')) return 'Salamanca';
+  if (d.includes('retiro')) return 'Retiro';
+  if (d.includes('arguelles') || d.includes('princesa')) return 'Argüelles';
+  if (d.includes('tetuan') || d.includes('bravo murillo')) return 'Tetuán';
+  if (d.includes('carabanchel')) return 'Carabanchel';
+  if (d.includes('vallecas')) return 'Vallecas';
+  if (d.includes('usera')) return 'Usera';
+  return 'Otros';
+}
+
+let adminSort = 'nombre';
+
 function renderBarsTable() {
   const q = (document.getElementById('bars-search')?.value||'').toLowerCase();
   const filtered = allBars.filter(b => !q || 
     (b.nombre||'').toLowerCase().includes(q) || 
     (b.ciudad||'').toLowerCase().includes(q) || 
-    (b.region||'').toLowerCase().includes(q)
+    (b.region||'').toLowerCase().includes(q) ||
+    (b.direccion||'').toLowerCase().includes(q) ||
+    extractZona(b.direccion).toLowerCase().includes(q)
   );
+  if (adminSort === 'barrio') filtered.sort((a,b) => extractZona(a.direccion).localeCompare(extractZona(b.direccion)));
+  else if (adminSort === 'precio') filtered.sort((a,b) => (parseFloat(a.precio)||999) - (parseFloat(b.precio)||999));
+  else filtered.sort((a,b) => (a.nombre||'').localeCompare(b.nombre||''));
   document.getElementById('bars-count-label').textContent = `(${filtered.length} de ${allBars.length})`;
   document.getElementById('bars-tbody').innerHTML = filtered.map((b,i) => {
     const approveBtn = b.aprobado
@@ -371,10 +425,10 @@ function renderBarsTable() {
       <td><input type="checkbox" class="cb" onchange="toggleSelect(${b.id},this)" ${selected.has(b.id)?'checked':''}></td>
       <td style="color:var(--slate-light);font-size:12px">${i+1}</td>
       <td style="font-weight:500">${b.nombre||'—'}</td>
-      <td>${b.ciudad||'—'}</td>
-      <td><span class="badge-region">${b.region||'—'}</span></td>
-      <td style="font-size:13px;color:var(--slate-light);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${b.direccion||'—'}</td>
+      <td><span class="badge-region">${extractZona(b.direccion)}</span></td>
+      <td style="font-size:13px;color:var(--slate-light);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${b.direccion||''}">${b.direccion||'—'}</td>
       <td class="price-cell ${priceClass(parseFloat(b.precio)||0)}">${parseFloat(b.precio||0).toFixed(2)}€</td>
+      <td><span style="font-size:11px;padding:3px 8px;border-radius:20px;background:${b.fuente==='bot'?'#E3F2FD':b.fuente==='comunidad'?'#E8F5E9':b.fuente==='formulario'?'#FFF3E0':b.fuente==='admin'?'#F3E5F5':'#F5F5F5'};color:${b.fuente==='bot'?'#1565C0':b.fuente==='comunidad'?'#2E7D32':b.fuente==='formulario'?'#E65100':b.fuente==='admin'?'#6A1B9A':'#757575'};font-weight:500">${b.fuente==='bot'?'🤖 Bot':b.fuente==='comunidad'?'👥 Comunidad':b.fuente==='formulario'?'📋 Formulario':b.fuente==='admin'?'👤 Admin':'—'}</span></td>
       <td>${approveBtn}</td>
       <td>
         <button class="btn-edit" onclick="editBar(${b.id})">Editar</button>
@@ -415,7 +469,7 @@ async function addBar() {
   const lng = parseFloat(document.getElementById('new-lng').value) || null;
   if (!nombre||!ciudad||!precio||precio<0.5||precio>15) { showToast('Rellena todos los campos obligatorios','error'); return; }
   try {
-    await api('POST','bares',{nombre,ciudad,region,precio,direccion,lat,lng,aprobado:true});
+    await api('POST','bares',{nombre,ciudad,region,precio,direccion,lat,lng,aprobado:true,fuente:'admin'});
     document.getElementById('new-nombre').value='';
     document.getElementById('new-ciudad').value='';
     document.getElementById('new-precio').value='';
@@ -580,6 +634,7 @@ function switchTab(tab, btn) {
   if(btn) btn.classList.add('active');
   document.getElementById('tab-'+tab).classList.add('active');
   if (tab==='regiones') renderRegionsTable();
+  if (tab==='reportes') loadReportes();
   if (tab==='pendientes') renderPendientes();
   if (tab==='destacar') { loadDestacados(); populateDestacadoSelect(); }
 }
@@ -683,6 +738,65 @@ async function quickSavePrice(id) {
   } catch (e) {
     showToast('Error: ' + e.message, 'error');
   }
+}
+
+let allReportes = [];
+
+async function loadReportes() {
+  try {
+    allReportes = await api('GET', 'reportes?select=*&revisado=eq.false&order=created_at.desc');
+    renderReportes();
+  } catch(e) {
+    console.warn('No reportes table', e);
+    allReportes = [];
+    renderReportes();
+  }
+}
+
+function renderReportes() {
+  document.getElementById('reportes-count').textContent = '(' + allReportes.length + ' pendientes)';
+  const tbody = document.getElementById('reportes-tbody');
+  const empty = document.getElementById('reportes-empty');
+  if (!allReportes.length) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  tbody.innerHTML = allReportes.map(r => {
+    const fecha = r.created_at ? new Date(r.created_at).toLocaleDateString('es-ES', {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
+    return '<tr>' +
+      '<td><div style="font-weight:500">' + (r.bar_nombre||'—') + '</div><div style="font-size:11px;color:var(--slate-light)">ID: ' + (r.bar_id||'—') + '</div></td>' +
+      '<td class="price-cell" style="font-size:22px;color:var(--amber-dark)">' + parseFloat(r.precio||0).toFixed(2) + '€</td>' +
+      '<td style="font-size:12px;color:var(--slate-light)">' + fecha + '</td>' +
+      '<td style="white-space:nowrap">' +
+        '<button class="btn-save" onclick="acceptReporte(' + r.id + ',' + r.bar_id + ',\'' + (r.precio||'').replace(/'/g, '') + '\')">✅ Aceptar</button>' +
+        '<button class="btn-danger" style="margin-left:4px" onclick="rejectReporte(' + r.id + ')">✕ Rechazar</button>' +
+      '</td></tr>';
+  }).join('');
+}
+
+async function acceptReporte(reporteId, barId, precio) {
+  try {
+    await api('PATCH', 'bares?id=eq.' + barId, { precio: String(precio), aprobado: true });
+    await api('PATCH', 'reportes?id=eq.' + reporteId, { revisado: true });
+    var bar = allBars.find(function(b) { return b.id === barId; });
+    if (bar) { bar.precio = String(precio); bar.aprobado = true; }
+    allReportes = allReportes.filter(function(r) { return r.id !== reporteId; });
+    renderReportes();
+    renderBarsTable();
+    updateStats();
+    showToast('✅ Precio actualizado y bar publicado', 'success');
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+async function rejectReporte(reporteId) {
+  try {
+    await api('PATCH', 'reportes?id=eq.' + reporteId, { revisado: true });
+    allReportes = allReportes.filter(function(r) { return r.id !== reporteId; });
+    renderReportes();
+    showToast('Reporte descartado', 'success');
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
 }
 
 async function approveBar(id) {
