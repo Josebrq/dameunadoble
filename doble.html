@@ -117,8 +117,7 @@ body {
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
 }
-@media (prefers-reduced-motion: reduce) { .ticker-track { animation: none; -webkit-animation: none; } }
-@media (prefers-reduced-motion: reduce) { .ticker-track { display: none; } }
+@media (prefers-reduced-motion: reduce) { .ticker-track { animation: none; -webkit-animation: none; display: none; } }
 .ticker-item {
   display: inline-flex; align-items: center; gap: 6px; padding: 0 20px;
   font-family: 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: 0.5px;
