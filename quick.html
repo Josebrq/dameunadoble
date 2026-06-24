@@ -169,6 +169,14 @@ function extractZona(d) {
   if (d.includes('carabanchel')) return 'Carabanchel';
   if (d.includes('vallecas')) return 'Vallecas';
   if (d.includes('usera')) return 'Usera';
+  if (d.includes('fuencarral') || d.includes('el pardo') || d.includes('montecarmelo') || d.includes('las tablas') || d.includes('mirasierra')) return 'Fuencarral';
+  if (d.includes('san blas') || d.includes('canillejas')) return 'San Blas';
+  if (d.includes('ciudad lineal') || d.includes('pueblo nuevo')) return 'Ciudad Lineal';
+  if (d.includes('moncloa') || d.includes('aravaca')) return 'Moncloa';
+  if (d.includes('barajas')) return 'Barajas';
+  if (d.includes('hortaleza') || d.includes('arturo soria')) return 'Hortaleza';
+  if (d.includes('villaverde')) return 'Villaverde';
+  if (d.includes('moratalaz')) return 'Moratalaz';
   return 'Otros';
 }
 
