@@ -6,9 +6,9 @@
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-TFHP9CYS3R');</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ponme Una Doble 🍺 — El mapa de la cerveza en Madrid</title>
+<title>Dame Una Doble 🍺 — El mapa de la cerveza en Madrid</title>
 <meta name="description" content="Encuentra el doble de cerveza más barato cerca de ti en Madrid. Datos reales, bar a bar.">
-<meta property="og:title" content="Ponme Una Doble — El mapa de la cerveza en Madrid">
+<meta property="og:title" content="Dame Una Doble — El mapa de la cerveza en Madrid">
 <meta property="og:description" content="Encuentra el doble más barato cerca de ti en Madrid">
 <meta property="og:type" content="website">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -213,7 +213,7 @@ footer { background:var(--espresso-deep); color:var(--foam); padding:3rem 2rem; 
 
 <!-- NAV -->
 <nav id="nav">
-  <a href="#" class="nav-logo">Ponme Una <span>Doble</span> 🍺</a>
+  <a href="#" class="nav-logo">Dame Una <span>Doble</span> 🍺</a>
   <div class="nav-links" id="nav-links">
     <a href="#mapa" data-i18n="nav-map">Mapa</a>
     <a href="#ranking" data-i18n="nav-ranking">Ranking</a>
@@ -231,7 +231,7 @@ footer { background:var(--espresso-deep); color:var(--foam); padding:3rem 2rem; 
   <div class="hero-glow"></div>
   <div class="hero-content">
     <div class="hero-eyebrow" data-i18n="hero-eyebrow">El mapa de la cerveza en Madrid</div>
-    <h1>PONME UNA<em>DOBLE</em></h1>
+    <h1>DAME UNA<em>DOBLE</em></h1>
     <p class="hero-sub" data-i18n="hero-sub">Encuentra el doble mas barato cerca de ti. Datos reales, bar a bar.</p>
     <div class="hero-search">
       <span class="hero-search-icon">🔍</span>
@@ -290,6 +290,7 @@ footer { background:var(--espresso-deep); color:var(--foam); padding:3rem 2rem; 
     </div>
     <div class="bars-controls reveal">
       <button class="geo-btn-inline" onclick="findNearMe()" id="geo-btn-inline">📍 <span data-i18n="near-me">Cerca de mi</span></button>
+      <button class="geo-btn-inline" onclick="openAddBarModal()" style="background:var(--espresso)">➕ <span data-i18n="add-bar">Añadir bar</span></button>
       <input class="search-input" id="bar-search" type="text" data-i18n-placeholder="search-placeholder" placeholder="Buscar bar..." oninput="filterBars()">
       <select class="filter-select" id="region-filter" onchange="filterBars()">
         <option value="" data-i18n="all-zones">Todos los barrios</option>
@@ -316,7 +317,7 @@ footer { background:var(--espresso-deep); color:var(--foam); padding:3rem 2rem; 
 
 <!-- FOOTER -->
 <footer>
-  <div class="footer-logo">PONME Una <span>Doble</span> 🍺</div>
+  <div class="footer-logo">Dame Una <span>Doble</span> 🍺</div>
   <div class="footer-sub">dameunadoble.com · <span data-i18n="footer-sub">El mapa de la cerveza en Madrid</span></div>
   <div class="footer-links">
     <a href="#mapa" data-i18n="nav-map">Mapa</a>
@@ -338,6 +339,23 @@ footer { background:var(--espresso-deep); color:var(--foam); padding:3rem 2rem; 
     <input type="number" class="modal-price-input" id="modal-price" placeholder="2.50" step="0.10" min="0.50" max="15" onkeydown="if(event.key==='Enter')submitReport()">
     <button class="modal-submit" onclick="submitReport()" data-i18n="modal-submit">Enviar precio</button>
     <p class="modal-note" data-i18n="modal-note">Tu reporte ayuda a toda la comunidad. Se revisara antes de publicarse.</p>
+  </div>
+</div>
+
+<!-- ADD BAR MODAL -->
+<div class="modal-overlay" id="addbar-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeAddBarModal()">×</button>
+    <div class="modal-title" data-i18n="addbar-title">AÑADIR UN BAR</div>
+    <p style="font-size:13px;color:var(--slate-light);margin-bottom:1.25rem" data-i18n="addbar-sub">¿Conoces un bar que no esta en el mapa? Añadelo y ayuda a la comunidad.</p>
+    <label data-i18n="addbar-name">Nombre del bar</label>
+    <input type="text" class="modal-price-input" id="addbar-nombre" placeholder="Bar El Patio" style="font-family:Inter,sans-serif;font-size:15px;text-align:left;margin-bottom:10px">
+    <label data-i18n="addbar-address">Direccion</label>
+    <input type="text" class="modal-price-input" id="addbar-direccion" placeholder="Calle Mayor 12, Madrid" style="font-family:Inter,sans-serif;font-size:15px;text-align:left;margin-bottom:10px">
+    <label data-i18n="addbar-price">Precio del doble (€) — opcional</label>
+    <input type="number" class="modal-price-input" id="addbar-precio" placeholder="2.50" step="0.10" min="0.50" max="15" style="margin-bottom:1rem">
+    <button class="modal-submit" onclick="submitAddBar()" data-i18n="addbar-submit">Enviar bar</button>
+    <p class="modal-note" data-i18n="addbar-note">Se revisara antes de publicarse en el mapa. ¡Gracias por colaborar!</p>
   </div>
 </div>
 
@@ -371,6 +389,7 @@ const i18n = {
     'disc-more':'Mas info →','footer-sub':'El mapa de la cerveza en Madrid',
     'footer-copy':'Datos recogidos por la comunidad. Precios orientativos.',
     'no-price':'Sin precio','dist-from':'a','of':'de','bars-lc':'bares',
+    'add-bar':'Añadir bar','addbar-title':'AÑADIR UN BAR','addbar-sub':'¿Conoces un bar que no esta en el mapa? Añadelo y ayuda a la comunidad.','addbar-name':'Nombre del bar','addbar-address':'Direccion','addbar-price':'Precio del doble (€) — opcional','addbar-submit':'Enviar bar','addbar-note':'Se revisara antes de publicarse en el mapa. ¡Gracias por colaborar!',
   },
   en: {
     'nav-map':'Map','nav-ranking':'Ranking','nav-bars':'Bars',
@@ -395,6 +414,7 @@ const i18n = {
     'disc-more':'More info →','footer-sub':'The beer price map of Madrid',
     'footer-copy':'Data collected by the community. Approximate prices.',
     'no-price':'No price','dist-from':'at','of':'of','bars-lc':'bars',
+    'add-bar':'Add bar','addbar-title':'ADD A BAR','addbar-sub':'Know a bar that is not on the map? Add it and help the community.','addbar-name':'Bar name','addbar-address':'Address','addbar-price':'Beer price (€) — optional','addbar-submit':'Submit bar','addbar-note':'It will be reviewed before being published. Thanks for contributing!',
   }
 };
 let currentLang = 'es';
@@ -681,6 +701,42 @@ async function submitReport() {
   } catch(e) { showToast('Error al enviar: '+e.message,'error'); }
 }
 document.getElementById('report-modal').addEventListener('click', e => { if (e.target.id === 'report-modal') closeReportModal(); });
+
+/* ── ADD BAR ── */
+function openAddBarModal() {
+  document.getElementById('addbar-nombre').value = '';
+  document.getElementById('addbar-direccion').value = '';
+  document.getElementById('addbar-precio').value = '';
+  document.getElementById('addbar-modal').classList.add('open');
+  setTimeout(function() { document.getElementById('addbar-nombre').focus(); }, 100);
+}
+function closeAddBarModal() { document.getElementById('addbar-modal').classList.remove('open'); }
+document.getElementById('addbar-modal').addEventListener('click', function(e) { if (e.target.id === 'addbar-modal') closeAddBarModal(); });
+
+async function submitAddBar() {
+  var nombre = document.getElementById('addbar-nombre').value.trim();
+  var direccion = document.getElementById('addbar-direccion').value.trim();
+  var precio = document.getElementById('addbar-precio').value;
+  if (!nombre) { showToast('Escribe el nombre del bar','error'); return; }
+  if (!direccion) { showToast('Escribe la direccion','error'); return; }
+  var data = { nombre:nombre, ciudad:'Madrid', region:'Madrid', direccion:direccion, aprobado:false, fuente:'comunidad' };
+  if (precio && parseFloat(precio) >= 0.5 && parseFloat(precio) <= 15) { data.precio = String(precio); }
+  try {
+    var r = await fetch(SUPABASE_URL + '/rest/v1/bares', {
+      method:'POST',
+      headers:{ 'apikey':SUPABASE_KEY, 'Authorization':'Bearer '+SUPABASE_KEY, 'Content-Type':'application/json', 'Prefer':'return=minimal' },
+      body:JSON.stringify(data)
+    });
+    if (!r.ok) {
+      var err = await r.text();
+      if (err.includes('duplicate') || err.includes('unique')) { showToast('Este bar ya existe en nuestra base de datos','error'); }
+      else { throw new Error(err); }
+      return;
+    }
+    closeAddBarModal();
+    showToast('✅ ¡Bar enviado! Se revisara antes de publicarse','success');
+  } catch(e) { showToast('Error: '+e.message,'error'); }
+}
 
 /* ── TOAST ── */
 function showToast(msg, type='') {
