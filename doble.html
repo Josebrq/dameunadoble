@@ -486,59 +486,96 @@ body {
    PROFILE TAB
 ───────────────────────────── */
 /* ─────────────────────────────
-   PROFILE STATS
+   PROFILE — diseño rediseñado
 ───────────────────────────── */
-.profile-stats {
-  display: grid; grid-template-columns: repeat(3, 1fr);
-  gap: 8px; margin-bottom: 1.5rem;
-}
-.profile-stat-card {
-  background: white; border: 1.5px solid var(--border);
-  border-radius: var(--radius); padding: 14px 6px;
-  text-align: center; cursor: pointer; transition: all 0.15s;
-}
-.profile-stat-card:hover { border-color: var(--malta-soft); }
-.profile-stat-card.active {
-  border-color: var(--roja); background: var(--roja-light);
-}
-.profile-stat-num {
-  font-family: 'Bebas Neue', sans-serif; font-size: 30px; line-height: 1;
-}
-.profile-stat-icon { font-size: 18px; margin-bottom: 3px; }
-.profile-stat-lbl { font-size: 10px; color: var(--malta-soft); margin-top: 3px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+.profile-wrap { width: 100%; padding-bottom: 2rem; }
 
-.profile-history { margin-bottom: 1.5rem; }
-.history-item {
-  display: flex; gap: 10px; padding: 12px 0;
-  border-bottom: 1px solid var(--border); cursor: pointer;
-  transition: background 0.12s; border-radius: 4px;
+/* Hero oscuro */
+.profile-hero {
+  background: var(--malta); padding: 2rem 1.5rem 0;
+  position: relative; text-align: center;
 }
-.history-item:last-child { border-bottom: none; }
-.history-item:hover { background: var(--dorada-light); padding-left: 6px; }
-.history-bar-name { font-family: 'Bebas Neue', sans-serif; font-size: 17px; line-height: 1; }
-.history-meta { font-size: 11px; color: var(--malta-soft); margin-top: 3px; }
-.history-comment { font-size: 13px; color: var(--malta-mid); margin-top: 4px; line-height: 1.4; }
-.history-stars { color: var(--dorada); font-size: 12px; }
-.history-badge {
-  flex-shrink: 0; width: 36px; height: 36px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center; font-size: 16px;
+.profile-avatar {
+  width: 76px; height: 76px; border-radius: 50%;
+  overflow: hidden; background: var(--roja);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 1rem;
+  border: 3px solid rgba(255,252,244,0.12);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
 }
-.history-badge.review { background: #FFF4D6; }
-.history-badge.report { background: #E6F4EA; }
+.profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.profile-av-initials {
+  font-family: 'Bebas Neue', sans-serif; font-size: 30px; color: var(--espuma);
+}
+.profile-hero-name {
+  font-family: 'Bebas Neue', sans-serif; font-size: 26px;
+  color: var(--espuma); letter-spacing: 0.5px; line-height: 1; margin-bottom: 4px;
+}
+.profile-hero-email { font-size: 12px; color: rgba(255,252,244,0.4); margin-bottom: 1.75rem; }
+.btn-logout-hero {
+  position: absolute; top: 1.25rem; right: 1.25rem;
+  font-size: 11px; padding: 5px 12px;
+  border: 1px solid rgba(255,252,244,0.2); border-radius: 20px;
+  background: transparent; color: rgba(255,252,244,0.45);
+  cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.15s;
+}
+.btn-logout-hero:hover { border-color: var(--roja); color: var(--roja); }
 
-.profile-wrap { max-width: 480px; margin: 0 auto; padding: 20px 16px 2rem; }
-
-.profile-login-screen {
-  text-align: center; padding: 3rem 1rem;
+/* Stat tabs dentro del hero */
+.profile-stat-tabs {
+  display: flex; border-top: 1px solid rgba(255,252,244,0.08);
 }
+.profile-stat-tab {
+  flex: 1; padding: 1rem 0.5rem; text-align: center;
+  cursor: pointer; border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+}
+.profile-stat-tab:hover { background: rgba(255,252,244,0.04); }
+.profile-stat-tab.active { border-bottom-color: var(--dorada); }
+.profile-stat-tab-num {
+  font-family: 'Bebas Neue', sans-serif; font-size: 28px; line-height: 1;
+  color: rgba(255,252,244,0.3); transition: color 0.15s;
+}
+.profile-stat-tab.active .profile-stat-tab-num { color: var(--dorada); }
+.profile-stat-tab-lbl {
+  font-size: 9px; text-transform: uppercase; letter-spacing: 1px;
+  margin-top: 3px; color: rgba(255,252,244,0.3); transition: color 0.15s;
+}
+.profile-stat-tab.active .profile-stat-tab-lbl { color: rgba(255,252,244,0.65); }
+
+/* Área de contenido */
+.profile-content-area { max-width: 480px; margin: 0 auto; padding: 0 1.25rem; }
+
+/* Items de lista */
+.profile-list-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 0; border-bottom: 1px solid var(--border);
+  cursor: pointer; transition: all 0.12s;
+}
+.profile-list-item:last-child { border-bottom: none; }
+.profile-list-item:hover { background: var(--dorada-light); padding-left: 8px; padding-right: 8px; margin: 0 -8px; border-radius: 6px; }
+.pli-accent { width: 3px; border-radius: 2px; flex-shrink: 0; align-self: stretch; min-height: 36px; }
+.pli-accent.fav    { background: var(--roja); }
+.pli-accent.review { background: var(--dorada); }
+.pli-accent.report { background: var(--lupulo); }
+.pli-body { flex: 1; min-width: 0; }
+.pli-name { font-family: 'Bebas Neue', sans-serif; font-size: 18px; line-height: 1; }
+.pli-sub  { font-size: 11px; color: var(--malta-soft); margin-top: 2px; }
+.pli-comment { font-size: 12px; color: var(--malta-mid); margin-top: 4px; font-style: italic; line-height: 1.4; }
+.pli-right { text-align: right; flex-shrink: 0; }
+.pli-price { font-family: 'Bebas Neue', sans-serif; font-size: 18px; }
+.pli-rm { font-size: 13px; color: var(--border-strong); cursor: pointer; display: block; margin-top: 4px; }
+.pli-rm:hover { color: var(--roja); }
+
+/* Login screen */
+.profile-login-screen { text-align: center; padding: 4rem 2rem; }
 .profile-login-icon { font-size: 52px; margin-bottom: 1rem; }
 .profile-login-title {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 30px; margin-bottom: 8px;
+  font-family: 'Bebas Neue', sans-serif; font-size: 30px; margin-bottom: 8px;
 }
 .profile-login-sub {
-  font-size: 14px; color: var(--malta-soft);
-  margin-bottom: 2rem; line-height: 1.6; max-width: 300px; margin-inline: auto;
+  font-size: 14px; color: var(--malta-soft); margin-bottom: 2rem;
+  line-height: 1.6; max-width: 300px; margin-inline: auto;
 }
 .btn-google {
   display: inline-flex; align-items: center; gap: 10px;
@@ -549,54 +586,9 @@ body {
 }
 .btn-google:hover { background: var(--malta-mid); }
 
-.profile-hdr {
-  display: flex; align-items: center; gap: 12px;
-  margin-bottom: 24px; padding-bottom: 18px;
-  border-bottom: 1px solid var(--border);
-}
-.profile-pic {
-  width: 52px; height: 52px; border-radius: 50%; overflow: hidden;
-  background: var(--roja); flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-}
-.profile-pic img { width: 100%; height: 100%; object-fit: cover; }
-.profile-initials {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 22px; color: var(--espuma);
-}
-.profile-name { font-family: 'Bebas Neue', sans-serif; font-size: 22px; line-height: 1; }
-.profile-email { font-size: 12px; color: var(--malta-soft); margin-top: 2px; }
-.btn-logout {
-  margin-left: auto; padding: 6px 12px;
-  border: 1.5px solid var(--border-strong);
-  border-radius: 6px; background: transparent;
-  font-size: 12px; cursor: pointer; color: var(--malta-soft);
-  font-family: 'Inter', sans-serif; transition: all 0.15s;
-}
-.btn-logout:hover { border-color: var(--roja); color: var(--roja); }
-
-.profile-section-title {
-  font-size: 11px; font-weight: 600; letter-spacing: 1px;
-  text-transform: uppercase; color: var(--malta-soft);
-  margin-bottom: 10px;
-}
-.fav-row {
-  display: flex; align-items: center; gap: 10px;
-  padding: 10px 0; border-bottom: 1px solid var(--border); cursor: pointer;
-}
-.fav-row:last-child { border-bottom: none; }
-.fav-row:hover .fav-nm { color: var(--roja); }
-.fav-nm { font-family: 'Bebas Neue', sans-serif; font-size: 18px; flex: 1; line-height: 1; }
-.fav-zona { font-size: 11px; color: var(--malta-soft); }
-.fav-price { font-size: 14px; color: var(--malta-soft); }
-.fav-rm {
-  font-size: 15px; color: var(--border-strong);
-  padding: 4px; cursor: pointer; line-height: 1;
-}
-.fav-rm:hover { color: var(--roja); }
 .empty-state {
-  padding: 2rem; text-align: center;
-  color: var(--malta-soft); font-size: 14px; line-height: 1.6;
+  padding: 3rem 1rem; text-align: center;
+  color: var(--malta-soft); font-size: 14px; line-height: 1.8;
 }
 
 /* ─────────────────────────────
@@ -1861,93 +1853,87 @@ function renderProfile() {
   const avatar   = currentUser.user_metadata?.avatar_url;
   const initials = name.slice(0, 2).toUpperCase();
 
-  // Build history content
-  let historyHTML = '';
+  // Build list content
+  let listHTML = '';
   if (profileSection === 'favs') {
-    historyHTML = favBars.length === 0
-      ? `<div class="empty-state">Aún no tienes favoritos.<br>Toca el ❤️ en cualquier bar.</div>`
+    listHTML = favBars.length === 0
+      ? `<div class="empty-state">🍺<br>Aún no tienes favoritos.<br><small>Toca el ❤️ en cualquier bar.</small></div>`
       : favBars.map(b => {
           const zona = extractZona(b.direccion || '') || b.ciudad || 'Madrid';
-          return `<div class="fav-row" onclick="openSheet(${b.id})">
-            <div>
-              <div class="fav-nm">${b.nombre}</div>
-              <div class="fav-zona">${zona}</div>
+          return `<div class="profile-list-item" onclick="openSheet(${b.id})">
+            <div class="pli-accent fav"></div>
+            <div class="pli-body">
+              <div class="pli-name">${b.nombre}</div>
+              <div class="pli-sub">${zona}</div>
             </div>
-            <div class="fav-price">€${b._precio.toFixed(2)}</div>
-            <div class="fav-rm" onclick="event.stopPropagation();removeFav(${b.id})">✕</div>
+            <div class="pli-right">
+              <div class="pli-price">€${b._precio.toFixed(2)}</div>
+              <div class="pli-rm" onclick="event.stopPropagation();removeFav(${b.id})">✕</div>
+            </div>
           </div>`;
         }).join('');
 
   } else if (profileSection === 'reviews') {
-    if (userReviews.length === 0) {
-      historyHTML = `<div class="empty-state">Todavía no has dejado ninguna reseña.</div>`;
-    } else {
-      historyHTML = `<div class="profile-history">${userReviews.map(r => {
-        const barName = r.bares?.nombre || '—';
-        const barId   = r.bar_id;
-        const stars   = [1,2,3,4,5].map(i => `<span style="color:${i<=r.rating?'var(--dorada)':'var(--border-strong)'}">★</span>`).join('');
-        return `<div class="history-item" onclick="openSheet(${barId})">
-          <div class="history-badge review">★</div>
-          <div style="flex:1;min-width:0">
-            <div class="history-bar-name">${barName}</div>
-            <div class="history-meta">${stars} · ${timeAgo(r.created_at)}</div>
-            ${r.comment ? `<div class="history-comment">"${r.comment}"</div>` : ''}
-          </div>
-        </div>`;
-      }).join('')}</div>`;
-    }
+    listHTML = userReviews.length === 0
+      ? `<div class="empty-state">★<br>Todavía no has dejado ninguna reseña.<br><small>Abre un bar y comparte tu experiencia.</small></div>`
+      : userReviews.map(r => {
+          const barName = r.bares?.nombre || '—';
+          const stars = [1,2,3,4,5].map(i =>
+            `<span style="color:${i<=r.rating?'var(--dorada)':'rgba(0,0,0,0.15)'}">★</span>`
+          ).join('');
+          return `<div class="profile-list-item" onclick="openSheet(${r.bar_id})">
+            <div class="pli-accent review"></div>
+            <div class="pli-body">
+              <div class="pli-name">${barName}</div>
+              <div class="pli-sub">${stars} · ${timeAgo(r.created_at)}</div>
+              ${r.comment ? `<div class="pli-comment">"${r.comment}"</div>` : ''}
+            </div>
+          </div>`;
+        }).join('');
 
-  } else if (profileSection === 'reports') {
-    if (userReports.length === 0) {
-      historyHTML = `<div class="empty-state">Todavía no has reportado ningún precio.</div>`;
-    } else {
-      historyHTML = `<div class="profile-history">${userReports.map(r => {
-        const barName = r.nombre_bar || r.bar_nombre || '—';
-        return `<div class="history-item">
-          <div class="history-badge report">✏️</div>
-          <div style="flex:1;min-width:0">
-            <div class="history-bar-name">${barName}</div>
-            <div class="history-meta">${r.precio ? '€'+parseFloat(r.precio).toFixed(2)+' · ' : ''}${timeAgo(r.created_at)}</div>
-            ${r.mensaje ? `<div class="history-comment">"${r.mensaje}"</div>` : ''}
-          </div>
-        </div>`;
-      }).join('')}</div>`;
-    }
+  } else {
+    listHTML = userReports.length === 0
+      ? `<div class="empty-state">✏️<br>Todavía no has reportado ningún precio.</div>`
+      : userReports.map(r => {
+          const barName = r.nombre_bar || r.bar_nombre || '—';
+          return `<div class="profile-list-item">
+            <div class="pli-accent report"></div>
+            <div class="pli-body">
+              <div class="pli-name">${barName}</div>
+              <div class="pli-sub">${timeAgo(r.created_at)}</div>
+              ${r.mensaje ? `<div class="pli-comment">"${r.mensaje}"</div>` : ''}
+            </div>
+            ${r.precio ? `<div class="pli-right"><div class="pli-price">€${parseFloat(r.precio).toFixed(2)}</div></div>` : ''}
+          </div>`;
+        }).join('');
   }
 
   c.innerHTML = `
-    <div class="profile-hdr">
-      <div class="profile-pic">
+    <div class="profile-hero">
+      <button class="btn-logout-hero" onclick="logout()">Salir</button>
+      <div class="profile-avatar">
         ${avatar
           ? `<img src="${avatar}" alt="${name}">`
-          : `<div class="profile-initials">${initials}</div>`}
+          : `<div class="profile-av-initials">${initials}</div>`}
       </div>
-      <div>
-        <div class="profile-name">${name}</div>
-        <div class="profile-email">${currentUser.email || ''}</div>
-      </div>
-      <button class="btn-logout" onclick="logout()">Salir</button>
-    </div>
-
-    <div class="profile-stats">
-      <div class="profile-stat-card ${profileSection==='favs'?'active':''}" onclick="setProfileSection('favs')">
-        <div class="profile-stat-icon">❤️</div>
-        <div class="profile-stat-num">${favBars.length}</div>
-        <div class="profile-stat-lbl">Favoritos</div>
-      </div>
-      <div class="profile-stat-card ${profileSection==='reviews'?'active':''}" onclick="setProfileSection('reviews')">
-        <div class="profile-stat-icon">★</div>
-        <div class="profile-stat-num">${userReviews.length}</div>
-        <div class="profile-stat-lbl">Reseñas</div>
-      </div>
-      <div class="profile-stat-card ${profileSection==='reports'?'active':''}" onclick="setProfileSection('reports')">
-        <div class="profile-stat-icon">✏️</div>
-        <div class="profile-stat-num">${userReports.length}</div>
-        <div class="profile-stat-lbl">Reportes</div>
+      <div class="profile-hero-name">${name}</div>
+      <div class="profile-hero-email">${currentUser.email || ''}</div>
+      <div class="profile-stat-tabs">
+        <div class="profile-stat-tab ${profileSection==='favs'?'active':''}" onclick="setProfileSection('favs')">
+          <div class="profile-stat-tab-num">${favBars.length}</div>
+          <div class="profile-stat-tab-lbl">Favoritos</div>
+        </div>
+        <div class="profile-stat-tab ${profileSection==='reviews'?'active':''}" onclick="setProfileSection('reviews')">
+          <div class="profile-stat-tab-num">${userReviews.length}</div>
+          <div class="profile-stat-tab-lbl">Reseñas</div>
+        </div>
+        <div class="profile-stat-tab ${profileSection==='reports'?'active':''}" onclick="setProfileSection('reports')">
+          <div class="profile-stat-tab-num">${userReports.length}</div>
+          <div class="profile-stat-tab-lbl">Reportes</div>
+        </div>
       </div>
     </div>
-
-    ${historyHTML}`;
+    <div class="profile-content-area">${listHTML}</div>`;
 }
 
 function removeFav(id) {
