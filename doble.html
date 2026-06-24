@@ -485,6 +485,47 @@ body {
 /* ─────────────────────────────
    PROFILE TAB
 ───────────────────────────── */
+/* ─────────────────────────────
+   PROFILE STATS
+───────────────────────────── */
+.profile-stats {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 8px; margin-bottom: 1.5rem;
+}
+.profile-stat-card {
+  background: white; border: 1.5px solid var(--border);
+  border-radius: var(--radius); padding: 14px 6px;
+  text-align: center; cursor: pointer; transition: all 0.15s;
+}
+.profile-stat-card:hover { border-color: var(--malta-soft); }
+.profile-stat-card.active {
+  border-color: var(--roja); background: var(--roja-light);
+}
+.profile-stat-num {
+  font-family: 'Bebas Neue', sans-serif; font-size: 30px; line-height: 1;
+}
+.profile-stat-icon { font-size: 18px; margin-bottom: 3px; }
+.profile-stat-lbl { font-size: 10px; color: var(--malta-soft); margin-top: 3px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+
+.profile-history { margin-bottom: 1.5rem; }
+.history-item {
+  display: flex; gap: 10px; padding: 12px 0;
+  border-bottom: 1px solid var(--border); cursor: pointer;
+  transition: background 0.12s; border-radius: 4px;
+}
+.history-item:last-child { border-bottom: none; }
+.history-item:hover { background: var(--dorada-light); padding-left: 6px; }
+.history-bar-name { font-family: 'Bebas Neue', sans-serif; font-size: 17px; line-height: 1; }
+.history-meta { font-size: 11px; color: var(--malta-soft); margin-top: 3px; }
+.history-comment { font-size: 13px; color: var(--malta-mid); margin-top: 4px; line-height: 1.4; }
+.history-stars { color: var(--dorada); font-size: 12px; }
+.history-badge {
+  flex-shrink: 0; width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; font-size: 16px;
+}
+.history-badge.review { background: #FFF4D6; }
+.history-badge.report { background: #E6F4EA; }
+
 .profile-wrap { max-width: 480px; margin: 0 auto; padding: 20px 16px 2rem; }
 
 .profile-login-screen {
@@ -1030,6 +1071,7 @@ sb.auth.onAuthStateChange((_event, session) => {
   renderProfile();
   if (currentUser) {
     loadFavoritesFromSupabase().catch(() => {});
+    loadUserStats();
   }
 });
 
@@ -1763,6 +1805,30 @@ function buildDropsHTML() {
 /* ══════════════════════════════
    PROFILE
 ══════════════════════════════ */
+let profileSection = 'favs'; // 'favs' | 'reviews' | 'reports'
+let userReviews = [];
+let userReports = [];
+
+async function loadUserStats() {
+  if (!currentUser) return;
+  try {
+    const [revRes, repRes] = await Promise.all([
+      sb.from('reviews').select('*, bares(nombre, precio)').eq('user_id', currentUser.id).order('created_at', { ascending: false }),
+      sb.from('reportes').select('*').eq('email', currentUser.email).order('created_at', { ascending: false })
+    ]);
+    userReviews = revRes.data || [];
+    userReports = repRes.data || [];
+    renderProfile();
+  } catch(e) {
+    console.error('Error loading user stats:', e);
+  }
+}
+
+function setProfileSection(sec) {
+  profileSection = sec;
+  renderProfile();
+}
+
 function renderProfile() {
   const c = document.getElementById('profile-content');
   if (!c) return;
@@ -1791,6 +1857,60 @@ function renderProfile() {
   const avatar   = currentUser.user_metadata?.avatar_url;
   const initials = name.slice(0, 2).toUpperCase();
 
+  // Build history content
+  let historyHTML = '';
+  if (profileSection === 'favs') {
+    historyHTML = favBars.length === 0
+      ? `<div class="empty-state">Aún no tienes favoritos.<br>Toca el ❤️ en cualquier bar.</div>`
+      : favBars.map(b => {
+          const zona = extractZona(b.direccion || '') || b.ciudad || 'Madrid';
+          return `<div class="fav-row" onclick="openSheet(${b.id})">
+            <div>
+              <div class="fav-nm">${b.nombre}</div>
+              <div class="fav-zona">${zona}</div>
+            </div>
+            <div class="fav-price">€${b._precio.toFixed(2)}</div>
+            <div class="fav-rm" onclick="event.stopPropagation();removeFav(${b.id})">✕</div>
+          </div>`;
+        }).join('');
+
+  } else if (profileSection === 'reviews') {
+    if (userReviews.length === 0) {
+      historyHTML = `<div class="empty-state">Todavía no has dejado ninguna reseña.</div>`;
+    } else {
+      historyHTML = `<div class="profile-history">${userReviews.map(r => {
+        const barName = r.bares?.nombre || '—';
+        const barId   = r.bar_id;
+        const stars   = [1,2,3,4,5].map(i => `<span style="color:${i<=r.rating?'var(--dorada)':'var(--border-strong)'}">★</span>`).join('');
+        return `<div class="history-item" onclick="openSheet(${barId})">
+          <div class="history-badge review">★</div>
+          <div style="flex:1;min-width:0">
+            <div class="history-bar-name">${barName}</div>
+            <div class="history-meta">${stars} · ${timeAgo(r.created_at)}</div>
+            ${r.comment ? `<div class="history-comment">"${r.comment}"</div>` : ''}
+          </div>
+        </div>`;
+      }).join('')}</div>`;
+    }
+
+  } else if (profileSection === 'reports') {
+    if (userReports.length === 0) {
+      historyHTML = `<div class="empty-state">Todavía no has reportado ningún precio.</div>`;
+    } else {
+      historyHTML = `<div class="profile-history">${userReports.map(r => {
+        const barName = r.nombre_bar || r.bar_nombre || '—';
+        return `<div class="history-item">
+          <div class="history-badge report">✏️</div>
+          <div style="flex:1;min-width:0">
+            <div class="history-bar-name">${barName}</div>
+            <div class="history-meta">${r.precio ? '€'+parseFloat(r.precio).toFixed(2)+' · ' : ''}${timeAgo(r.created_at)}</div>
+            ${r.mensaje ? `<div class="history-comment">"${r.mensaje}"</div>` : ''}
+          </div>
+        </div>`;
+      }).join('')}</div>`;
+    }
+  }
+
   c.innerHTML = `
     <div class="profile-hdr">
       <div class="profile-pic">
@@ -1805,21 +1925,26 @@ function renderProfile() {
       <button class="btn-logout" onclick="logout()">Salir</button>
     </div>
 
-    <div class="profile-section-title">❤️ Mis favoritos (${favBars.length})</div>
-    ${favBars.length === 0
-      ? `<div class="empty-state">Aún no tienes favoritos.<br>Toca el ❤️ en cualquier bar.</div>`
-      : favBars.map(b => {
-          const zona = extractZona(b.direccion || '') || b.ciudad || 'Madrid';
-          return `<div class="fav-row" onclick="openSheet(${b.id})">
-            <div>
-              <div class="fav-nm">${b.nombre}</div>
-              <div class="fav-zona">${zona}</div>
-            </div>
-            <div class="fav-price">€${b._precio.toFixed(2)}</div>
-            <div class="fav-rm" onclick="event.stopPropagation();removeFav(${b.id})">✕</div>
-          </div>`;
-        }).join('')
-    }`;
+    <div class="profile-stats">
+      <div class="profile-stat-card ${profileSection==='favs'?'active':''}" onclick="setProfileSection('favs')">
+        <div class="profile-stat-icon">❤️</div>
+        <div class="profile-stat-num">${favBars.length}</div>
+        <div class="profile-stat-lbl">Favoritos</div>
+      </div>
+      <div class="profile-stat-card ${profileSection==='reviews'?'active':''}" onclick="setProfileSection('reviews')">
+        <div class="profile-stat-icon">★</div>
+        <div class="profile-stat-num">${userReviews.length}</div>
+        <div class="profile-stat-lbl">Reseñas</div>
+      </div>
+      <div class="profile-stat-card ${profileSection==='reports'?'active':''}" onclick="setProfileSection('reports')">
+        <div class="profile-stat-icon">✏️</div>
+        <div class="profile-stat-num">${userReports.length}</div>
+        <div class="profile-stat-lbl">Reportes</div>
+      </div>
+    </div>
+
+    ${historyHTML}`;
+}
 }
 
 function removeFav(id) {
@@ -1918,6 +2043,7 @@ function extractZona(dir) {
   // 3. Sincronizar favoritos si está logueado (fire and forget)
   if (currentUser) {
     loadFavoritesFromSupabase().catch(() => {});
+    loadUserStats();
   }
 })();
 </script>
