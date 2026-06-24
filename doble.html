@@ -1025,9 +1025,12 @@ let geoActive      = false;
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-sb.auth.onAuthStateChange((_event, session) => {
+sb.auth.onAuthStateChange(async (_event, session) => {
   currentUser = session?.user || null;
   updateNavBtn();
+  if (currentUser) {
+    await loadFavoritesFromSupabase();
+  }
   renderProfile();
 });
 
@@ -1404,13 +1407,59 @@ function toggleFav() {
     favorites.push(activeBarId);
     document.getElementById('sheet-fav-btn').textContent = '❤️';
     showToast('Añadido a favoritos ❤️');
+    if (currentUser) {
+      sb.from('favorites').insert({ user_id: currentUser.id, bar_id: activeBarId })
+        .then(() => {}).catch(() => {});
+    }
   } else {
     favorites.splice(idx, 1);
     document.getElementById('sheet-fav-btn').textContent = '🤍';
     showToast('Eliminado de favoritos');
+    if (currentUser) {
+      sb.from('favorites')
+        .delete()
+        .eq('user_id', currentUser.id)
+        .eq('bar_id', activeBarId)
+        .then(() => {}).catch(() => {});
+    }
   }
   localStorage.setItem('dud_favs', JSON.stringify(favorites));
   renderProfile();
+  if (mapInited) renderMapMarkers();
+}
+
+async function loadFavoritesFromSupabase() {
+  if (!currentUser) return;
+  try {
+    const { data } = await sb.from('favorites')
+      .select('bar_id')
+      .eq('user_id', currentUser.id);
+    if (data && data.length > 0) {
+      // Merge Supabase favorites with localStorage
+      const serverFavs = data.map(f => f.bar_id);
+      const merged = [...new Set([...serverFavs, ...favorites])];
+      favorites = merged;
+      localStorage.setItem('dud_favs', JSON.stringify(favorites));
+      // Push any local favs not yet in Supabase
+      const toUpload = favorites.filter(id => !serverFavs.includes(id));
+      if (toUpload.length > 0) {
+        await sb.from('favorites').insert(
+          toUpload.map(bar_id => ({ user_id: currentUser.id, bar_id }))
+        );
+      }
+    } else {
+      // No server favs — upload local ones
+      if (favorites.length > 0) {
+        await sb.from('favorites').insert(
+          favorites.map(bar_id => ({ user_id: currentUser.id, bar_id }))
+        );
+      }
+    }
+    renderProfile();
+    if (mapInited) renderMapMarkers();
+  } catch(e) {
+    console.error('Error syncing favorites:', e);
+  }
 }
 
 function openReport() {
