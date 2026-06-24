@@ -1579,27 +1579,22 @@ async function loadFavoritesFromSupabase() {
     const { data } = await sb.from('favorites')
       .select('bar_id')
       .eq('user_id', currentUser.id);
-    if (data && data.length > 0) {
-      // Merge Supabase favorites with localStorage
-      const serverFavs = data.map(f => f.bar_id);
-      const merged = [...new Set([...serverFavs, ...favorites])];
-      favorites = merged;
-      localStorage.setItem('dud_favs', JSON.stringify(favorites));
-      // Push any local favs not yet in Supabase
-      const toUpload = favorites.filter(id => !serverFavs.includes(id));
-      if (toUpload.length > 0) {
-        await sb.from('favorites').insert(
-          toUpload.map(bar_id => ({ user_id: currentUser.id, bar_id }))
-        );
-      }
+
+    const serverFavs = (data || []).map(f => f.bar_id);
+
+    // Upload any local favs not yet on server (first login sync)
+    const toUpload = favorites.filter(id => !serverFavs.includes(id));
+    if (toUpload.length > 0) {
+      await sb.from('favorites').insert(
+        toUpload.map(bar_id => ({ user_id: currentUser.id, bar_id }))
+      );
+      favorites = [...new Set([...serverFavs, ...toUpload])];
     } else {
-      // No server favs — upload local ones
-      if (favorites.length > 0) {
-        await sb.from('favorites').insert(
-          favorites.map(bar_id => ({ user_id: currentUser.id, bar_id }))
-        );
-      }
+      // Server is authoritative — use server state, don't re-merge local
+      favorites = serverFavs;
     }
+
+    localStorage.setItem('dud_favs', JSON.stringify(favorites));
     renderProfile();
     if (mapInited) renderMapMarkers();
   } catch(e) {
@@ -2107,6 +2102,9 @@ function renderProfile() {
               <div class="pli-sub">${stars} · ${timeAgo(r.created_at)}</div>
               ${r.comment ? `<div class="pli-comment">"${r.comment}"</div>` : ''}
             </div>
+            <div class="pli-right">
+              <div class="pli-rm" onclick="event.stopPropagation();deleteReview('${r.id}')">✕</div>
+            </div>
           </div>`;
         }).join('');
 
@@ -2159,12 +2157,33 @@ function renderProfile() {
     <div class="profile-content-area">${listHTML}</div>`;
 }
 
-function removeFav(id) {
+async function removeFav(id) {
   favorites = favorites.filter(f => f !== id);
   localStorage.setItem('dud_favs', JSON.stringify(favorites));
   renderProfile();
   if (mapInited) renderMapMarkers();
   showToast('Eliminado de favoritos');
+  if (currentUser) {
+    try {
+      await sb.from('favorites').delete()
+        .eq('user_id', currentUser.id)
+        .eq('bar_id', id);
+    } catch(e) { console.error('Error deleting fav:', e); }
+  }
+}
+
+async function deleteReview(reviewId) {
+  if (!currentUser) return;
+  try {
+    await sb.from('reviews').delete()
+      .eq('id', reviewId)
+      .eq('user_id', currentUser.id);
+    userReviews = userReviews.filter(r => r.id !== reviewId);
+    renderProfile();
+    showToast('Reseña eliminada');
+  } catch(e) {
+    showToast('Error al eliminar la reseña');
+  }
 }
 
 /* ══════════════════════════════
