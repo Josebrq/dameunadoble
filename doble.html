@@ -106,18 +106,10 @@ body {
 }
 .ticker-track {
   display: flex; white-space: nowrap;
-  animation: ticker-scroll 55s linear infinite;
   will-change: transform;
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
+  transform: translateX(0);
 }
-@keyframes ticker-scroll {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
-}
-@media (prefers-reduced-motion: reduce) { .ticker-track { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .ticker-track { display: none; } }
 .ticker-item {
   display: inline-flex; align-items: center; gap: 6px; padding: 0 20px;
   font-family: 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: 0.5px;
@@ -1278,8 +1270,12 @@ function renderHome() {
 }
 
 /* ══════════════════════════════
-   TICKER
+   TICKER (JS animation — works on iOS)
 ══════════════════════════════ */
+let tickerPos = 0;
+let tickerHalfWidth = 0;
+let tickerRAF = null;
+
 function renderTicker() {
   const sorted = [...allBars]
     .filter(b => b._precio > 0 && b.nombre)
@@ -1292,6 +1288,36 @@ function renderTicker() {
 
   const track = document.getElementById('ticker-track');
   track.innerHTML = items + items; // duplicate for seamless loop
+  track.style.transform = 'translateX(0px)';
+
+  // Reset and start animation
+  tickerPos = 0;
+  tickerHalfWidth = 0;
+  if (tickerRAF) cancelAnimationFrame(tickerRAF);
+
+  // Wait one frame for layout, then measure and start
+  requestAnimationFrame(() => {
+    tickerHalfWidth = track.scrollWidth / 2;
+    startTicker();
+  });
+}
+
+function startTicker() {
+  const track = document.getElementById('ticker-track');
+  if (!track || tickerHalfWidth === 0) return;
+
+  const speed = 0.4; // px per frame (~24px/s at 60fps)
+
+  function step() {
+    tickerPos -= speed;
+    if (Math.abs(tickerPos) >= tickerHalfWidth) {
+      tickerPos = 0;
+    }
+    track.style.transform = `translateX(${tickerPos}px)`;
+    tickerRAF = requestAnimationFrame(step);
+  }
+
+  tickerRAF = requestAnimationFrame(step);
 }
 
 /* ══════════════════════════════
