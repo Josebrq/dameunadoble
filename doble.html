@@ -1024,13 +1024,13 @@ let geoActive      = false;
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-sb.auth.onAuthStateChange(async (_event, session) => {
+sb.auth.onAuthStateChange((_event, session) => {
   currentUser = session?.user || null;
   updateNavBtn();
-  if (currentUser) {
-    await loadFavoritesFromSupabase();
-  }
   renderProfile();
+  if (currentUser) {
+    loadFavoritesFromSupabase().catch(() => {});
+  }
 });
 
 function updateNavBtn() {
@@ -1900,17 +1900,25 @@ function extractZona(dir) {
    INIT
 ══════════════════════════════ */
 (async () => {
-  // Check auth
-  const { data: { session } } = await sb.auth.getSession();
-  currentUser = session?.user || null;
+  // 1. Cargar datos inmediatamente, sin esperar auth
+  loadBars();
+  loadReportes();
+  initMap();
+
+  // 2. Auth en paralelo — no bloquea la carga de datos
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    currentUser = session?.user || null;
+  } catch(e) {
+    currentUser = null;
+  }
   updateNavBtn();
   renderProfile();
 
-  // Load data
-  await Promise.all([loadBars(), loadReportes()]);
-
-  // Init map (mapa tab is active by default)
-  initMap();
+  // 3. Sincronizar favoritos si está logueado (fire and forget)
+  if (currentUser) {
+    loadFavoritesFromSupabase().catch(() => {});
+  }
 })();
 </script>
 </body>
