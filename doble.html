@@ -176,9 +176,10 @@ body {
   box-shadow: 0 2px 8px rgba(0,0,0,0.3);
   display: inline-block; line-height: 1.3;
 }
-.price-pin.cheap { background: var(--lupulo); }
-.price-pin.mid   { background: var(--cobre);  }
-.price-pin.exp   { background: var(--roja);   }
+/* Map pins — colores relativos al dataset */
+.price-pin.cheap { background: #2D7A3A; }   /* verde suave */
+.price-pin.mid   { background: #5A5A5A; }   /* gris neutro */
+.price-pin.exp   { background: #B84040; }   /* rojo apagado */
 .price-pin.sel   { border-color: var(--dorada); border-width: 2.5px; transform: scale(1.15); z-index: 9999 !important; }
 
 /* ─────────────────────────────
@@ -986,7 +987,7 @@ body {
     <div class="map-filters">
       <button class="filter-chip active" data-filter="all"   onclick="setMapFilter('all',this)">Todos</button>
       <button class="filter-chip"        data-filter="cerca" onclick="geolocate()">📍 Cerca de mí</button>
-      <button class="filter-chip"        data-filter="cheap" onclick="setMapFilter('cheap',this)">🟢 &lt; €2.50</button>
+      <button class="filter-chip"        data-filter="cheap" onclick="setMapFilter('cheap',this)">🟢 Precio bajo</button>
       <button class="filter-chip"        data-filter="fav"   onclick="setMapFilter('fav',this)">❤️ Favoritos</button>
     </div>
     <div id="map"></div>
@@ -1216,6 +1217,7 @@ async function loadBars() {
     renderTicker();
     renderRanking();
     renderHome();
+    calcPriceThresholds();
     if (mapInited) renderMapMarkers();
   } catch (err) {
     console.error('Error cargando bares:', err);
@@ -1275,9 +1277,23 @@ function initMap() {
   if (allBars.length) renderMapMarkers();
 }
 
+// Thresholds calculated dynamically from actual data
+let priceP33 = 2.5;
+let priceP66 = 3.5;
+
+function calcPriceThresholds() {
+  const prices = allBars
+    .map(b => b._precio)
+    .filter(p => p > 0)
+    .sort((a, b) => a - b);
+  if (prices.length < 3) return;
+  priceP33 = prices[Math.floor(prices.length * 0.33)];
+  priceP66 = prices[Math.floor(prices.length * 0.66)];
+}
+
 function pinClass(price) {
-  if (price < 2.5)  return 'cheap';
-  if (price <= 3.5) return 'mid';
+  if (price <= priceP33) return 'cheap';
+  if (price <= priceP66) return 'mid';
   return 'exp';
 }
 
@@ -1288,7 +1304,7 @@ function renderMapMarkers() {
 
   const visible = allBars.filter(b => {
     if (!b.lat || !b.lng || !b._precio) return false;
-    if (mapFilter === 'cheap') return b._precio < 2.5;
+    if (mapFilter === 'cheap') return b._precio <= priceP33;
     if (mapFilter === 'fav')   return favorites.includes(b.id);
     if (mapFilter === 'cerca') {
       if (!geoActive) return true;
