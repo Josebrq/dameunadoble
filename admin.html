@@ -202,7 +202,7 @@ tbody tr:hover{background:var(--foam);}
         <div class="panel-card-title">Importar bares desde CSV</div>
         <div class="csv-zone" id="csv-zone" onclick="document.getElementById('csv-file').click()" ondragover="csvDrag(event,true)" ondragleave="csvDrag(event,false)" ondrop="csvDrop(event)">
           <p>Arrastra tu archivo CSV aquí o <strong>haz clic para seleccionarlo</strong></p>
-          <p style="font-size:12px;margin-top:4px">Columnas requeridas: <code>nombre, ciudad, region, precio, direccion</code> · Opcionales: <code>lat, lng, cana_precio, bravas_precio, tortilla_precio, croquetas_precio</code></p>
+          <p style="font-size:12px;margin-top:4px">Columnas requeridas: <code>nombre, ciudad, region, precio, direccion</code> · Opcionales: <code>cana_precio, bravas_precio, tortilla_precio, croquetas_precio</code> · Las coordenadas se obtienen automáticamente.</p>
         </div>
         <input type="file" id="csv-file" accept=".csv" style="display:none" onchange="handleCSV(this.files[0])">
         <div id="csv-preview"></div>
@@ -481,13 +481,19 @@ async function addBar() {
   const region = document.getElementById('new-region').value;
   const precio = parseFloat(document.getElementById('new-precio').value);
   const direccion = document.getElementById('new-direccion').value.trim();
-  const lat = parseFloat(document.getElementById('new-lat').value) || null;
-  const lng = parseFloat(document.getElementById('new-lng').value) || null;
+  const lat_raw = parseFloat(document.getElementById('new-lat').value) || null;
+  const lng_raw = parseFloat(document.getElementById('new-lng').value) || null;
   const cana_precio = document.getElementById('new-cana').value ? String(parseFloat(document.getElementById('new-cana').value)) : null;
   const bravas_precio = document.getElementById('new-bravas').value ? String(parseFloat(document.getElementById('new-bravas').value)) : null;
   const tortilla_precio = document.getElementById('new-tortilla').value ? String(parseFloat(document.getElementById('new-tortilla').value)) : null;
   const croquetas_precio = document.getElementById('new-croquetas').value ? String(parseFloat(document.getElementById('new-croquetas').value)) : null;
   if (!nombre||!ciudad||!precio||precio<0.5||precio>15) { showToast('Rellena todos los campos obligatorios','error'); return; }
+  let lat = lat_raw, lng = lng_raw;
+  if (!lat || !lng) {
+    showToast('🌍 Buscando coordenadas...', 'success');
+    const coords = await geocodeAddress(direccion, ciudad);
+    lat = coords.lat; lng = coords.lng;
+  }
   try {
     await api('POST','bares',{nombre,ciudad,region,precio,direccion,lat,lng,cana_precio,bravas_precio,tortilla_precio,croquetas_precio,aprobado:true,fuente:'admin'});
     document.getElementById('new-nombre').value='';
@@ -584,7 +590,7 @@ function exportCSV() {
 }
 
 function downloadTemplate() {
-  const csv = 'nombre,ciudad,region,precio,direccion,lat,lng,cana_precio,bravas_precio,tortilla_precio,croquetas_precio\n"Bar El Patio","Sevilla","Andalucía",1.80,"Calle Mayor 12",37.3891,-5.9845,1.20,5.50,4.00,6.00\n"La Taberna","Madrid","Comunidad de Madrid",3.20,"Gran Vía 45",40.4200,-3.7050,2.00,6.50,5.00,7.50';
+  const csv = 'nombre,ciudad,region,precio,direccion,cana_precio,bravas_precio,tortilla_precio,croquetas_precio\n"Bar El Patio","Sevilla","Andalucía",1.80,"Calle Mayor 12",1.20,5.50,4.00,6.00\n"La Taberna","Madrid","Comunidad de Madrid",3.20,"Gran Vía 45",2.00,6.50,5.00,7.50';
   const blob = new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
   a.download = 'plantilla_bares.csv'; a.click();
@@ -627,15 +633,38 @@ function handleCSV(file) {
   reader.readAsText(file, 'UTF-8');
 }
 
+async function geocodeAddress(direccion, ciudad) {
+  try {
+    const q = encodeURIComponent(`${direccion}, ${ciudad}, España`);
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${q}&format=json&limit=1`, {
+      headers: { 'Accept-Language': 'es', 'User-Agent': 'DameUnaDoble/1.0' }
+    });
+    const data = await res.json();
+    if (data && data[0]) return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+  } catch(e) {}
+  return { lat: null, lng: null };
+}
+
 async function importCSVRows(rows) {
   try {
-    const data = rows.map(r=>({
-      nombre:r.nombre, ciudad:r.ciudad, region:r.region,
-      precio:parseFloat(r.precio)||0, direccion:r.direccion||'',
-      lat:parseFloat(r.lat)||null, lng:parseFloat(r.lng)||null,
-      cana_precio:r.cana_precio||null, bravas_precio:r.bravas_precio||null,
-      tortilla_precio:r.tortilla_precio||null, croquetas_precio:r.croquetas_precio||null
-    }));
+    showToast(`🌍 Geocodificando ${rows.length} bares...`, 'success');
+    const data = [];
+    for (const r of rows) {
+      let lat = parseFloat(r.lat) || null;
+      let lng = parseFloat(r.lng) || null;
+      if (!lat || !lng) {
+        const coords = await geocodeAddress(r.direccion || '', r.ciudad || '');
+        lat = coords.lat; lng = coords.lng;
+        await new Promise(res => setTimeout(res, 1100)); // Nominatim: max 1 req/s
+      }
+      data.push({
+        nombre: r.nombre, ciudad: r.ciudad, region: r.region,
+        precio: parseFloat(r.precio) || 0, direccion: r.direccion || '',
+        lat, lng,
+        cana_precio: r.cana_precio || null, bravas_precio: r.bravas_precio || null,
+        tortilla_precio: r.tortilla_precio || null, croquetas_precio: r.croquetas_precio || null
+      });
+    }
     await api('POST','bares',data);
     document.getElementById('csv-preview').innerHTML='';
     showToast(`✅ ${data.length} bares importados`,'success');
