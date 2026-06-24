@@ -238,7 +238,7 @@ function renderComunidad() {
           '<span class="q-card-zona">' + zona + '</span>' +
           (precio > 0 ? ' <span style="font-family:Bebas Neue;font-size:18px;color:var(--amber-dark)">' + precio.toFixed(2) + '€</span>' : '') +
         '</div>' +
-        '<span class="q-card-badge badge-new">Nuevo</span>' +
+        '<span class="q-card-badge" style="background:' + (b.fuente==='bot'?'#E3F2FD':b.fuente==='comunidad'?'#E8F5E9':b.fuente==='formulario'?'#FFF3E0':'#F5F5F5') + ';color:' + (b.fuente==='bot'?'#1565C0':b.fuente==='comunidad'?'#2E7D32':b.fuente==='formulario'?'#E65100':'#757575') + '">' + (b.fuente==='bot'?'🤖 Bot':b.fuente==='comunidad'?'👥 Comunidad':b.fuente==='formulario'?'📋 Formulario':'Nuevo') + '</span>' +
       '</div>' +
       '<div id="edit-name-' + b.id + '" style="display:none">' +
         '<input class="name-edit-input" id="name-input-' + b.id + '" value="' + (b.nombre||'').replace(/"/g,'&quot;') + '">' +
@@ -247,9 +247,12 @@ function renderComunidad() {
           '<button class="action-btn btn-reject" onclick="cancelEditName(' + b.id + ')">Cancelar</button>' +
         '</div>' +
       '</div>' +
+      '<div class="q-card-controls" style="margin-bottom:8px">' +
+        '<input class="price-input" type="number" id="cp-' + b.id + '" value="' + (precio>0?precio.toFixed(2):'') + '" placeholder="Precio €" step="0.10" min="0.50" max="15" inputmode="decimal">' +
+      '</div>' +
       '<div class="action-row" id="actions-' + b.id + '">' +
-        '<button class="action-btn btn-approve" onclick="aprobarBar(' + b.id + ')">✅ Aprobar</button>' +
-        '<button class="action-btn btn-edit-name" onclick="editName(' + b.id + ')">✏️ Editar nombre</button>' +
+        '<button class="action-btn btn-approve" onclick="aprobarConPrecio(' + b.id + ')">✅ Aprobar</button>' +
+        '<button class="action-btn btn-edit-name" onclick="editName(' + b.id + ')">✏️ Editar</button>' +
         '<button class="action-btn btn-reject" onclick="rechazarBar(' + b.id + ',\'' + (b.nombre||'').replace(/'/g,'') + '\')">✕</button>' +
       '</div>' +
     '</div>';
@@ -276,6 +279,21 @@ async function saveNameAndApprove(id) {
     if (bar) { bar.nombre = nombre; bar.aprobado = true; }
     updateStats(); renderComunidad(); renderTodos();
     showToast('✅ "' + nombre + '" aprobado', 'success');
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+async function aprobarConPrecio(id) {
+  var precioInput = document.getElementById('cp-' + id);
+  var data = { aprobado:true };
+  if (precioInput && precioInput.value && parseFloat(precioInput.value) >= 0.5) {
+    data.precio = String(precioInput.value);
+  }
+  try {
+    await api('PATCH', 'bares?id=eq.' + id, data);
+    var bar = allBars.find(function(b) { return b.id === id; });
+    if (bar) { bar.aprobado = true; if (data.precio) bar.precio = data.precio; }
+    updateStats(); renderComunidad(); renderTodos();
+    showToast('✅ Bar aprobado', 'success');
   } catch(e) { showToast('Error: ' + e.message, 'error'); }
 }
 
