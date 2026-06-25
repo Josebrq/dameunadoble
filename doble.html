@@ -1315,14 +1315,40 @@ body {
     <div id="report-form-wrap" style="display:none;margin-bottom:14px">
       <div style="background:var(--dorada-light);border:1px solid var(--dorada);border-radius:8px;padding:14px">
         <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;margin-bottom:10px">✏️ <span data-i18n="report-title">Reportar precio incorrecto</span></div>
-        <div style="margin-bottom:10px">
-          <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--malta-soft);display:block;margin-bottom:4px" data-i18n="report-price-label">Precio real del doble (€)</label>
-          <input id="report-price-input" type="number" step="0.10" min="0.50" max="15" inputmode="decimal"
-            style="width:100%;padding:9px 12px;border:1.5px solid var(--border-strong);border-radius:6px;font-size:16px;font-family:'Bebas Neue',sans-serif;outline:none;background:white;color:var(--malta)"
-            placeholder="Ej: 2.80">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+          <div>
+            <label style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--malta-soft);display:block;margin-bottom:3px">🍺 Doble (€)</label>
+            <input id="report-precio" type="number" step="0.10" min="0.50" max="15" inputmode="decimal"
+              style="width:100%;padding:8px 10px;border:1.5px solid var(--border-strong);border-radius:6px;font-size:15px;font-family:'Bebas Neue',sans-serif;outline:none;background:white;color:var(--malta)"
+              placeholder="2.80">
+          </div>
+          <div>
+            <label style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--malta-soft);display:block;margin-bottom:3px">🥤 Caña (€)</label>
+            <input id="report-cana" type="number" step="0.10" min="0.50" max="10" inputmode="decimal"
+              style="width:100%;padding:8px 10px;border:1.5px solid var(--border-strong);border-radius:6px;font-size:15px;font-family:'Bebas Neue',sans-serif;outline:none;background:white;color:var(--malta)"
+              placeholder="1.80">
+          </div>
+          <div>
+            <label style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--malta-soft);display:block;margin-bottom:3px">🔥 Bravas (€)</label>
+            <input id="report-bravas" type="number" step="0.10" min="0.50" max="30" inputmode="decimal"
+              style="width:100%;padding:8px 10px;border:1.5px solid var(--border-strong);border-radius:6px;font-size:15px;font-family:'Bebas Neue',sans-serif;outline:none;background:white;color:var(--malta)"
+              placeholder="5.50">
+          </div>
+          <div>
+            <label style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--malta-soft);display:block;margin-bottom:3px">🍳 Tortilla (€)</label>
+            <input id="report-tortilla" type="number" step="0.10" min="0.50" max="30" inputmode="decimal"
+              style="width:100%;padding:8px 10px;border:1.5px solid var(--border-strong);border-radius:6px;font-size:15px;font-family:'Bebas Neue',sans-serif;outline:none;background:white;color:var(--malta)"
+              placeholder="4.00">
+          </div>
+          <div style="grid-column:span 2">
+            <label style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--malta-soft);display:block;margin-bottom:3px">⚪ Croquetas (€)</label>
+            <input id="report-croquetas" type="number" step="0.10" min="0.50" max="30" inputmode="decimal"
+              style="width:100%;padding:8px 10px;border:1.5px solid var(--border-strong);border-radius:6px;font-size:15px;font-family:'Bebas Neue',sans-serif;outline:none;background:white;color:var(--malta)"
+              placeholder="6.00">
+          </div>
         </div>
         <div style="margin-bottom:12px">
-          <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--malta-soft);display:block;margin-bottom:4px" data-i18n="report-msg-label">Comentario (opcional)</label>
+          <label style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--malta-soft);display:block;margin-bottom:3px" data-i18n="report-msg-label">Comentario (opcional)</label>
           <textarea id="report-msg-input" rows="2"
             style="width:100%;padding:9px 12px;border:1.5px solid var(--border-strong);border-radius:6px;font-size:13px;font-family:'Inter',sans-serif;resize:none;outline:none;background:white;color:var(--malta)"
             data-i18n-placeholder="report-msg-placeholder" placeholder="Ej: El precio subió, ahora cobra 3€"></textarea>
@@ -1908,16 +1934,16 @@ async function loadFavoritesFromSupabase() {
 function openReport() {
   const wrap = document.getElementById('report-form-wrap');
   wrap.style.display = 'block';
-  // Pre-fill with current price
   const bar = allBars.find(b => b.id === activeBarId);
-  if (bar && bar._precio > 0) {
-    document.getElementById('report-price-input').value = bar._precio.toFixed(2);
+  if (bar) {
+    if (bar._precio > 0)           document.getElementById('report-precio').value    = bar._precio.toFixed(2);
+    if (bar.cana_precio)           document.getElementById('report-cana').value      = parseFloat(bar.cana_precio).toFixed(2);
+    if (bar.bravas_precio)         document.getElementById('report-bravas').value    = parseFloat(bar.bravas_precio).toFixed(2);
+    if (bar.tortilla_precio)       document.getElementById('report-tortilla').value  = parseFloat(bar.tortilla_precio).toFixed(2);
+    if (bar.croquetas_precio)      document.getElementById('report-croquetas').value = parseFloat(bar.croquetas_precio).toFixed(2);
   }
-  document.getElementById('report-price-input').focus();
-  // Apply i18n
-  wrap.querySelectorAll('[data-i18n]').forEach(el => {
-    el.textContent = t(el.getAttribute('data-i18n'));
-  });
+  document.getElementById('report-precio').focus();
+  wrap.querySelectorAll('[data-i18n]').forEach(el => el.textContent = t(el.getAttribute('data-i18n')));
   wrap.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
     el.placeholder = t(el.getAttribute('data-i18n-placeholder')) || el.placeholder;
   });
@@ -1925,40 +1951,51 @@ function openReport() {
 
 function closeReport() {
   document.getElementById('report-form-wrap').style.display = 'none';
-  document.getElementById('report-price-input').value = '';
-  document.getElementById('report-msg-input').value = '';
+  ['report-precio','report-cana','report-bravas','report-tortilla','report-croquetas','report-msg-input']
+    .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
 }
 
 async function submitReport() {
   const bar = allBars.find(b => b.id === activeBarId);
   if (!bar) return;
-  const precio = document.getElementById('report-price-input').value;
-  const mensaje = document.getElementById('report-msg-input').value.trim();
-  if (!precio || parseFloat(precio) < 0.5 || parseFloat(precio) > 15) {
-    showToast(currentLang === 'en' ? 'Enter a valid price (€0.50–€15)' : 'Introduce un precio válido (0.50–15€)');
+
+  const precio     = document.getElementById('report-precio').value;
+  const cana       = document.getElementById('report-cana').value;
+  const bravas     = document.getElementById('report-bravas').value;
+  const tortilla   = document.getElementById('report-tortilla').value;
+  const croquetas  = document.getElementById('report-croquetas').value;
+  const mensaje    = document.getElementById('report-msg-input').value.trim();
+
+  // At least one price must be filled
+  if (!precio && !cana && !bravas && !tortilla && !croquetas) {
+    showToast(currentLang === 'en' ? 'Fill in at least one price' : 'Rellena al menos un precio');
     return;
   }
+  if (precio && (parseFloat(precio) < 0.5 || parseFloat(precio) > 15)) {
+    showToast(currentLang === 'en' ? 'Doble price must be €0.50–€15' : 'Precio del doble: 0.50–15€');
+    return;
+  }
+
   const btn = document.getElementById('btn-submit-report');
-  btn.disabled = true;
-  btn.textContent = '⏳';
+  btn.disabled = true; btn.textContent = '⏳';
+
   try {
     await sb.from('reportes').insert({
-      bar_id:     bar.id,
-      nombre_bar: bar.nombre,
-      precio:     String(parseFloat(precio).toFixed(2)),
-      mensaje:    mensaje || null,
-      email:      currentUser?.email || null,
-      usuario:    currentUser?.user_metadata?.name || null,
+      bar_id:           bar.id,
+      nombre_bar:       bar.nombre,
+      precio:           precio ? String(parseFloat(precio).toFixed(2)) : null,
+      cana_precio:      cana     ? String(parseFloat(cana).toFixed(2))     : null,
+      bravas_precio:    bravas   ? String(parseFloat(bravas).toFixed(2))   : null,
+      tortilla_precio:  tortilla ? String(parseFloat(tortilla).toFixed(2)) : null,
+      croquetas_precio: croquetas? String(parseFloat(croquetas).toFixed(2)): null,
+      mensaje:          mensaje || null,
+      email:            currentUser?.email || null,
+      usuario:          currentUser?.user_metadata?.name || null,
     });
     closeReport();
     showToast(currentLang === 'en' ? '✅ Thanks for the report!' : '✅ ¡Gracias por el reporte!');
-    // Refresh feed
     await loadReportes();
-    // Check Journalist badge
-    if (currentUser) {
-      await loadUserStats();
-      checkBadges();
-    }
+    if (currentUser) { await loadUserStats(); checkBadges(); }
   } catch(e) {
     showToast(currentLang === 'en' ? 'Error sending report' : 'Error al enviar el reporte');
     btn.disabled = false;
