@@ -1310,6 +1310,33 @@ body {
     <div class="sheet-actions">
       <button class="btn-report" onclick="openReport()" data-i18n="sheet-report">✏️ Reportar precio</button>
     </div>
+
+    <!-- Report price form (hidden by default) -->
+    <div id="report-form-wrap" style="display:none;margin-bottom:14px">
+      <div style="background:var(--dorada-light);border:1px solid var(--dorada);border-radius:8px;padding:14px">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;margin-bottom:10px">✏️ <span data-i18n="report-title">Reportar precio incorrecto</span></div>
+        <div style="margin-bottom:10px">
+          <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--malta-soft);display:block;margin-bottom:4px" data-i18n="report-price-label">Precio real del doble (€)</label>
+          <input id="report-price-input" type="number" step="0.10" min="0.50" max="15" inputmode="decimal"
+            style="width:100%;padding:9px 12px;border:1.5px solid var(--border-strong);border-radius:6px;font-size:16px;font-family:'Bebas Neue',sans-serif;outline:none;background:white;color:var(--malta)"
+            placeholder="Ej: 2.80">
+        </div>
+        <div style="margin-bottom:12px">
+          <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--malta-soft);display:block;margin-bottom:4px" data-i18n="report-msg-label">Comentario (opcional)</label>
+          <textarea id="report-msg-input" rows="2"
+            style="width:100%;padding:9px 12px;border:1.5px solid var(--border-strong);border-radius:6px;font-size:13px;font-family:'Inter',sans-serif;resize:none;outline:none;background:white;color:var(--malta)"
+            data-i18n-placeholder="report-msg-placeholder" placeholder="Ej: El precio subió, ahora cobra 3€"></textarea>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button onclick="submitReport()" id="btn-submit-report"
+            style="flex:1;padding:10px;background:var(--malta);color:var(--espuma);border:none;border-radius:6px;font-family:'Bebas Neue',sans-serif;font-size:17px;cursor:pointer"
+            data-i18n="report-submit">🍺 Enviar reporte</button>
+          <button onclick="closeReport()"
+            style="padding:10px 16px;border:1.5px solid var(--border-strong);border-radius:6px;background:transparent;cursor:pointer;font-size:13px;font-family:'Inter',sans-serif;color:var(--malta-soft)"
+            data-i18n="report-cancel">Cancelar</button>
+        </div>
+      </div>
+    </div>
     <div class="sheet-reviews-title" data-i18n="sheet-reviews-title">Reseñas</div>
     <div id="sheet-reviews-body"></div>
   </div>
@@ -1813,6 +1840,7 @@ function highlightPin(barId) {
 function closeSheet() {
   document.getElementById('sheet-overlay').classList.remove('open');
   document.getElementById('bar-sheet').classList.remove('open');
+  closeReport();
   activeBarId = null;
   Object.values(leafletMarkers).forEach(mk =>
     mk.getElement()?.querySelector('.price-pin')?.classList.remove('sel')
@@ -1878,9 +1906,64 @@ async function loadFavoritesFromSupabase() {
 }
 
 function openReport() {
-  closeSheet();
-  showToast('Función de reporte próximamente ✏️');
-  // TODO: open report form / redirect to quick.html
+  const wrap = document.getElementById('report-form-wrap');
+  wrap.style.display = 'block';
+  // Pre-fill with current price
+  const bar = allBars.find(b => b.id === activeBarId);
+  if (bar && bar._precio > 0) {
+    document.getElementById('report-price-input').value = bar._precio.toFixed(2);
+  }
+  document.getElementById('report-price-input').focus();
+  // Apply i18n
+  wrap.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.getAttribute('data-i18n'));
+  });
+  wrap.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    el.placeholder = t(el.getAttribute('data-i18n-placeholder')) || el.placeholder;
+  });
+}
+
+function closeReport() {
+  document.getElementById('report-form-wrap').style.display = 'none';
+  document.getElementById('report-price-input').value = '';
+  document.getElementById('report-msg-input').value = '';
+}
+
+async function submitReport() {
+  const bar = allBars.find(b => b.id === activeBarId);
+  if (!bar) return;
+  const precio = document.getElementById('report-price-input').value;
+  const mensaje = document.getElementById('report-msg-input').value.trim();
+  if (!precio || parseFloat(precio) < 0.5 || parseFloat(precio) > 15) {
+    showToast(currentLang === 'en' ? 'Enter a valid price (€0.50–€15)' : 'Introduce un precio válido (0.50–15€)');
+    return;
+  }
+  const btn = document.getElementById('btn-submit-report');
+  btn.disabled = true;
+  btn.textContent = '⏳';
+  try {
+    await sb.from('reportes').insert({
+      bar_id:     bar.id,
+      nombre_bar: bar.nombre,
+      precio:     String(parseFloat(precio).toFixed(2)),
+      mensaje:    mensaje || null,
+      email:      currentUser?.email || null,
+      usuario:    currentUser?.user_metadata?.name || null,
+    });
+    closeReport();
+    showToast(currentLang === 'en' ? '✅ Thanks for the report!' : '✅ ¡Gracias por el reporte!');
+    // Refresh feed
+    await loadReportes();
+    // Check Journalist badge
+    if (currentUser) {
+      await loadUserStats();
+      checkBadges();
+    }
+  } catch(e) {
+    showToast(currentLang === 'en' ? 'Error sending report' : 'Error al enviar el reporte');
+    btn.disabled = false;
+    btn.textContent = t('report-submit') || '🍺 Enviar reporte';
+  }
 }
 
 /* ══════════════════════════════
@@ -2797,6 +2880,11 @@ const i18n = {
     'toast-review-ok':'✅ Reseña publicada, ¡gracias!','toast-review-rm':'Reseña eliminada',
     'toast-bar-ok':'✅ Bar añadido, pendiente de revisión. ¡Gracias!',
     'sheet-report':'✏️ Reportar precio','sheet-reviews-title':'Reseñas',
+    'report-title':'Reportar precio incorrecto',
+    'report-price-label':'Precio real del doble (€)',
+    'report-msg-label':'Comentario (opcional)',
+    'report-msg-placeholder':'Ej: El precio subió, ahora cobra 3€',
+    'report-submit':'🍺 Enviar reporte','report-cancel':'Cancelar',
     'review-placeholder':'¿Cómo fue tu experiencia?','review-btn':'Publicar reseña',
     'review-login':'para dejar tu reseña','maps-link':'🗺️ Ver en Google Maps',
     'sheet-doble-label':'Doble de Mahou',
@@ -2846,6 +2934,11 @@ const i18n = {
     'toast-review-ok':'✅ Review published, thanks!','toast-review-rm':'Review deleted',
     'toast-bar-ok':'✅ Bar submitted, pending review. Thanks!',
     'sheet-report':'✏️ Report price','sheet-reviews-title':'Reviews',
+    'report-title':'Report incorrect price',
+    'report-price-label':'Actual pint price (€)',
+    'report-msg-label':'Comment (optional)',
+    'report-msg-placeholder':'e.g. Price went up, now charging €3',
+    'report-submit':'🍺 Send report','report-cancel':'Cancel',
     'review-placeholder':'How was your experience?','review-btn':'Post review',
     'review-login':'to leave a review','maps-link':'🗺️ View on Google Maps',
     'sheet-doble-label':'Draught beer',
