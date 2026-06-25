@@ -3,47 +3,47 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quick Admin · Dame Una Doble</title>
+<title>Quick Admin · Ponme Un Doble</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root { --amber:#F5A800; --amber-dark:#BA7517; --espresso:#1A0F00; --foam:#FFF8ED; --slate:#3D3530; --slate-light:#6B5E57; --green:#2D8A4E; --red:#D94F3D; --border:rgba(61,53,48,0.12); --border-strong:rgba(61,53,48,0.25); }
+:root { --dorada:#E8A020; --roja:#C8102E; --malta:#180900; --espuma:#FFFCF4; --slate:#3D3530; --slate-light:#6B5E57; --green:#2D8A4E; --red:#D94F3D; --border:rgba(61,53,48,0.12); --border-strong:rgba(61,53,48,0.25); }
 * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
-body { font-family:'Inter',sans-serif; background:var(--foam); color:var(--espresso); }
+body { font-family:'Inter',sans-serif; background:var(--espuma); color:var(--malta); }
 .login-wrap { min-height:100vh; display:flex; align-items:center; justify-content:center; background:#0D0900; padding:1.5rem; }
-.login-card { background:var(--foam); border-radius:18px; padding:2rem; width:100%; max-width:340px; text-align:center; }
+.login-card { background:var(--espuma); border-radius:18px; padding:2rem; width:100%; max-width:340px; text-align:center; }
 .login-logo { font-family:'Bebas Neue',sans-serif; font-size:30px; }
-.login-logo span { color:var(--amber-dark); }
+.login-logo span { color:var(--roja); }
 .login-sub { font-size:13px; color:var(--slate-light); margin-bottom:1.5rem; }
 .login-card input { width:100%; padding:14px; border:1px solid var(--border-strong); border-radius:12px; font-size:16px; font-family:'Inter',sans-serif; background:#fff; margin-bottom:12px; outline:none; }
-.login-card input:focus { border-color:var(--amber-dark); }
-.btn-primary { width:100%; padding:14px; background:var(--amber-dark); color:var(--foam); border:none; border-radius:12px; font-size:16px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; }
+.login-card input:focus { border-color:var(--roja); }
+.btn-primary { width:100%; padding:14px; background:var(--roja); color:var(--espuma); border:none; border-radius:12px; font-size:16px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; }
 .login-error { color:var(--red); font-size:13px; margin-top:8px; display:none; }
 .app { display:none; min-height:100vh; padding-bottom:2rem; }
-.app-header { background:#0D0900; color:var(--foam); padding:1rem 1.25rem; position:sticky; top:0; z-index:100; display:flex; align-items:center; justify-content:space-between; }
+.app-header { background:#0D0900; color:var(--espuma); padding:1rem 1.25rem; position:sticky; top:0; z-index:100; display:flex; align-items:center; justify-content:space-between; }
 .app-logo { font-family:'Bebas Neue',sans-serif; font-size:20px; }
-.app-logo span { color:var(--amber); }
+.app-logo span { color:var(--dorada); }
 .app-header a { color:rgba(255,248,237,0.6); font-size:12px; text-decoration:none; }
 .stats-bar { display:flex; gap:8px; padding:1rem 1.25rem; }
 .stat-chip { flex:1; background:#fff; border:1px solid var(--border); border-radius:12px; padding:0.6rem; text-align:center; }
-.stat-chip-num { font-family:'Bebas Neue',sans-serif; font-size:22px; color:var(--amber-dark); line-height:1; }
+.stat-chip-num { font-family:'Bebas Neue',sans-serif; font-size:22px; color:var(--roja); line-height:1; }
 .stat-chip-label { font-size:10px; color:var(--slate-light); margin-top:2px; }
 
 /* TABS */
 .tabs { display:flex; padding:0 1.25rem; gap:4px; border-bottom:2px solid var(--border); margin-bottom:0; }
 .tab { flex:1; padding:10px 4px; text-align:center; font-size:12px; font-weight:600; border:none; background:transparent; color:var(--slate-light); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-2px; font-family:'Inter',sans-serif; }
-.tab.active { color:var(--amber-dark); border-bottom-color:var(--amber-dark); }
+.tab.active { color:var(--roja); border-bottom-color:var(--roja); }
 .tab-panel { display:none; }
 .tab-panel.active { display:block; }
 
 /* SORT BAR */
 .sort-bar { display:flex; gap:6px; padding:12px 1.25rem; overflow-x:auto; }
 .sort-pill { padding:6px 12px; border-radius:20px; border:1px solid var(--border-strong); background:#fff; font-size:12px; white-space:nowrap; cursor:pointer; color:var(--slate); font-family:'Inter',sans-serif; }
-.sort-pill.active { background:var(--amber-dark); color:var(--foam); border-color:var(--amber-dark); }
+.sort-pill.active { background:var(--roja); color:var(--espuma); border-color:var(--roja); }
 
 /* SEARCH */
-.search-section { padding:12px 1.25rem; position:sticky; top:56px; background:var(--foam); z-index:90; border-bottom:1px solid var(--border); }
+.search-section { padding:12px 1.25rem; position:sticky; top:56px; background:var(--espuma); z-index:90; border-bottom:1px solid var(--border); }
 .search-box { width:100%; padding:12px 16px; border:2px solid var(--border-strong); border-radius:12px; font-size:16px; font-family:'Inter',sans-serif; background:#fff; outline:none; }
-.search-box:focus { border-color:var(--amber); }
+.search-box:focus { border-color:var(--dorada); }
 
 /* CARDS */
 .card-list { padding:1rem 1.25rem; }
@@ -56,21 +56,21 @@ body { font-family:'Inter',sans-serif; background:var(--foam); color:var(--espre
 .badge-pending { background:#FFF3CD; color:#856404; }
 .badge-ok { background:#E8F5E9; color:var(--green); }
 .q-card-info { font-size:12px; color:var(--slate-light); margin-bottom:4px; }
-.q-card-zona { font-size:11px; padding:2px 8px; border-radius:20px; background:var(--foam); color:var(--amber-dark); display:inline-block; margin-bottom:8px; }
+.q-card-zona { font-size:11px; padding:2px 8px; border-radius:20px; background:var(--espuma); color:var(--roja); display:inline-block; margin-bottom:8px; }
 .q-card-controls { display:flex; gap:8px; align-items:center; margin-top:10px; }
 .price-input { flex:1; padding:12px; border:2px solid var(--border-strong); border-radius:10px; font-size:18px; font-family:'Bebas Neue',sans-serif; text-align:center; outline:none; }
-.price-input:focus { border-color:var(--amber); }
+.price-input:focus { border-color:var(--dorada); }
 .save-btn { padding:12px 16px; background:var(--green); color:#fff; border:none; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; white-space:nowrap; }
 .save-btn:active { transform:scale(0.97); }
 .action-row { display:flex; gap:6px; margin-top:10px; }
 .action-btn { flex:1; padding:10px; border-radius:10px; border:none; font-size:13px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; }
 .btn-approve { background:var(--green); color:#fff; }
 .btn-reject { background:transparent; color:var(--red); border:1px solid var(--red); }
-.btn-edit-name { background:transparent; color:var(--amber-dark); border:1px solid var(--amber-dark); }
-.name-edit-input { width:100%; padding:10px; border:2px solid var(--amber); border-radius:10px; font-size:15px; font-family:'Inter',sans-serif; outline:none; margin-bottom:8px; }
+.btn-edit-name { background:transparent; color:var(--roja); border:1px solid var(--roja); }
+.name-edit-input { width:100%; padding:10px; border:2px solid var(--dorada); border-radius:10px; font-size:15px; font-family:'Inter',sans-serif; outline:none; margin-bottom:8px; }
 
 .empty { text-align:center; padding:3rem 1rem; color:var(--slate-light); font-size:14px; }
-.toast { position:fixed; bottom:1.5rem; left:50%; transform:translateX(-50%) translateY(80px); z-index:3000; background:var(--espresso); color:var(--foam); padding:14px 24px; border-radius:12px; font-size:14px; opacity:0; transition:all 0.3s; pointer-events:none; box-shadow:0 8px 24px rgba(0,0,0,0.25); }
+.toast { position:fixed; bottom:1.5rem; left:50%; transform:translateX(-50%) translateY(80px); z-index:3000; background:var(--malta); color:var(--espuma); padding:14px 24px; border-radius:12px; font-size:14px; opacity:0; transition:all 0.3s; pointer-events:none; box-shadow:0 8px 24px rgba(0,0,0,0.25); }
 .toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
 .toast.success { border-left:3px solid var(--green); }
 .toast.error { border-left:3px solid var(--red); }
@@ -244,7 +244,7 @@ function renderComunidad() {
           '<div class="q-card-name" id="name-display-' + b.id + '">' + (b.nombre||'—') + '</div>' +
           '<div class="q-card-info">' + (b.direccion||'Sin direccion') + '</div>' +
           '<span class="q-card-zona">' + zona + '</span>' +
-          (precio > 0 ? ' <span style="font-family:Bebas Neue;font-size:18px;color:var(--amber-dark)">' + precio.toFixed(2) + '€</span>' : '') +
+          (precio > 0 ? ' <span style="font-family:Bebas Neue;font-size:18px;color:var(--roja)">' + precio.toFixed(2) + '€</span>' : '') +
         '</div>' +
         '<span class="q-card-badge" style="background:' + (b.fuente==='bot'?'#E3F2FD':b.fuente==='comunidad'?'#E8F5E9':b.fuente==='formulario'?'#FFF3E0':'#F5F5F5') + ';color:' + (b.fuente==='bot'?'#1565C0':b.fuente==='comunidad'?'#2E7D32':b.fuente==='formulario'?'#E65100':'#757575') + '">' + (b.fuente==='bot'?'🤖 Bot':b.fuente==='comunidad'?'👥 Comunidad':b.fuente==='formulario'?'📋 Formulario':'Nuevo') + '</span>' +
       '</div>' +
@@ -256,7 +256,13 @@ function renderComunidad() {
         '</div>' +
       '</div>' +
       '<div class="q-card-controls" style="margin-bottom:8px">' +
-        '<input class="price-input" type="number" id="cp-' + b.id + '" value="' + (precio>0?precio.toFixed(2):'') + '" placeholder="Precio €" step="0.10" min="0.50" max="15" inputmode="decimal">' +
+        '<input class="price-input" type="number" id="cp-' + b.id + '" value="' + (precio>0?precio.toFixed(2):'') + '" placeholder="Doble €" step="0.10" min="0.50" max="15" inputmode="decimal">' +
+      '</div>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">' +
+        '<input class="price-input" style="font-size:13px" type="number" id="cc-' + b.id + '" value="' + (b.cana_precio?parseFloat(b.cana_precio).toFixed(2):'') + '" placeholder="Caña €" step="0.10" min="0.50" max="10" inputmode="decimal">' +
+        '<input class="price-input" style="font-size:13px" type="number" id="cb-' + b.id + '" value="' + (b.bravas_precio?parseFloat(b.bravas_precio).toFixed(2):'') + '" placeholder="Bravas €" step="0.10" min="0.50" max="30" inputmode="decimal">' +
+        '<input class="price-input" style="font-size:13px" type="number" id="ct-' + b.id + '" value="' + (b.tortilla_precio?parseFloat(b.tortilla_precio).toFixed(2):'') + '" placeholder="Tortilla €" step="0.10" min="0.50" max="30" inputmode="decimal">' +
+        '<input class="price-input" style="font-size:13px" type="number" id="cq-' + b.id + '" value="' + (b.croquetas_precio?parseFloat(b.croquetas_precio).toFixed(2):'') + '" placeholder="Croquetas €" step="0.10" min="0.50" max="30" inputmode="decimal">' +
       '</div>' +
       '<div class="action-row" id="actions-' + b.id + '">' +
         '<button class="action-btn btn-approve" onclick="aprobarConPrecio(' + b.id + ')">✅ Aprobar</button>' +
@@ -296,6 +302,14 @@ async function aprobarConPrecio(id) {
   if (precioInput && precioInput.value && parseFloat(precioInput.value) >= 0.5) {
     data.precio = String(precioInput.value);
   }
+  var cana = document.getElementById('cc-' + id)?.value;
+  var bravas = document.getElementById('cb-' + id)?.value;
+  var tortilla = document.getElementById('ct-' + id)?.value;
+  var croquetas = document.getElementById('cq-' + id)?.value;
+  if (cana) data.cana_precio = String(cana);
+  if (bravas) data.bravas_precio = String(bravas);
+  if (tortilla) data.tortilla_precio = String(tortilla);
+  if (croquetas) data.croquetas_precio = String(croquetas);
   try {
     await api('PATCH', 'bares?id=eq.' + id, data);
     var bar = allBars.find(function(b) { return b.id === id; });
@@ -356,7 +370,7 @@ function renderSinPrecio() {
           '<div class="q-card-info">' + (b.direccion||'—') + '</div>' +
           '<span class="q-card-zona">' + zona + '</span>' +
         '</div>' +
-        '<a href="https://www.google.com/search?q=' + searchQuery + '" target="_blank" style="font-size:12px;color:var(--amber-dark);text-decoration:none;white-space:nowrap">🔍 Buscar</a>' +
+        '<a href="https://www.google.com/search?q=' + searchQuery + '" target="_blank" style="font-size:12px;color:var(--roja);text-decoration:none;white-space:nowrap">🔍 Buscar</a>' +
       '</div>' +
       '<div class="q-card-controls">' +
         '<input class="price-input" type="number" id="price-' + b.id + '" placeholder="€" step="0.10" min="0.50" max="15" inputmode="decimal" onkeydown="if(event.key===\'Enter\')savePrice(' + b.id + ')">' +
@@ -391,7 +405,7 @@ function renderReportes() {
           '<div class="q-card-name">' + (r.bar_nombre||'—') + '</div>' +
           '<div class="q-card-info">Reportado ' + fecha + '</div>' +
         '</div>' +
-        '<span style="font-family:Bebas Neue;font-size:22px;color:var(--amber-dark)">' + parseFloat(r.precio||0).toFixed(2) + '€</span>' +
+        '<span style="font-family:Bebas Neue;font-size:22px;color:var(--roja)">' + parseFloat(r.precio||0).toFixed(2) + '€</span>' +
       '</div>' +
       '<div class="action-row">' +
         '<button class="action-btn btn-approve" onclick="acceptReporte(' + r.id + ',' + r.bar_id + ',\'' + (r.precio||'').replace(/'/g,'') + '\')">✅ Aceptar precio</button>' +
@@ -454,7 +468,7 @@ function renderTodos() {
           '<span class="q-card-zona">' + zona + '</span>' +
         '</div>' +
         '<div style="text-align:right">' +
-          (precio > 0 ? '<div style="font-family:Bebas Neue;font-size:22px;color:var(--amber-dark)">' + precio.toFixed(2) + '€</div>' : '') +
+          (precio > 0 ? '<div style="font-family:Bebas Neue;font-size:22px;color:var(--roja)">' + precio.toFixed(2) + '€</div>' : '') +
           status +
         '</div>' +
       '</div>' +
