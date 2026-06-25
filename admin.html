@@ -3,34 +3,34 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin · Dame Una Doble</title>
+<title>Admin · Ponme Un Doble</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
-  --amber:#F5A800;--amber-light:#FAEEDA;--amber-dark:#BA7517;--red:#D94F3D;
-  --espresso:#1A0F00;--foam:#FFF8ED;--slate:#3D3530;--slate-light:#6B5E57;
+  --dorada:#E8A020;--dorada-light:#FFF4D6;--roja:#C8102E;--roja-dark:#8B0A1E;
+  --malta:#180900;--espuma:#FFFCF4;--slate:#3D3530;--slate-light:#6B5E57;
   --border:rgba(61,53,48,0.15);--border-strong:rgba(61,53,48,0.3);
   --green:#2E7D32;--green-light:#E8F5E9;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Inter',sans-serif;background:#f5f5f5;color:var(--espresso);}
+body{font-family:'Inter',sans-serif;background:#f5f5f5;color:var(--malta);}
 
-.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--espresso);}
-.login-card{background:var(--foam);border-radius:16px;padding:2.5rem;width:100%;max-width:360px;text-align:center;}
-.login-logo{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--espresso);margin-bottom:4px;}
-.login-logo span{color:var(--amber-dark);}
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--malta);}
+.login-card{background:var(--espuma);border-radius:16px;padding:2.5rem;width:100%;max-width:360px;text-align:center;}
+.login-logo{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--malta);margin-bottom:4px;}
+.login-logo span{color:var(--roja);}
 .login-sub{font-size:13px;color:var(--slate-light);margin-bottom:2rem;}
 .login-card input{width:100%;padding:10px 14px;border:1px solid var(--border-strong);border-radius:8px;font-size:14px;font-family:'Inter',sans-serif;background:#fff;margin-bottom:12px;outline:none;}
-.login-card input:focus{border-color:var(--amber-dark);}
-.btn-primary{width:100%;padding:11px;background:var(--amber-dark);color:var(--amber-light);border:none;border-radius:8px;font-size:15px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;}
+.login-card input:focus{border-color:var(--roja);}
+.btn-primary{width:100%;padding:11px;background:var(--roja);color:var(--dorada-light);border:none;border-radius:8px;font-size:15px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;}
 .btn-primary:hover{background:#854F0B;}
 .login-error{color:var(--red);font-size:13px;margin-top:8px;display:none;}
 
 .admin-wrap{display:none;min-height:100vh;}
-.admin-nav{background:var(--espresso);color:var(--foam);padding:0 2rem;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.admin-nav{background:var(--malta);color:var(--espuma);padding:0 2rem;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:2px solid var(--roja);}
 .admin-logo{font-family:'Bebas Neue',sans-serif;font-size:22px;}
-.admin-logo span{color:var(--amber);}
+.admin-logo span{color:var(--dorada);}
 .admin-nav-right{display:flex;align-items:center;gap:1rem;}
 .admin-nav-right a{font-size:13px;color:rgba(255,248,237,0.6);text-decoration:none;}
 .btn-logout{font-size:12px;padding:5px 12px;border:1px solid rgba(255,248,237,0.3);border-radius:6px;background:transparent;color:rgba(255,248,237,0.7);cursor:pointer;font-family:'Inter',sans-serif;}
@@ -39,60 +39,60 @@ body{font-family:'Inter',sans-serif;background:#f5f5f5;color:var(--espresso);}
 .admin-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:2rem;}
 .stat-card{background:#fff;border-radius:10px;border:1px solid var(--border);padding:1rem 1.25rem;}
 .stat-label{font-size:12px;color:var(--slate-light);margin-bottom:6px;}
-.stat-val{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--espresso);line-height:1;}
+.stat-val{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--malta);line-height:1;}
 .stat-sub{font-size:11px;color:var(--slate-light);margin-top:2px;}
 
 .tabs{display:flex;gap:4px;margin-bottom:1.5rem;border-bottom:2px solid var(--border);}
 .tab-btn{font-size:14px;font-weight:500;padding:8px 20px;border:none;background:transparent;cursor:pointer;color:var(--slate-light);border-bottom:2px solid transparent;margin-bottom:-2px;font-family:'Inter',sans-serif;}
-.tab-btn.active{color:var(--amber-dark);border-bottom-color:var(--amber-dark);}
+.tab-btn.active{color:var(--roja);border-bottom-color:var(--roja);}
 .tab-panel{display:none;}
 .tab-panel.active{display:block;}
 
 .panel-card{background:#fff;border-radius:12px;border:1px solid var(--border);padding:1.5rem;margin-bottom:1.5rem;}
-.panel-card-title{font-size:16px;font-weight:600;color:var(--espresso);margin-bottom:1.25rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
+.panel-card-title{font-size:16px;font-weight:600;color:var(--malta);margin-bottom:1.25rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
 
 .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:1rem;}
 .form-group label{display:block;font-size:12px;font-weight:500;color:var(--slate-light);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;}
-.form-group input,.form-group select{width:100%;padding:9px 12px;border:1px solid var(--border-strong);border-radius:8px;font-size:14px;font-family:'Inter',sans-serif;background:var(--foam);color:var(--espresso);outline:none;}
-.form-group input:focus,.form-group select:focus{border-color:var(--amber-dark);}
-.btn-add{padding:9px 20px;background:var(--amber-dark);color:var(--amber-light);border:none;border-radius:8px;font-size:14px;font-weight:500;font-family:'Inter',sans-serif;cursor:pointer;}
+.form-group input,.form-group select{width:100%;padding:9px 12px;border:1px solid var(--border-strong);border-radius:8px;font-size:14px;font-family:'Inter',sans-serif;background:var(--espuma);color:var(--malta);outline:none;}
+.form-group input:focus,.form-group select:focus{border-color:var(--roja);}
+.btn-add{padding:9px 20px;background:var(--roja);color:var(--dorada-light);border:none;border-radius:8px;font-size:14px;font-weight:500;font-family:'Inter',sans-serif;cursor:pointer;}
 .btn-add:hover{background:#854F0B;}
 .btn-danger{padding:5px 10px;background:transparent;color:var(--red);border:1px solid var(--red);border-radius:6px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;}
 .btn-danger:hover{background:#fdecea;}
-.btn-edit{padding:5px 10px;background:transparent;color:var(--amber-dark);border:1px solid var(--amber-dark);border-radius:6px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;margin-right:4px;}
+.btn-edit{padding:5px 10px;background:transparent;color:var(--roja);border:1px solid var(--roja);border-radius:6px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;margin-right:4px;}
 .btn-save{padding:5px 10px;background:var(--green);color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;margin-right:4px;}
 .btn-secondary{padding:7px 14px;background:transparent;color:var(--slate);border:1px solid var(--border-strong);border-radius:8px;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;}
-.btn-csv{padding:7px 14px;background:#1A0F00;color:var(--foam);border:none;border-radius:8px;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;}
+.btn-csv{padding:7px 14px;background:#180900;color:var(--espuma);border:none;border-radius:8px;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;}
 
 .table-wrap{overflow-x:auto;}
 table{width:100%;border-collapse:collapse;font-size:14px;}
 thead th{padding:10px 12px;text-align:left;font-size:11px;font-weight:600;color:var(--slate-light);text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid var(--border);}
-tbody td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--espresso);}
+tbody td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--malta);}
 tbody tr:last-child td{border-bottom:none;}
-tbody tr:hover{background:var(--foam);}
+tbody tr:hover{background:var(--espuma);}
 .price-cell{font-family:'Bebas Neue',sans-serif;font-size:20px;}
-.price-cheap{color:#3B6D11;}.price-mid{color:var(--amber-dark);}.price-exp{color:var(--red);}
-.badge-region{font-size:11px;padding:3px 8px;border-radius:20px;background:var(--amber-light);color:var(--amber-dark);font-weight:500;}
+.price-cheap{color:#3B6D11;}.price-mid{color:var(--roja);}.price-exp{color:var(--red);}
+.badge-region{font-size:11px;padding:3px 8px;border-radius:20px;background:var(--dorada-light);color:var(--roja);font-weight:500;}
 .cb{width:16px;height:16px;cursor:pointer;}
 
-.search-bar{padding:8px 12px;border:1px solid var(--border-strong);border-radius:8px;font-size:14px;font-family:'Inter',sans-serif;width:200px;outline:none;background:var(--foam);}
-.search-bar:focus{border-color:var(--amber-dark);}
+.search-bar{padding:8px 12px;border:1px solid var(--border-strong);border-radius:8px;font-size:14px;font-family:'Inter',sans-serif;width:200px;outline:none;background:var(--espuma);}
+.search-bar:focus{border-color:var(--roja);}
 
 .csv-zone{border:2px dashed var(--border-strong);border-radius:10px;padding:2rem;text-align:center;cursor:pointer;transition:border-color 0.2s;margin-bottom:1rem;}
-.csv-zone:hover,.csv-zone.drag{border-color:var(--amber-dark);background:var(--amber-light);}
+.csv-zone:hover,.csv-zone.drag{border-color:var(--roja);background:var(--dorada-light);}
 .csv-zone p{font-size:14px;color:var(--slate-light);margin-bottom:8px;}
-.csv-zone strong{color:var(--amber-dark);}
+.csv-zone strong{color:var(--roja);}
 
 .region-price-input{width:90px;padding:5px 8px;border:1px solid var(--border-strong);border-radius:6px;font-size:14px;font-family:'Bebas Neue',sans-serif;text-align:center;}
-.region-price-input:focus{border-color:var(--amber-dark);outline:none;}
+.region-price-input:focus{border-color:var(--roja);outline:none;}
 
-.toast{position:fixed;bottom:2rem;right:2rem;z-index:999;background:var(--espresso);color:var(--foam);padding:12px 20px;border-radius:8px;font-size:14px;transform:translateY(80px);opacity:0;transition:all 0.3s;pointer-events:none;}
+.toast{position:fixed;bottom:2rem;right:2rem;z-index:999;background:var(--malta);color:var(--espuma);padding:12px 20px;border-radius:8px;font-size:14px;transform:translateY(80px);opacity:0;transition:all 0.3s;pointer-events:none;}
 .toast.show{transform:translateY(0);opacity:1;}
 .toast.success{border-left:3px solid #7CB87A;}
 .toast.error{border-left:3px solid var(--red);}
 
 .loading{text-align:center;padding:2rem;color:var(--slate-light);font-size:14px;}
-.bulk-bar{background:var(--espresso);color:var(--foam);padding:10px 16px;border-radius:8px;display:none;align-items:center;gap:12px;margin-bottom:1rem;font-size:13px;}
+.bulk-bar{background:var(--malta);color:var(--espuma);padding:10px 16px;border-radius:8px;display:none;align-items:center;gap:12px;margin-bottom:1rem;font-size:13px;}
 .bulk-bar.show{display:flex;}
 
 @media(max-width:768px){
@@ -262,8 +262,8 @@ tbody tr:hover{background:var(--foam);}
       <div class="panel-card">
         <div class="panel-card-title">⭐ Bares Destacados <span style="font-size:12px;font-weight:400;color:var(--slate-light)">(Oculto en la web pública hasta activar)</span></div>
         <p style="font-size:14px;color:var(--slate-light);margin-bottom:1.5rem">Aquí gestionarás los bares que pagan por aparecer destacados. Cuando estés listo para activarlo, avísame y lo conectamos al sistema de pago.</p>
-        <div style="background:var(--amber-light);border:1px solid var(--amber-dark);border-radius:10px;padding:1.25rem;margin-bottom:1.5rem">
-          <div style="font-size:14px;font-weight:600;color:var(--amber-dark);margin-bottom:8px">📧 Email de contacto para destacados</div>
+        <div style="background:var(--dorada-light);border:1px solid var(--roja);border-radius:10px;padding:1.25rem;margin-bottom:1.5rem">
+          <div style="font-size:14px;font-weight:600;color:var(--roja);margin-bottom:8px">📧 Email de contacto para destacados</div>
           <div style="font-size:14px;color:var(--slate)">dameunadoble@gmail.com</div>
           <div style="font-size:12px;color:var(--slate-light);margin-top:4px">Los bares interesados te escriben aquí. Cuando confirmes el pago, márcalos como destacados.</div>
         </div>
@@ -432,7 +432,7 @@ function renderBarsTable() {
   document.getElementById('bars-tbody').innerHTML = filtered.map((b,i) => {
     const approveBtn = b.aprobado
       ? '<span style="font-size:11px;padding:3px 8px;border-radius:20px;background:#E8F5E9;color:#2E7D32;font-weight:500">✅ Aprobado</span>'
-      : `<button onclick="approveBar(${b.id})" style="font-size:11px;padding:4px 10px;background:#F5A800;color:#1A0F00;border:none;border-radius:6px;cursor:pointer;font-weight:600">⏳ Aprobar</button>`;
+      : `<button onclick="approveBar(${b.id})" style="font-size:11px;padding:4px 10px;background:#E8A020;color:#180900;border:none;border-radius:6px;cursor:pointer;font-weight:600">⏳ Aprobar</button>`;
     return `<tr id="row-${b.id}">
       <td><input type="checkbox" class="cb" onchange="toggleSelect(${b.id},this)" ${selected.has(b.id)?'checked':''}></td>
       <td style="color:var(--slate-light);font-size:12px">${i+1}</td>
@@ -540,7 +540,7 @@ function editBar(id) {
   const row = document.getElementById('row-'+id);
   row.innerHTML = `
     <td></td><td style="color:var(--slate-light);font-size:12px">#</td>
-    <td><input style="width:130px;padding:4px 8px;border:1px solid var(--amber-dark);border-radius:6px;font-size:13px" id="e-nombre-${id}" value="${b.nombre||''}"></td>
+    <td><input style="width:130px;padding:4px 8px;border:1px solid var(--roja);border-radius:6px;font-size:13px" id="e-nombre-${id}" value="${b.nombre||''}"></td>
     <td><input style="width:100px;padding:4px 8px;border:1px solid var(--border-strong);border-radius:6px;font-size:13px" id="e-ciudad-${id}" value="${b.ciudad||''}"></td>
     <td><span class="badge-region">${b.region||''}</span></td>
     <td><input style="width:140px;padding:4px 8px;border:1px solid var(--border-strong);border-radius:6px;font-size:13px" id="e-dir-${id}" value="${b.direccion||''}"></td>
@@ -618,7 +618,7 @@ function handleCSV(file) {
         <p style="font-size:14px;color:var(--slate);margin-bottom:1rem"><strong>${rows.length} bares</strong> listos para importar</p>
         <div style="overflow-x:auto;max-height:200px;overflow-y:auto">
           <table style="width:100%;font-size:13px;border-collapse:collapse">
-            <thead><tr style="background:var(--foam)">${headers.map(h=>`<th style="padding:6px 10px;text-align:left;border-bottom:1px solid var(--border)">${h}</th>`).join('')}</tr></thead>
+            <thead><tr style="background:var(--espuma)">${headers.map(h=>`<th style="padding:6px 10px;text-align:left;border-bottom:1px solid var(--border)">${h}</th>`).join('')}</tr></thead>
             <tbody>${rows.slice(0,5).map(r=>`<tr>${headers.map(h=>`<td style="padding:6px 10px;border-bottom:1px solid var(--border)">${r[h]||'—'}</td>`).join('')}</tr>`).join('')}
             ${rows.length>5?`<tr><td colspan="${headers.length}" style="padding:6px 10px;color:var(--slate-light);font-size:12px">...y ${rows.length-5} más</td></tr>`:''}
             </tbody>
@@ -742,7 +742,7 @@ async function loadDestacados() {
       <tbody>${data.map(b=>`<tr style="border-bottom:1px solid var(--border)">
         <td style="padding:8px 12px;font-weight:500">${b.nombre}</td>
         <td style="padding:8px 12px">${b.ciudad}</td>
-        <td style="padding:8px 12px;font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--amber-dark)">${parseFloat(b.precio||0).toFixed(2)}€</td>
+        <td style="padding:8px 12px;font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--roja)">${parseFloat(b.precio||0).toFixed(2)}€</td>
         <td style="padding:8px 12px"><button class="btn-danger" onclick="removeDestacado(${b.id},'${(b.nombre||'').replace(/'/g,"\\'")}')">Quitar</button></td>
       </tr>`).join('')}</tbody>
     </table>`;
@@ -778,7 +778,7 @@ function renderPendientes() {
       <td style="white-space:nowrap">
         <button class="btn-save" onclick="quickSavePrice(${b.id})">Guardar</button>
         <a href="https://www.google.com/search?q=${searchQuery}" target="_blank"
-          style="font-size:11px;padding:5px 8px;border:1px solid var(--amber-dark);border-radius:6px;color:var(--amber-dark);text-decoration:none;margin-left:4px">🔍 Buscar</a>
+          style="font-size:11px;padding:5px 8px;border:1px solid var(--roja);border-radius:6px;color:var(--roja);text-decoration:none;margin-left:4px">🔍 Buscar</a>
       </td>
     </tr>`;
   }).join('');
@@ -831,7 +831,7 @@ function renderReportes() {
     const fecha = r.created_at ? new Date(r.created_at).toLocaleDateString('es-ES', {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
     return '<tr>' +
       '<td><div style="font-weight:500">' + (r.bar_nombre||'—') + '</div><div style="font-size:11px;color:var(--slate-light)">ID: ' + (r.bar_id||'—') + '</div></td>' +
-      '<td class="price-cell" style="font-size:22px;color:var(--amber-dark)">' + parseFloat(r.precio||0).toFixed(2) + '€</td>' +
+      '<td class="price-cell" style="font-size:22px;color:var(--roja)">' + parseFloat(r.precio||0).toFixed(2) + '€</td>' +
       '<td style="font-size:12px;color:var(--slate-light)">' + fecha + '</td>' +
       '<td style="white-space:nowrap">' +
         '<button class="btn-save" onclick="acceptReporte(' + r.id + ',' + r.bar_id + ',\'' + (r.precio||'').replace(/'/g, '') + '\')">✅ Aceptar</button>' +
