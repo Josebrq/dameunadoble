@@ -248,7 +248,7 @@ tbody tr:hover{background:var(--espuma);}
           <table>
             <thead>
               <tr>
-                <th>#</th><th>Bar</th><th>Dirección</th><th>Precio</th><th>Acciones</th>
+                <th>#</th><th>Bar</th><th>Dirección</th><th>Precios (Doble / Caña / Bravas / Tortilla / Croquetas)</th><th>Acciones</th>
               </tr>
             </thead>
             <tbody id="pending-tbody"></tbody>
@@ -762,7 +762,7 @@ function renderPendientes() {
   const pending = allBars.filter(b => !b.precio || parseFloat(b.precio) === 0);
   document.getElementById('pending-count').textContent = '(' + pending.length + ' pendientes)';
   document.getElementById('pending-tbody').innerHTML = pending.map((b, i) => {
-    const searchQuery = encodeURIComponent(b.nombre + ' ' + (b.direccion || 'Madrid') + ' precio cerveza doble');
+    const searchQuery = encodeURIComponent(b.nombre + ' ' + (b.direccion ? b.direccion.split(',').slice(0,2).join(',') : 'Madrid') + ' precios');
     return `<tr>
       <td style="color:var(--slate-light);font-size:12px">${i + 1}</td>
       <td>
@@ -771,31 +771,55 @@ function renderPendientes() {
       </td>
       <td style="font-size:12px;color:var(--slate-light);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${b.direccion || '—'}</td>
       <td>
-        <input type="number" id="qp-${b.id}" placeholder="€" step="0.10" min="0.50" max="15"
-          style="width:70px;padding:5px 8px;border:1px solid var(--border-strong);border-radius:6px;font-size:14px;font-family:'Bebas Neue',sans-serif;text-align:center"
-          onkeydown="if(event.key==='Enter')quickSavePrice(${b.id})">
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <input type="number" id="qp-${b.id}" placeholder="Doble €" step="0.10" min="0.50" max="15"
+            style="width:90px;padding:5px 8px;border:1px solid var(--border-strong);border-radius:6px;font-size:13px;font-family:'Bebas Neue',sans-serif;text-align:center"
+            onkeydown="if(event.key==='Enter')quickSavePrice(${b.id})">
+          <input type="number" id="qc-${b.id}" placeholder="Caña €" step="0.10" min="0.50" max="10"
+            style="width:90px;padding:5px 8px;border:1px solid var(--border-strong);border-radius:6px;font-size:13px;font-family:'Bebas Neue',sans-serif;text-align:center">
+          <input type="number" id="qb-${b.id}" placeholder="Bravas €" step="0.10" min="0.50" max="30"
+            style="width:90px;padding:5px 8px;border:1px solid var(--border-strong);border-radius:6px;font-size:13px;font-family:'Bebas Neue',sans-serif;text-align:center">
+          <input type="number" id="qt-${b.id}" placeholder="Tortilla €" step="0.10" min="0.50" max="30"
+            style="width:90px;padding:5px 8px;border:1px solid var(--border-strong);border-radius:6px;font-size:13px;font-family:'Bebas Neue',sans-serif;text-align:center">
+          <input type="number" id="qq-${b.id}" placeholder="Croquetas €" step="0.10" min="0.50" max="30"
+            style="width:90px;padding:5px 8px;border:1px solid var(--border-strong);border-radius:6px;font-size:13px;font-family:'Bebas Neue',sans-serif;text-align:center">
+        </div>
       </td>
-      <td style="white-space:nowrap">
+      <td style="white-space:nowrap;vertical-align:top;padding-top:4px">
         <button class="btn-save" onclick="quickSavePrice(${b.id})">Guardar</button>
         <a href="https://www.google.com/search?q=${searchQuery}" target="_blank"
-          style="font-size:11px;padding:5px 8px;border:1px solid var(--roja);border-radius:6px;color:var(--roja);text-decoration:none;margin-left:4px">🔍 Buscar</a>
+          style="display:inline-block;margin-top:4px;font-size:11px;padding:5px 8px;border:1px solid var(--roja);border-radius:6px;color:var(--roja);text-decoration:none">🔍 Buscar</a>
       </td>
     </tr>`;
   }).join('');
 }
 
 async function quickSavePrice(id) {
-  const input = document.getElementById('qp-' + id);
-  const precio = input.value;
-  if (!precio || parseFloat(precio) < 0.5 || parseFloat(precio) > 15) {
-    showToast('Introduce un precio válido (0.50 - 15.00)', 'error');
-    return;
+  const precio    = document.getElementById('qp-' + id)?.value;
+  const cana      = document.getElementById('qc-' + id)?.value;
+  const bravas    = document.getElementById('qb-' + id)?.value;
+  const tortilla  = document.getElementById('qt-' + id)?.value;
+  const croquetas = document.getElementById('qq-' + id)?.value;
+
+  if (!precio && !cana && !bravas && !tortilla && !croquetas) {
+    showToast('Introduce al menos un precio', 'error'); return;
   }
+  if (precio && (parseFloat(precio) < 0.5 || parseFloat(precio) > 15)) {
+    showToast('Precio del doble inválido (0.50–15.00)', 'error'); return;
+  }
+
+  const data = { aprobado: true };
+  if (precio)    data.precio            = precio;
+  if (cana)      data.cana_precio       = cana;
+  if (bravas)    data.bravas_precio     = bravas;
+  if (tortilla)  data.tortilla_precio   = tortilla;
+  if (croquetas) data.croquetas_precio  = croquetas;
+
   try {
-    await api('PATCH', 'bares?id=eq.' + id, { precio: precio, aprobado: true });
+    await api('PATCH', 'bares?id=eq.' + id, data);
     const bar = allBars.find(b => b.id === id);
-    if (bar) { bar.precio = precio; bar.aprobado = true; }
-    showToast('✅ Precio guardado y bar aprobado', 'success');
+    if (bar) Object.assign(bar, data);
+    showToast('✅ Precios guardados y bar aprobado', 'success');
     renderPendientes();
     renderBarsTable();
     updateStats();
