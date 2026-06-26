@@ -861,9 +861,10 @@ body {
   transition: all 0.15s; margin-bottom: 12px;
 }
 .btn-maps-link:hover { border-color: var(--malta); color: var(--malta); }
-.star-picker { display: flex; gap: 6px; margin-bottom: 10px; cursor: pointer; }
-.star-pick { font-size: 26px; color: var(--border-strong); transition: color 0.12s; cursor: pointer; }
-.star-pick.sel { color: var(--dorada); }
+.star-picker { display: flex; gap: 6px; margin-bottom: 6px; cursor: pointer; align-items: center; }
+.star-pick { cursor: pointer; transition: transform 0.1s; display: flex; align-items: center; }
+.star-pick:hover { transform: scale(1.15); }
+.rating-sel-label { font-size: 12px; color: var(--malta-soft); margin-left: 4px; }
 .review-form {
   margin-bottom: 14px; padding: 12px;
   background: white; border: 1px solid var(--border); border-radius: var(--radius);
@@ -1756,6 +1757,7 @@ function switchTab(tab) {
    BAR DETAIL SHEET
 ══════════════════════════════ */
 function openSheet(barId) {
+  selectedRating = 0;
   const bar = allBars.find(b => b.id === barId);
   if (!bar) return;
   activeBarId = barId;
@@ -2063,7 +2065,8 @@ async function loadReviews(barId) {
       html += `<div class="review-form">
         <div class="review-form-lbl">Tu reseña</div>
         <div class="star-picker" id="star-picker">
-          ${[1,2,3,4,5].map(i => `<span class="star-pick" data-v="${i}" onclick="pickStar(${i})" style="font-size:24px">🍺</span>`).join('')}
+          ${[1,2,3,4,5].map(i => `<span class="star-pick" data-v="${i}" onclick="pickStar(${i})">${mugPickerSVG(false)}</span>`).join('')}
+          <span class="rating-sel-label" id="rating-sel-label">—</span>
         </div>
         <textarea class="review-textarea" id="review-text" placeholder="${t('review-placeholder')}"></textarea>
         <button class="btn-submit-review" onclick="submitReview(${barId})">${t('review-btn')}</button>
@@ -2100,16 +2103,23 @@ async function loadReviews(barId) {
   selectedRating = 0;
 }
 
+function mugPickerSVG(filled) {
+  const c = filled ? '#C9A800' : '#D0C8BC';
+  return `<svg width="28" height="28" viewBox="0 0 24 24" fill="${c}" xmlns="http://www.w3.org/2000/svg" style="display:block"><path d="M6 2h11l1.5 4H4.5L6 2zm-2 6h15l-1.5 14H5.5L4 8zm15 2h3l.5 7H19l-1-7z"/></svg>`;
+}
+
 function pickStar(val) {
   selectedRating = val;
   document.querySelectorAll('.star-pick').forEach(s => {
-    s.classList.toggle('sel', parseInt(s.dataset.v) <= val);
+    s.innerHTML = mugPickerSVG(parseInt(s.dataset.v) <= val);
   });
+  const lbl = document.getElementById('rating-sel-label');
+  if (lbl) lbl.textContent = val + '/5';
 }
 
 async function submitReview(barId) {
   if (!currentUser) { handleAuthBtn(); return; }
-  if (!selectedRating) { showToast('Selecciona una puntuación ★'); return; }
+  if (!selectedRating) { showToast(currentLang === 'en' ? 'Select a rating first' : 'Selecciona una puntuación primero'); return; }
   const comment = document.getElementById('review-text')?.value.trim() || '';
   const btn = document.querySelector('.btn-submit-review');
   if (btn) btn.disabled = true;
