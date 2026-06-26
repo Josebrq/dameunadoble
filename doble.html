@@ -1983,6 +1983,18 @@ function closeAddBar() {
   document.getElementById('add-bar-modal').classList.remove('open');
 }
 
+async function geocodeAddress(address, city = 'Madrid') {
+  try {
+    const q = encodeURIComponent(`${address}, ${city}, España`);
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${q}&format=json&limit=1`, {
+      headers: { 'Accept-Language': 'es' }
+    });
+    const data = await res.json();
+    if (data && data[0]) return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+  } catch(e) {}
+  return null;
+}
+
 async function submitNewBar() {
   const nombre = document.getElementById('nb-nombre')?.value.trim();
   const dir    = document.getElementById('nb-dir')?.value.trim();
