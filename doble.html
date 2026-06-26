@@ -1235,13 +1235,8 @@ body {
         </div>
       </div>
 
-      <div class="metric-pills">
-        <button class="metric-pill active" data-metric="precio"          onclick="setMetric('precio',this)">🍺 Doble</button>
-        <button class="metric-pill"        data-metric="cana_precio"     onclick="setMetric('cana_precio',this)">🥤 Caña</button>
-        <button class="metric-pill"        data-metric="bravas_precio"   onclick="setMetric('bravas_precio',this)">🔥 Bravas</button>
-        <button class="metric-pill"        data-metric="tortilla_precio" onclick="setMetric('tortilla_precio',this)">🍳 Tortilla</button>
-        <button class="metric-pill"        data-metric="croquetas_precio"onclick="setMetric('croquetas_precio',this)">⚪ Croquetas</button>
-      </div>
+      <!-- Only Doble metric shown -->
+
 
       <div class="seg-bar">
         <button class="seg-btn active" onclick="setRkSeg('ranking',this)">Ranking</button>
@@ -1305,47 +1300,19 @@ body {
       </div>
       <div class="sheet-delta" id="sheet-delta"></div>
     </div>
-    <div class="sheet-extras" id="sheet-extras"></div>
     <div class="sheet-addr" id="sheet-addr">📍 <span>—</span></div>
     <div class="sheet-actions">
       <button class="btn-report" onclick="openReport()" data-i18n="sheet-report">✏️ Reportar precio</button>
     </div>
 
-    <!-- Report price form (hidden by default) -->
     <div id="report-form-wrap" style="display:none;margin-bottom:14px">
       <div style="background:var(--dorada-light);border:1px solid var(--dorada);border-radius:8px;padding:14px">
         <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;margin-bottom:10px">✏️ <span data-i18n="report-title">Reportar precio incorrecto</span></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
-          <div>
-            <label style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--malta-soft);display:block;margin-bottom:3px">🍺 Doble (€)</label>
-            <input id="report-precio" type="number" step="0.10" min="0.50" max="15" inputmode="decimal"
-              style="width:100%;padding:8px 10px;border:1.5px solid var(--border-strong);border-radius:6px;font-size:15px;font-family:'Bebas Neue',sans-serif;outline:none;background:white;color:var(--malta)"
-              placeholder="2.80">
-          </div>
-          <div>
-            <label style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--malta-soft);display:block;margin-bottom:3px">🥤 Caña (€)</label>
-            <input id="report-cana" type="number" step="0.10" min="0.50" max="10" inputmode="decimal"
-              style="width:100%;padding:8px 10px;border:1.5px solid var(--border-strong);border-radius:6px;font-size:15px;font-family:'Bebas Neue',sans-serif;outline:none;background:white;color:var(--malta)"
-              placeholder="1.80">
-          </div>
-          <div>
-            <label style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--malta-soft);display:block;margin-bottom:3px">🔥 Bravas (€)</label>
-            <input id="report-bravas" type="number" step="0.10" min="0.50" max="30" inputmode="decimal"
-              style="width:100%;padding:8px 10px;border:1.5px solid var(--border-strong);border-radius:6px;font-size:15px;font-family:'Bebas Neue',sans-serif;outline:none;background:white;color:var(--malta)"
-              placeholder="5.50">
-          </div>
-          <div>
-            <label style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--malta-soft);display:block;margin-bottom:3px">🍳 Tortilla (€)</label>
-            <input id="report-tortilla" type="number" step="0.10" min="0.50" max="30" inputmode="decimal"
-              style="width:100%;padding:8px 10px;border:1.5px solid var(--border-strong);border-radius:6px;font-size:15px;font-family:'Bebas Neue',sans-serif;outline:none;background:white;color:var(--malta)"
-              placeholder="4.00">
-          </div>
-          <div style="grid-column:span 2">
-            <label style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--malta-soft);display:block;margin-bottom:3px">⚪ Croquetas (€)</label>
-            <input id="report-croquetas" type="number" step="0.10" min="0.50" max="30" inputmode="decimal"
-              style="width:100%;padding:8px 10px;border:1.5px solid var(--border-strong);border-radius:6px;font-size:15px;font-family:'Bebas Neue',sans-serif;outline:none;background:white;color:var(--malta)"
-              placeholder="6.00">
-          </div>
+        <div style="margin-bottom:10px">
+          <label style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--malta-soft);display:block;margin-bottom:6px">🍺 <span data-i18n="report-price-label">Precio real del doble (€)</span></label>
+          <input id="report-precio" type="number" step="0.10" min="0.50" max="15" inputmode="decimal"
+            style="width:100%;padding:10px 12px;border:1.5px solid var(--border-strong);border-radius:6px;font-size:20px;font-family:'Bebas Neue',sans-serif;outline:none;background:white;color:var(--malta)"
+            placeholder="2.80">
         </div>
         <div style="margin-bottom:12px">
           <label style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--malta-soft);display:block;margin-bottom:3px" data-i18n="report-msg-label">Comentario (opcional)</label>
@@ -1817,22 +1784,6 @@ function openSheet(barId) {
   const hue   = bar._precio < 2.5 ? '#1B6B24' : bar._precio > 3.5 ? '#8B0A1E' : '#9C4A1A';
   cover.style.background = `linear-gradient(135deg, ${hue} 0%, var(--malta) 100%)`;
 
-  // Extras grid
-  const extras = [
-    { label: 'Caña',      key: 'cana_precio'      },
-    { label: 'Bravas',    key: 'bravas_precio'     },
-    { label: 'Tortilla',  key: 'tortilla_precio'   },
-    { label: 'Croquetas', key: 'croquetas_precio'  },
-  ];
-  document.getElementById('sheet-extras').innerHTML = extras.map(e => {
-    const raw = bar[e.key];
-    const val = raw ? `€${parseFloat(raw).toFixed(2)}` : null;
-    return `<div class="sheet-extra">
-      <div class="sheet-extra-label">${e.label}</div>
-      <div class="sheet-extra-val${val ? '' : ' nd'}">${val || 'N/D'}</div>
-    </div>`;
-  }).join('');
-
   // Address
   document.querySelector('#sheet-addr span').textContent =
     bar.direccion || 'Dirección no disponible';
@@ -1935,13 +1886,7 @@ function openReport() {
   const wrap = document.getElementById('report-form-wrap');
   wrap.style.display = 'block';
   const bar = allBars.find(b => b.id === activeBarId);
-  if (bar) {
-    if (bar._precio > 0)           document.getElementById('report-precio').value    = bar._precio.toFixed(2);
-    if (bar.cana_precio)           document.getElementById('report-cana').value      = parseFloat(bar.cana_precio).toFixed(2);
-    if (bar.bravas_precio)         document.getElementById('report-bravas').value    = parseFloat(bar.bravas_precio).toFixed(2);
-    if (bar.tortilla_precio)       document.getElementById('report-tortilla').value  = parseFloat(bar.tortilla_precio).toFixed(2);
-    if (bar.croquetas_precio)      document.getElementById('report-croquetas').value = parseFloat(bar.croquetas_precio).toFixed(2);
-  }
+  if (bar && bar._precio > 0) document.getElementById('report-precio').value = bar._precio.toFixed(2);
   document.getElementById('report-precio').focus();
   wrap.querySelectorAll('[data-i18n]').forEach(el => el.textContent = t(el.getAttribute('data-i18n')));
   wrap.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
@@ -1951,46 +1896,29 @@ function openReport() {
 
 function closeReport() {
   document.getElementById('report-form-wrap').style.display = 'none';
-  ['report-precio','report-cana','report-bravas','report-tortilla','report-croquetas','report-msg-input']
-    .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  document.getElementById('report-precio').value = '';
+  document.getElementById('report-msg-input').value = '';
 }
 
 async function submitReport() {
   const bar = allBars.find(b => b.id === activeBarId);
   if (!bar) return;
-
-  const precio     = document.getElementById('report-precio').value;
-  const cana       = document.getElementById('report-cana').value;
-  const bravas     = document.getElementById('report-bravas').value;
-  const tortilla   = document.getElementById('report-tortilla').value;
-  const croquetas  = document.getElementById('report-croquetas').value;
-  const mensaje    = document.getElementById('report-msg-input').value.trim();
-
-  // At least one price must be filled
-  if (!precio && !cana && !bravas && !tortilla && !croquetas) {
-    showToast(currentLang === 'en' ? 'Fill in at least one price' : 'Rellena al menos un precio');
+  const precio  = document.getElementById('report-precio').value;
+  const mensaje = document.getElementById('report-msg-input').value.trim();
+  if (!precio || parseFloat(precio) < 0.5 || parseFloat(precio) > 15) {
+    showToast(currentLang === 'en' ? 'Enter a valid price (€0.50–€15)' : 'Introduce un precio válido (0.50–15€)');
     return;
   }
-  if (precio && (parseFloat(precio) < 0.5 || parseFloat(precio) > 15)) {
-    showToast(currentLang === 'en' ? 'Doble price must be €0.50–€15' : 'Precio del doble: 0.50–15€');
-    return;
-  }
-
   const btn = document.getElementById('btn-submit-report');
   btn.disabled = true; btn.textContent = '⏳';
-
   try {
     await sb.from('reportes').insert({
-      bar_id:           bar.id,
-      nombre_bar:       bar.nombre,
-      precio:           precio ? String(parseFloat(precio).toFixed(2)) : null,
-      cana_precio:      cana     ? String(parseFloat(cana).toFixed(2))     : null,
-      bravas_precio:    bravas   ? String(parseFloat(bravas).toFixed(2))   : null,
-      tortilla_precio:  tortilla ? String(parseFloat(tortilla).toFixed(2)) : null,
-      croquetas_precio: croquetas? String(parseFloat(croquetas).toFixed(2)): null,
-      mensaje:          mensaje || null,
-      email:            currentUser?.email || null,
-      usuario:          currentUser?.user_metadata?.name || null,
+      bar_id:     bar.id,
+      nombre_bar: bar.nombre,
+      precio:     String(parseFloat(precio).toFixed(2)),
+      mensaje:    mensaje || null,
+      email:      currentUser?.email || null,
+      usuario:    currentUser?.user_metadata?.name || null,
     });
     closeReport();
     showToast(currentLang === 'en' ? '✅ Thanks for the report!' : '✅ ¡Gracias por el reporte!');
@@ -1998,8 +1926,7 @@ async function submitReport() {
     if (currentUser) { await loadUserStats(); checkBadges(); }
   } catch(e) {
     showToast(currentLang === 'en' ? 'Error sending report' : 'Error al enviar el reporte');
-    btn.disabled = false;
-    btn.textContent = t('report-submit') || '🍺 Enviar reporte';
+    btn.disabled = false; btn.textContent = t('report-submit') || '🍺 Enviar reporte';
   }
 }
 
@@ -2035,29 +1962,9 @@ function openAddBar() {
           <input id="nb-dir" type="text" placeholder="Ej: Calle de Tetuan, 12">
           <div class="form-hint">📍 Las coordenadas se obtienen automáticamente</div>
         </div>
-        <div class="form-row">
-          <div class="form-field">
-            <label>Precio doble (€) *</label>
-            <input id="nb-precio" type="number" placeholder="2.50" step="0.10" min="0.50" max="15">
-          </div>
-          <div class="form-field">
-            <label>Precio caña (€)</label>
-            <input id="nb-cana" type="number" placeholder="1.80" step="0.10" min="0.50" max="10">
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-field">
-            <label>Bravas (€)</label>
-            <input id="nb-bravas" type="number" placeholder="5.50" step="0.10" min="0.50" max="30">
-          </div>
-          <div class="form-field">
-            <label>Tortilla (€)</label>
-            <input id="nb-tortilla" type="number" placeholder="4.00" step="0.10" min="0.50" max="30">
-          </div>
-        </div>
         <div class="form-field">
-          <label>Croquetas (€)</label>
-          <input id="nb-croquetas" type="number" placeholder="6.00" step="0.10" min="0.50" max="30">
+          <label>Precio doble (€) *</label>
+          <input id="nb-precio" type="number" placeholder="2.50" step="0.10" min="0.50" max="15">
         </div>
         <button class="btn-submit-bar" id="btn-submit-bar" onclick="submitNewBar()">
           🍺 Poner en el mapa
@@ -2075,32 +1982,22 @@ function closeAddBar() {
 }
 
 async function submitNewBar() {
-  const nombre  = document.getElementById('nb-nombre')?.value.trim();
-  const dir     = document.getElementById('nb-dir')?.value.trim();
-  const precio  = parseFloat(document.getElementById('nb-precio')?.value);
-  const cana    = document.getElementById('nb-cana')?.value ? String(parseFloat(document.getElementById('nb-cana').value)) : null;
-  const bravas  = document.getElementById('nb-bravas')?.value ? String(parseFloat(document.getElementById('nb-bravas').value)) : null;
-  const tortilla= document.getElementById('nb-tortilla')?.value ? String(parseFloat(document.getElementById('nb-tortilla').value)) : null;
-  const croquetas=document.getElementById('nb-croquetas')?.value ? String(parseFloat(document.getElementById('nb-croquetas').value)) : null;
-
+  const nombre = document.getElementById('nb-nombre')?.value.trim();
+  const dir    = document.getElementById('nb-dir')?.value.trim();
+  const precio = parseFloat(document.getElementById('nb-precio')?.value);
   if (!nombre) { showToast('Falta el nombre del bar'); return; }
   if (!dir)    { showToast('Falta la dirección'); return; }
   if (!precio || precio < 0.5 || precio > 15) { showToast('Precio del doble inválido'); return; }
-
   const btn = document.getElementById('btn-submit-bar');
   btn.disabled = true; btn.textContent = '🌍 Buscando coordenadas...';
-
   const coords = await geocodeAddress(dir, 'Madrid');
   btn.textContent = '⏳ Guardando...';
-
   try {
     await sb.from('bares').insert({
       nombre, direccion: dir, ciudad: 'Madrid',
       region: 'Comunidad de Madrid',
       precio: String(precio),
       lat: coords.lat, lng: coords.lng,
-      cana_precio: cana, bravas_precio: bravas,
-      tortilla_precio: tortilla, croquetas_precio: croquetas,
       aprobado: false, fuente: 'usuario'
     });
     closeAddBar();
@@ -2114,10 +2011,7 @@ async function submitNewBar() {
 let selectedRating = 0;
 
 function starsHTML(score) {
-  const full = Math.round(score);
-  return [1,2,3,4,5].map(i =>
-    `<span class="star ${i <= full ? 'filled' : ''}">★</span>`
-  ).join('');
+  return cañasHTML(Math.round(score));
 }
 
 function bayesianRating(reviews) {
@@ -2187,14 +2081,14 @@ async function loadReviews(barId) {
     html += list.map(r => {
       const initials = (r.user_name || 'AN').slice(0,2).toUpperCase();
       const ago = timeAgo(r.created_at);
-      const stars = [1,2,3,4,5].map(i => `<span class="cana-icon ${i<=r.rating?'':'empty'}">🍺</span>`).join('');
+      const canas = cañasHTML(r.rating || 0);
       return `<div class="review-row">
         <div class="review-meta">
           <div class="review-av">${r.user_avatar
             ? `<img src="${r.user_avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
             : initials}</div>
           <div class="review-name">${r.user_name || 'Anónimo'}</div>
-          <div class="review-stars">${stars}</div>
+          <div class="review-stars">${canas}</div>
           <div class="review-date">${ago}</div>
         </div>
         ${r.comment ? `<div class="review-comment">${r.comment}</div>` : ''}
@@ -2262,17 +2156,8 @@ function metricLabel(key) {
 
 function sortedByMetric() {
   return allBars
-    .map(b => {
-      let v = 0;
-      if (currentMetric === 'precio') {
-        v = b._precio;
-      } else {
-        const raw = b[currentMetric];
-        v = raw ? parseFloat(raw) : 0;
-      }
-      return { ...b, _val: v };
-    })
-    .filter(b => b._val > 0)
+    .filter(b => b._precio > 0)
+    .map(b => ({ ...b, _val: b._precio }))
     .sort((a, b) => a._val - b._val);
 }
 
