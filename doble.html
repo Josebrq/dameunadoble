@@ -2017,11 +2017,10 @@ function starsHTML(score) {
 }
 
 function bayesianRating(reviews) {
-  const C = 5; const m = 3.5;
   const n = reviews.length;
   if (!n) return null;
   const sum = reviews.reduce((s, r) => s + (r.rating || 0), 0);
-  return (C * m + sum) / (C + n);
+  return sum / n;
 }
 
 function ratingBars(reviews) {
