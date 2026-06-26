@@ -2051,7 +2051,10 @@ async function submitNewBar() {
     loadBars();
 
   } catch(e) {
-    const msg = '⚠️ ' + (e?.message || 'Error al guardar. Inténtalo de nuevo.');
+    const isDuplicate = e?.message?.includes('duplicate key') || e?.message?.includes('unique constraint');
+    const msg = isDuplicate
+      ? '⚠️ Este bar ya está en el mapa o pendiente de revisión.'
+      : '⚠️ ' + (e?.message || 'Error al guardar. Inténtalo de nuevo.');
     showErr(msg);
     if (btn) { btn.disabled = false; btn.textContent = '🍺 Poner en el mapa'; }
   }
