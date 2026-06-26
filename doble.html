@@ -2371,7 +2371,7 @@ function renderProfile() {
                 <div class="pcard-name">${b.nombre}</div>
                 <div class="pcard-price-badge"><div class="pcard-price-val">€${b._precio.toFixed(2)}</div></div>
                 <div class="pcard-sub">🏙️ ${b.ciudad || 'Madrid'} · ${zona}</div>
-                <div class="pcard-canas">${cañasHTML(3)}</div>
+                ${(() => { const r = userReviews.find(r => r.bar_id === b.id); return r ? `<div class="pcard-canas">${cañasHTML(r.rating || 0)}</div>` : ''; })()}
                 <div class="pcard-actions">
                   <button class="pcard-del" onclick="event.stopPropagation();removeFav(${b.id})">${currentLang === 'en' ? 'Remove' : 'Eliminar'}</button>
                 </div>
