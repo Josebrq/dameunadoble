@@ -1983,51 +1983,54 @@ function closeAddBar() {
   document.getElementById('add-bar-modal').classList.remove('open');
 }
 
-async function geocodeAddress(address, city = 'Madrid') {
+async function geocodeAddress(address, city) {
   try {
-    const q = encodeURIComponent(`${address}, ${city}, España`);
-    const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${q}&format=json&limit=1`, {
-      headers: { 'Accept-Language': 'es' }
-    });
-    const data = await res.json();
-    if (data && data[0]) return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
-  } catch(e) {}
+    const q = encodeURIComponent((address||'') + ', ' + (city||'Madrid') + ', España');
+    const r = await fetch('https://nominatim.openstreetmap.org/search?q=' + q + '&format=json&limit=1');
+    const d = await r.json();
+    if (d && d[0]) return { lat: parseFloat(d[0].lat), lng: parseFloat(d[0].lon) };
+  } catch(e) { /* sin conexión o timeout */ }
   return null;
 }
 
 async function submitNewBar() {
-  const nombre = document.getElementById('nb-nombre')?.value.trim();
-  const dir    = document.getElementById('nb-dir')?.value.trim();
-  const precio = parseFloat(document.getElementById('nb-precio')?.value);
+  const nombre = (document.getElementById('nb-nombre')?.value || '').trim();
+  const dir    = (document.getElementById('nb-dir')?.value    || '').trim();
+  const precio = parseFloat(document.getElementById('nb-precio')?.value || '0');
 
-  const showModalError = (msg) => {
-    let err = document.getElementById('nb-error');
-    if (!err) {
-      err = document.createElement('div');
-      err.id = 'nb-error';
-      err.style.cssText = 'color:#C8102E;font-size:13px;font-weight:600;margin-bottom:8px;padding:8px 10px;background:#fff0f0;border-radius:6px;border:1px solid #C8102E';
-      document.getElementById('btn-submit-bar').before(err);
+  // Mostrar error DENTRO del modal (no toast detrás)
+  const showErr = (msg) => {
+    let el = document.getElementById('nb-error');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'nb-error';
+      el.style.cssText = 'color:#C8102E;font-size:13px;font-weight:600;margin-bottom:8px;padding:8px 10px;background:#fff0f0;border-radius:6px;border:1px solid #C8102E';
+      const btn = document.getElementById('btn-submit-bar');
+      if (btn) btn.before(el);
     }
-    err.textContent = msg;
+    el.textContent = msg;
   };
 
-  if (!nombre) { showModalError('⚠️ Falta el nombre del bar'); return; }
-  if (!dir)    { showModalError('⚠️ Falta la dirección'); return; }
-  if (!precio || precio < 0.5 || precio > 15) { showModalError('⚠️ Precio del doble inválido (0.50–15€)'); return; }
+  if (!nombre) { showErr('⚠️ Falta el nombre del bar'); return; }
+  if (!dir)    { showErr('⚠️ Falta la dirección'); return; }
+  if (!precio || precio < 0.5 || precio > 15) { showErr('⚠️ Precio inválido (0.50 – 15.00 €)'); return; }
 
   const btn = document.getElementById('btn-submit-bar');
-  btn.disabled = true;
-  btn.textContent = '⏳ Guardando...';
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Guardando...'; }
 
   try {
-    // Geocodificar con timeout de 4s — si no responde, usar centro de Madrid
-    const MADRID_CENTER = { lat: 40.4168, lng: -3.7038 };
-    const coords = await Promise.race([
-      geocodeAddress(dir, 'Madrid'),
-      new Promise(resolve => setTimeout(() => resolve(MADRID_CENTER), 4000))
-    ]).catch(() => MADRID_CENTER);
-
-    const { lat, lng } = (coords?.lat ? coords : MADRID_CENTER);
+    // Geocoding con timeout de 4s; si falla usa centro de Madrid
+    const CENTRO = { lat: 40.4168, lng: -3.7038 };
+    let coords = CENTRO;
+    try {
+      const q = encodeURIComponent(dir + ', Madrid, España');
+      const race = await Promise.race([
+        fetch('https://nominatim.openstreetmap.org/search?q=' + q + '&format=json&limit=1')
+          .then(r => r.json()).then(d => d && d[0] ? { lat: parseFloat(d[0].lat), lng: parseFloat(d[0].lon) } : null),
+        new Promise(res => setTimeout(() => res(null), 4000))
+      ]);
+      if (race && race.lat) coords = race;
+    } catch(e) { /* usa CENTRO */ }
 
     const { error } = await sb.from('bares').insert({
       nombre,
@@ -2035,7 +2038,8 @@ async function submitNewBar() {
       ciudad:    'Madrid',
       region:    'Comunidad de Madrid',
       precio:    String(precio),
-      lat, lng,
+      lat:       coords.lat,
+      lng:       coords.lng,
       aprobado:  false,
       fuente:    'usuario'
     });
@@ -2047,10 +2051,9 @@ async function submitNewBar() {
     loadBars();
 
   } catch(e) {
-    const msg = e?.message?.includes('null') ? '⚠️ Error de base de datos. Contacta al admin.' : '⚠️ ' + (e.message || 'Error al guardar. Inténtalo de nuevo.');
-    showModalError(msg);
-    btn.disabled = false;
-    btn.textContent = '🍺 Poner en el mapa';
+    const msg = '⚠️ ' + (e?.message || 'Error al guardar. Inténtalo de nuevo.');
+    showErr(msg);
+    if (btn) { btn.disabled = false; btn.textContent = '🍺 Poner en el mapa'; }
   }
 }
 let selectedRating = 0;
