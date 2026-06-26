@@ -170,8 +170,15 @@ tbody tr:hover{background:var(--espuma);}
             <input class="search-bar" type="text" placeholder="Buscar..." id="bars-search" oninput="renderBarsTable()">
             <select class="search-bar" style="width:auto" id="admin-sort" onchange="adminSort=this.value;renderBarsTable()">
               <option value="nombre">A-Z</option>
+              <option value="reciente">Más reciente</option>
               <option value="barrio">Barrio</option>
               <option value="precio">Precio</option>
+            </select>
+            <select class="search-bar" style="width:auto" id="admin-fuente" onchange="adminFuente=this.value;renderBarsTable()">
+              <option value="">Todas las fuentes</option>
+              <option value="usuario">👥 Comunidad</option>
+              <option value="bot">🤖 Bot</option>
+              <option value="admin">👤 Admin</option>
             </select>
             <button class="btn-secondary" onclick="exportCSV()">⬇ Exportar CSV</button>
           </div>
@@ -414,7 +421,8 @@ function extractZona(d) {
   return 'Otros';
 }
 
-let adminSort = 'nombre';
+let adminSort  = 'nombre';
+let adminFuente = '';
 
 function renderBarsTable() {
   const q = (document.getElementById('bars-search')?.value||'').toLowerCase();
@@ -425,11 +433,13 @@ function renderBarsTable() {
     (b.direccion||'').toLowerCase().includes(q) ||
     extractZona(b.direccion).toLowerCase().includes(q)
   );
-  if (adminSort === 'barrio') filtered.sort((a,b) => extractZona(a.direccion).localeCompare(extractZona(b.direccion)));
-  else if (adminSort === 'precio') filtered.sort((a,b) => (parseFloat(a.precio)||999) - (parseFloat(b.precio)||999));
-  else filtered.sort((a,b) => (a.nombre||'').localeCompare(b.nombre||''));
-  document.getElementById('bars-count-label').textContent = `(${filtered.length} de ${allBars.length})`;
-  document.getElementById('bars-tbody').innerHTML = filtered.map((b,i) => {
+  const withFuente = adminFuente ? filtered.filter(b => (b.fuente || '') === adminFuente) : filtered;
+  if (adminSort === 'barrio')    withFuente.sort((a,b) => extractZona(a.direccion).localeCompare(extractZona(b.direccion)));
+  else if (adminSort === 'precio')   withFuente.sort((a,b) => (parseFloat(a.precio)||999) - (parseFloat(b.precio)||999));
+  else if (adminSort === 'reciente') withFuente.sort((a,b) => new Date(b.created_at||0) - new Date(a.created_at||0));
+  else withFuente.sort((a,b) => (a.nombre||'').localeCompare(b.nombre||''));
+  document.getElementById('bars-count-label').textContent = `(${withFuente.length} de ${allBars.length})`;
+  document.getElementById('bars-tbody').innerHTML = withFuente.map((b,i) => {
     const approveBtn = b.aprobado
       ? '<span style="font-size:11px;padding:3px 8px;border-radius:20px;background:#E8F5E9;color:#2E7D32;font-weight:500">✅ Aprobado</span>'
       : `<button onclick="approveBar(${b.id})" style="font-size:11px;padding:4px 10px;background:#E8A020;color:#180900;border:none;border-radius:6px;cursor:pointer;font-weight:600">⏳ Aprobar</button>`;
