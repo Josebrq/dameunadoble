@@ -1992,36 +1992,53 @@ async function submitNewBar() {
   if (!precio || precio < 0.5 || precio > 15) { showToast('Precio del doble inválido'); return; }
 
   const btn = document.getElementById('btn-submit-bar');
-  btn.disabled = true; btn.textContent = '⏳ Guardando...';
+  btn.disabled = true;
+  btn.textContent = '⏳ Guardando...';
+
+  // Timeout de seguridad — si Supabase no responde en 8s, desbloquear el botón
+  const timeout = setTimeout(() => {
+    btn.disabled = false;
+    btn.textContent = '🍺 Poner en el mapa';
+    showToast('Sin conexión. Inténtalo de nuevo.');
+  }, 8000);
 
   try {
-    // 1 — Guardar inmediatamente sin coordenadas
-    const { data, error } = await sb.from('bares').insert({
-      nombre, direccion: dir, ciudad: 'Madrid',
-      region: 'Comunidad de Madrid',
-      precio: String(precio),
-      aprobado: false, fuente: 'usuario'
-    }).select('id').single();
+    const { error } = await sb.from('bares').insert({
+      nombre,
+      direccion: dir,
+      ciudad:    'Madrid',
+      region:    'Comunidad de Madrid',
+      precio:    String(precio),
+      lat:       null,
+      lng:       null,
+      aprobado:  false,
+      fuente:    'usuario'
+    });
+
+    clearTimeout(timeout);
 
     if (error) throw error;
 
     closeAddBar();
     showToast('✅ Bar añadido, ¡gracias!');
-    await loadBars();
 
-    // 2 — Geocodificar en segundo plano (sin bloquear al usuario)
-    if (data?.id) {
-      geocodeAddress(dir, 'Madrid').then(coords => {
-        if (coords?.lat && coords?.lng) {
-          sb.from('bares').update({ lat: coords.lat, lng: coords.lng })
-            .eq('id', data.id).then(() => {});
-        }
-      }).catch(() => {});
-    }
+    // Recargar bares y geocodificar en segundo plano — no bloquean al usuario
+    loadBars();
+    geocodeAddress(dir, 'Madrid').then(coords => {
+      if (!coords?.lat) return;
+      sb.from('bares')
+        .update({ lat: coords.lat, lng: coords.lng })
+        .eq('nombre', nombre)
+        .eq('fuente', 'usuario')
+        .eq('aprobado', false)
+        .then(() => {});
+    }).catch(() => {});
 
   } catch(e) {
-    showToast('Error al guardar el bar');
-    btn.disabled = false; btn.textContent = '🍺 Poner en el mapa';
+    clearTimeout(timeout);
+    showToast('Error al guardar: ' + (e.message || 'Inténtalo de nuevo'));
+    btn.disabled = false;
+    btn.textContent = '🍺 Poner en el mapa';
   }
 }
 let selectedRating = 0;
