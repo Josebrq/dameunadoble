@@ -3,2951 +3,911 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dame Una Doble 🍺 — Madrid</title>
-<meta name="description" content="Descubre el doble más barato cerca de ti. Precios reales de bares de Madrid, actualizados por la comunidad.">
-<meta property="og:title" content="Dame Una Doble — Madrid">
-<meta property="og:description" content="El mapa de precios de cerveza más completo de Madrid.">
-<meta property="og:type" content="website">
-
-<!-- Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-TFHP9CYS3R"></script>
-<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-TFHP9CYS3R');</script>
-
-<!-- Fonts -->
+<title>Admin · Ponme Un Doble</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-
-<!-- Leaflet -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-
 <style>
-/* ─────────────────────────────
-   DESIGN TOKENS — Beer ad palette
-   Inspiración: Mahou, San Miguel, Amstel
-   Rojo pasión · Dorado lager · Espuma crema · Malta oscura
-───────────────────────────── */
 :root {
-  --roja:          #C8102E;  /* Mahou red — acción, urgencia, identidad */
-  --roja-dark:     #8B0A1E;
-  --roja-light:    #FFE8EC;
-  --dorada:        #E8A020;  /* Lager gold — calidez, calidad, sed */
-  --dorada-light:  #FFF4D6;
-  --espuma:        #FFFCF4;  /* Foam cream — fondo, frescura */
-  --malta:         #180900;  /* Dark malt — tipografía principal */
-  --malta-mid:     #3D1A08;
-  --malta-soft:    #7A5038;
-  --lupulo:        #166B24;  /* Hops green — precio barato */
-  --cobre:         #9C4A1A;  /* Copper amber — precio medio */
-  --border:        rgba(24,9,0,0.11);
-  --border-strong: rgba(24,9,0,0.22);
-  --shadow:        0 2px 12px rgba(24,9,0,0.07);
-  --shadow-lg:     0 8px 32px rgba(24,9,0,0.14);
-  --radius:        8px;
+  --dorada:#E8A020;--dorada-light:#FFF4D6;--roja:#C8102E;--roja-dark:#8B0A1E;
+  --malta:#180900;--espuma:#FFFCF4;--slate:#3D3530;--slate-light:#6B5E57;
+  --border:rgba(61,53,48,0.15);--border-strong:rgba(61,53,48,0.3);
+  --green:#2E7D32;--green-light:#E8F5E9;
 }
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:#f5f5f5;color:var(--malta);}
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
-body {
-  font-family: 'Inter', sans-serif;
-  background: var(--espuma);
-  color: var(--malta);
-  overflow-x: hidden;
-  padding-bottom: 68px; /* room for bottom nav */
-}
-@media (min-width: 768px) { body { padding-bottom: 0; } }
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--malta);}
+.login-card{background:var(--espuma);border-radius:16px;padding:2.5rem;width:100%;max-width:360px;text-align:center;}
+.login-logo{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--malta);margin-bottom:4px;}
+.login-logo span{color:var(--roja);}
+.login-sub{font-size:13px;color:var(--slate-light);margin-bottom:2rem;}
+.login-card input{width:100%;padding:10px 14px;border:1px solid var(--border-strong);border-radius:8px;font-size:14px;font-family:'Inter',sans-serif;background:#fff;margin-bottom:12px;outline:none;}
+.login-card input:focus{border-color:var(--roja);}
+.btn-primary{width:100%;padding:11px;background:var(--roja);color:var(--dorada-light);border:none;border-radius:8px;font-size:15px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;}
+.btn-primary:hover{background:#854F0B;}
+.login-error{color:var(--red);font-size:13px;margin-top:8px;display:none;}
 
-/* ─────────────────────────────
-   TOP NAV
-───────────────────────────── */
-.top-nav {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
-  background: var(--malta);
-}
-.nav-row {
-  height: 56px; display: flex; align-items: center;
-  justify-content: space-between; padding: 0 1.25rem;
-  border-bottom: 2px solid var(--roja);
-}
-.nav-logo {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 22px; letter-spacing: 1px;
-  color: var(--espuma); text-decoration: none; white-space: nowrap;
-}
-.nav-logo span { color: var(--dorada); }
-.nav-tabs { display: none; gap: 2px; }
-@media (min-width: 768px) { .nav-tabs { display: flex; } }
-.nav-tab-btn {
-  padding: 6px 14px; border: none; background: transparent;
-  font-size: 13px; font-weight: 500; color: rgba(255,252,244,0.5);
-  cursor: pointer; border-radius: 4px; transition: color 0.15s;
-  font-family: 'Inter', sans-serif;
-}
-.nav-tab-btn:hover { color: var(--espuma); }
-.nav-tab-btn.active { color: var(--dorada); }
-.lang-switcher { display: flex; gap: 3px; }
-.lang-btn {
-  font-size: 11px; font-weight: 600; padding: 4px 8px;
-  border: 1px solid rgba(255,252,244,0.2); border-radius: 4px;
-  cursor: pointer; background: transparent; color: rgba(255,252,244,0.5);
-  font-family: 'Inter', sans-serif; transition: all 0.15s;
-}
-.lang-btn:hover { color: var(--espuma); border-color: rgba(255,252,244,0.4); }
-.lang-btn.active { background: var(--dorada); color: var(--malta); border-color: var(--dorada); }
+.admin-wrap{display:none;min-height:100vh;}
+.admin-nav{background:var(--malta);color:var(--espuma);padding:0 2rem;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:2px solid var(--roja);}
+.admin-logo{font-family:'Bebas Neue',sans-serif;font-size:22px;}
+.admin-logo span{color:var(--dorada);}
+.admin-nav-right{display:flex;align-items:center;gap:1rem;}
+.admin-nav-right a{font-size:13px;color:rgba(255,248,237,0.6);text-decoration:none;}
+.btn-logout{font-size:12px;padding:5px 12px;border:1px solid rgba(255,248,237,0.3);border-radius:6px;background:transparent;color:rgba(255,248,237,0.7);cursor:pointer;font-family:'Inter',sans-serif;}
 
-.nav-login-btn {
-  font-size: 12px; font-weight: 600; padding: 6px 14px;
-  background: var(--roja); color: var(--espuma);
-  border: none; border-radius: 4px; cursor: pointer;
-  font-family: 'Inter', sans-serif; transition: background 0.15s;
-  white-space: nowrap; flex-shrink: 0;
-}
-.nav-login-btn:hover { background: var(--roja-dark); }
+.admin-body{max-width:1100px;margin:0 auto;padding:2rem;}
+.admin-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:2rem;}
+.stat-card{background:#fff;border-radius:10px;border:1px solid var(--border);padding:1rem 1.25rem;}
+.stat-label{font-size:12px;color:var(--slate-light);margin-bottom:6px;}
+.stat-val{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--malta);line-height:1;}
+.stat-sub{font-size:11px;color:var(--slate-light);margin-top:2px;}
 
-/* ─────────────────────────────
-   TICKER — live price strip
-───────────────────────────── */
-.ticker {
-  height: 34px; background: var(--roja);
-  overflow: hidden;
-  display: flex; align-items: center;
-}
-.ticker-inner {
-  display: flex; align-items: center; width: 100%;
-}
-.ticker-track {
-  display: inline-flex; white-space: nowrap; flex-shrink: 0;
-  -webkit-animation: ticker-scroll 50s linear infinite;
-  animation: ticker-scroll 50s linear infinite;
-}
-@-webkit-keyframes ticker-scroll {
-  from { -webkit-transform: translateX(0); transform: translateX(0); }
-  to   { -webkit-transform: translateX(-50%); transform: translateX(-50%); }
-}
-@keyframes ticker-scroll {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
-}
-@media (prefers-reduced-motion: reduce) { .ticker-track { animation: none; -webkit-animation: none; display: none; } }
-.ticker-item {
-  display: inline-flex; align-items: center; gap: 6px; padding: 0 20px;
-  font-family: 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: 0.5px;
-  color: rgba(255,252,244,0.85);
-}
-.ticker-price { color: var(--dorada); font-size: 15px; }
-.ticker-sep { color: rgba(255,252,244,0.3); margin: 0 4px; }
+.tabs{display:flex;gap:4px;margin-bottom:1.5rem;border-bottom:2px solid var(--border);}
+.tab-btn{font-size:14px;font-weight:500;padding:8px 20px;border:none;background:transparent;cursor:pointer;color:var(--slate-light);border-bottom:2px solid transparent;margin-bottom:-2px;font-family:'Inter',sans-serif;}
+.tab-btn.active{color:var(--roja);border-bottom-color:var(--roja);}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
 
-/* ─────────────────────────────
-   MAIN
-───────────────────────────── */
-.main { padding-top: 90px; min-height: 100dvh; }
+.panel-card{background:#fff;border-radius:12px;border:1px solid var(--border);padding:1.5rem;margin-bottom:1.5rem;}
+.panel-card-title{font-size:16px;font-weight:600;color:var(--malta);margin-bottom:1.25rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
 
-/* ─────────────────────────────
-   TAB SYSTEM
-───────────────────────────── */
-.tab-content { display: none; }
-.tab-content.active { display: block; }
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:1rem;}
+.form-group label{display:block;font-size:12px;font-weight:500;color:var(--slate-light);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;}
+.form-group input,.form-group select{width:100%;padding:9px 12px;border:1px solid var(--border-strong);border-radius:8px;font-size:14px;font-family:'Inter',sans-serif;background:var(--espuma);color:var(--malta);outline:none;}
+.form-group input:focus,.form-group select:focus{border-color:var(--roja);}
+.btn-add{padding:9px 20px;background:var(--roja);color:var(--dorada-light);border:none;border-radius:8px;font-size:14px;font-weight:500;font-family:'Inter',sans-serif;cursor:pointer;}
+.btn-add:hover{background:#854F0B;}
+.btn-danger{padding:5px 10px;background:transparent;color:var(--red);border:1px solid var(--red);border-radius:6px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;}
+.btn-danger:hover{background:#fdecea;}
+.btn-edit{padding:5px 10px;background:transparent;color:var(--roja);border:1px solid var(--roja);border-radius:6px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;margin-right:4px;}
+.btn-save{padding:5px 10px;background:var(--green);color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;margin-right:4px;}
+.btn-secondary{padding:7px 14px;background:transparent;color:var(--slate);border:1px solid var(--border-strong);border-radius:8px;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;}
+.btn-csv{padding:7px 14px;background:#180900;color:var(--espuma);border:none;border-radius:8px;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;}
 
-/* ─────────────────────────────
-   MAP TAB
-───────────────────────────── */
-.map-filters {
-  position: sticky; top: 90px; z-index: 100;
-  background: var(--espuma); border-bottom: 1px solid var(--border);
-  padding: 8px 12px; display: flex; gap: 6px; overflow-x: auto;
-  scrollbar-width: none;
-}
-.map-filters::-webkit-scrollbar { display: none; }
-.filter-chip {
-  white-space: nowrap; padding: 5px 13px;
-  border: 1.5px solid var(--border-strong); border-radius: 20px;
-  background: transparent; font-size: 12px; font-weight: 500;
-  cursor: pointer; color: var(--malta-soft); transition: all 0.15s;
-  font-family: 'Inter', sans-serif;
-}
-.filter-chip:hover { border-color: var(--malta); color: var(--malta); }
-.filter-chip.active {
-  background: var(--malta); color: var(--espuma);
-  border-color: var(--malta);
-}
-#map {
-  width: 100%;
-  height: calc(100dvh - 90px - 40px - 68px);
-}
-@media (min-width: 768px) {
-  #map { height: calc(100dvh - 90px - 40px); }
-}
-/* Custom Leaflet marker */
-.price-pin {
-  background: var(--malta); color: var(--espuma);
-  border: 1.5px solid rgba(255,252,244,0.25);
-  border-radius: 5px; padding: 3px 8px;
-  font-family: 'Bebas Neue', sans-serif; font-size: 15px;
-  white-space: nowrap; cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-  display: inline-block; line-height: 1.3;
-}
-/* Map pins — escala de 5 colores relativa a la media */
-.price-pin.t1 { background: #1B7A2A; }  /* verde oscuro — muy barato */
-.price-pin.t2 { background: #5DAB3D; }  /* verde claro — por debajo de media */
-.price-pin.t3 { background: #C9A800; }  /* amarillo — en la media */
-.price-pin.t4 { background: #E06820; }  /* naranja — por encima */
-.price-pin.t5 { background: #C8102E; }  /* rojo — caro */
-.price-pin.sel   { border-color: var(--dorada); border-width: 2.5px; transform: scale(1.15); z-index: 9999 !important; }
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:14px;}
+thead th{padding:10px 12px;text-align:left;font-size:11px;font-weight:600;color:var(--slate-light);text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid var(--border);}
+tbody td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--malta);}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover{background:var(--espuma);}
+.price-cell{font-family:'Bebas Neue',sans-serif;font-size:20px;}
+.price-cheap{color:#3B6D11;}.price-mid{color:var(--roja);}.price-exp{color:var(--red);}
+.badge-region{font-size:11px;padding:3px 8px;border-radius:20px;background:var(--dorada-light);color:var(--roja);font-weight:500;}
+.cb{width:16px;height:16px;cursor:pointer;}
 
-/* ─────────────────────────────
-   BAR DETAIL SHEET
-───────────────────────────── */
-.sheet-overlay {
-  display: none; position: fixed; inset: 0; z-index: 1100;
-  background: rgba(24,9,0,0.55); backdrop-filter: blur(2px);
-}
-.sheet-overlay.open { display: block; }
+.search-bar{padding:8px 12px;border:1px solid var(--border-strong);border-radius:8px;font-size:14px;font-family:'Inter',sans-serif;width:200px;outline:none;background:var(--espuma);}
+.search-bar:focus{border-color:var(--roja);}
 
-.bar-sheet {
-  position: fixed; bottom: 0; left: 0; right: 0; z-index: 1101;
-  background: var(--espuma); border-radius: 14px 14px 0 0;
-  border-top: 2px solid var(--malta); max-height: 88dvh;
-  overflow-y: auto;
-  transform: translateY(105%);
-  transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.bar-sheet.open { transform: translateY(0); }
+.csv-zone{border:2px dashed var(--border-strong);border-radius:10px;padding:2rem;text-align:center;cursor:pointer;transition:border-color 0.2s;margin-bottom:1rem;}
+.csv-zone:hover,.csv-zone.drag{border-color:var(--roja);background:var(--dorada-light);}
+.csv-zone p{font-size:14px;color:var(--slate-light);margin-bottom:8px;}
+.csv-zone strong{color:var(--roja);}
 
-@media (min-width: 768px) {
-  .bar-sheet {
-    left: auto; bottom: 1.5rem; right: 1.5rem;
-    width: 380px; border-radius: 12px;
-    border: 2px solid var(--malta);
-    transform: translateX(calc(100% + 2.5rem));
-    max-height: calc(100dvh - 110px - 3rem);
-  }
-  .bar-sheet.open { transform: translateX(0); }
-}
+.region-price-input{width:90px;padding:5px 8px;border:1px solid var(--border-strong);border-radius:6px;font-size:14px;font-family:'Bebas Neue',sans-serif;text-align:center;}
+.region-price-input:focus{border-color:var(--roja);outline:none;}
 
-.sheet-drag {
-  display: flex; justify-content: center; padding: 10px 0 4px;
-}
-.sheet-drag-bar {
-  width: 36px; height: 4px;
-  background: var(--border-strong); border-radius: 2px;
-}
-@media (min-width: 768px) { .sheet-drag { display: none; } }
+.toast{position:fixed;bottom:2rem;right:2rem;z-index:999;background:var(--malta);color:var(--espuma);padding:12px 20px;border-radius:8px;font-size:14px;transform:translateY(80px);opacity:0;transition:all 0.3s;pointer-events:none;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.success{border-left:3px solid #7CB87A;}
+.toast.error{border-left:3px solid var(--red);}
 
-.sheet-cover {
-  height: 170px; background: var(--malta-mid);
-  position: relative; overflow: hidden; flex-shrink: 0;
-}
-.sheet-cover-gradient {
-  position: absolute; bottom: 0; left: 0; right: 0; height: 70%;
-  background: linear-gradient(to top, var(--malta) 0%, transparent 100%);
-}
-.sheet-close-btn, .sheet-fav-btn {
-  position: absolute; top: 10px;
-  width: 30px; height: 30px; border-radius: 50%;
-  background: rgba(255,252,244,0.92); border: none; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 14px; color: var(--malta);
-}
-.sheet-close-btn { right: 10px; }
-.sheet-fav-btn   { right: 46px; font-size: 15px; }
+.loading{text-align:center;padding:2rem;color:var(--slate-light);font-size:14px;}
+.bulk-bar{background:var(--malta);color:var(--espuma);padding:10px 16px;border-radius:8px;display:none;align-items:center;gap:12px;margin-bottom:1rem;font-size:13px;}
+.bulk-bar.show{display:flex;}
 
-.sheet-cover-info {
-  position: absolute; bottom: 10px; left: 14px; right: 14px;
+@media(max-width:768px){
+  .admin-stats{grid-template-columns:repeat(2,1fr);}
+  .admin-body{padding:1rem;}
+  .form-grid{grid-template-columns:1fr;}
+  .search-bar{width:100%;}
 }
-.sheet-zona {
-  font-size: 10px; font-weight: 600; letter-spacing: 1.5px;
-  text-transform: uppercase; color: var(--dorada); margin-bottom: 3px;
-}
-.sheet-bar-name {
-  font-family: 'Bebas Neue', sans-serif; font-size: 26px;
-  line-height: 1; letter-spacing: 0.5px; color: var(--espuma);
-}
-
-.sheet-body { padding: 14px 16px 20px; }
-
-.sheet-hero-price {
-  display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px;
-}
-.sheet-price-big {
-  font-family: 'Bebas Neue', sans-serif; font-size: 52px;
-  line-height: 1; letter-spacing: -1px;
-}
-.sheet-price-label { font-size: 13px; color: var(--malta-soft); }
-.sheet-delta {
-  margin-left: auto; font-size: 11px; font-weight: 600;
-  padding: 3px 8px; border-radius: 4px;
-}
-.sheet-delta.cheaper { background: #E6F4EA; color: var(--lupulo); }
-.sheet-delta.pricier { background: var(--roja-light); color: var(--roja-dark); }
-
-.sheet-extras {
-  display: grid; grid-template-columns: repeat(2, 1fr);
-  gap: 7px; margin: 12px 0;
-}
-.sheet-extra {
-  background: white; border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 9px 12px;
-}
-.sheet-extra-label { font-size: 11px; color: var(--malta-soft); margin-bottom: 2px; }
-.sheet-extra-val {
-  font-family: 'Bebas Neue', sans-serif; font-size: 20px; line-height: 1;
-}
-.sheet-extra-val.nd { color: var(--border-strong); font-size: 14px; font-family: 'Inter', sans-serif; }
-
-.sheet-addr {
-  display: flex; align-items: flex-start; gap: 6px;
-  font-size: 13px; color: var(--malta-soft); margin-bottom: 14px; line-height: 1.4;
-}
-
-.sheet-actions { display: flex; gap: 8px; margin-bottom: 16px; }
-.btn-report {
-  flex: 1; padding: 10px; border: 1.5px solid var(--border-strong);
-  border-radius: var(--radius); background: transparent; cursor: pointer;
-  font-size: 13px; font-weight: 500; font-family: 'Inter', sans-serif;
-  color: var(--malta); transition: all 0.15s;
-}
-.btn-report:hover { border-color: var(--roja); color: var(--roja); }
-
-.sheet-reviews-title {
-  font-size: 12px; font-weight: 600; letter-spacing: 0.5px;
-  text-transform: uppercase; color: var(--malta-soft);
-  margin-bottom: 10px; padding-top: 14px;
-  border-top: 1px solid var(--border);
-}
-.review-row { padding: 10px 0; border-bottom: 1px solid var(--border); }
-.review-row:last-child { border-bottom: none; }
-.review-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
-.review-av {
-  width: 26px; height: 26px; border-radius: 50%;
-  background: var(--malta); color: var(--espuma);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 10px; font-weight: 600; flex-shrink: 0;
-}
-.review-name { font-size: 13px; font-weight: 500; }
-.review-stars { font-size: 11px; color: var(--dorada); }
-.review-date { font-size: 11px; color: var(--malta-soft); margin-left: auto; }
-.review-comment { font-size: 13px; color: var(--malta-mid); line-height: 1.5; }
-
-/* ─────────────────────────────
-   RANKING TAB
-───────────────────────────── */
-.ranking-wrap { max-width: 600px; margin: 0 auto; padding-bottom: 2rem; }
-
-.ranking-header {
-  padding: 18px 16px 14px;
-  border-bottom: 1px solid var(--border);
-}
-.ranking-vol {
-  font-size: 10px; font-weight: 600; letter-spacing: 1.8px;
-  text-transform: uppercase; color: var(--roja); margin-bottom: 6px;
-}
-.ranking-h1 {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(34px, 8vw, 50px);
-  line-height: 0.95; letter-spacing: 0.5px; margin-bottom: 12px;
-}
-.ranking-h1 em { color: var(--roja); font-style: normal; }
-.ranking-meta-row { display: flex; align-items: flex-end; justify-content: space-between; }
-.ranking-avg-lbl { font-size: 10px; color: var(--malta-soft); text-transform: uppercase; letter-spacing: 0.8px; }
-.ranking-avg-num {
-  font-family: 'Bebas Neue', sans-serif; font-size: 26px; line-height: 1;
-}
-.ranking-trend { font-size: 12px; font-weight: 600; color: var(--lupulo); }
-
-.metric-pills {
-  display: flex; gap: 6px; padding: 10px 16px;
-  border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none;
-}
-.metric-pills::-webkit-scrollbar { display: none; }
-.metric-pill {
-  white-space: nowrap; padding: 5px 13px;
-  border-radius: 20px; border: 1.5px solid var(--border-strong);
-  background: transparent; font-size: 12px; font-weight: 500;
-  cursor: pointer; color: var(--malta-soft); transition: all 0.15s;
-  font-family: 'Inter', sans-serif;
-}
-.metric-pill.active { background: var(--malta); color: var(--espuma); border-color: var(--malta); }
-
-.seg-bar {
-  display: grid; grid-template-columns: repeat(3, 1fr);
-  border-bottom: 1px solid var(--border);
-  position: sticky; top: 90px; z-index: 100; background: var(--espuma);
-}
-.seg-btn {
-  padding: 11px; text-align: center;
-  font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;
-  border: none; background: transparent; cursor: pointer;
-  color: var(--malta-soft); border-bottom: 2px solid transparent;
-  transition: all 0.15s; font-family: 'Inter', sans-serif;
-}
-.seg-btn.active { color: var(--malta); border-bottom-color: var(--roja); }
-
-/* Podium */
-.podium {
-  display: grid; grid-template-columns: repeat(3, 1fr);
-  gap: 6px; align-items: end; padding: 20px 16px 0;
-}
-.podium-col {
-  display: flex; flex-direction: column;
-  align-items: center; text-align: center; cursor: pointer;
-}
-.podium-col:hover .podium-block { filter: brightness(1.08); }
-.podium-nm {
-  font-family: 'Bebas Neue', sans-serif; font-size: 14px; line-height: 1.1;
-  margin-bottom: 3px;
-  overflow: hidden; display: -webkit-box;
-  -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-}
-.podium-sub { font-size: 10px; color: var(--malta-soft); margin-bottom: 5px; }
-.podium-block {
-  width: 100%; border-radius: 5px 5px 0 0;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 2px;
-  padding: 8px 4px; transition: filter 0.15s;
-}
-.podium-blk-1 { height: 100px; background: var(--roja); }
-.podium-blk-2 { height: 80px; background: var(--malta); }
-.podium-blk-3 { height: 64px; background: var(--malta-mid); }
-.podium-price {
-  font-family: 'Bebas Neue', sans-serif; font-size: 22px;
-  color: var(--espuma); line-height: 1;
-}
-.podium-medal { font-size: 10px; color: rgba(255,252,244,0.6); }
-
-/* Bar list */
-.bar-list { border-top: 2px solid var(--malta); }
-.bar-row {
-  display: grid; grid-template-columns: 2.25rem 1fr auto;
-  gap: 8px; padding: 11px 16px;
-  border-bottom: 1px solid var(--border);
-  align-items: center; cursor: pointer; transition: background 0.12s;
-}
-.bar-row:hover { background: var(--dorada-light); }
-.bar-num {
-  font-family: 'Bebas Neue', sans-serif; font-size: 20px;
-  color: var(--border-strong); text-align: right; line-height: 1;
-}
-.bar-nm {
-  font-family: 'Bebas Neue', sans-serif; font-size: 18px; line-height: 1;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.bar-sub {
-  font-size: 11px; color: var(--malta-soft); margin-top: 2px;
-  display: flex; align-items: center; gap: 6px;
-}
-.bar-val {
-  font-family: 'Bebas Neue', sans-serif; font-size: 22px;
-  text-align: right; line-height: 1;
-}
-
-/* ─────────────────────────────
-   FEED TAB
-───────────────────────────── */
-.feed-wrap { max-width: 600px; margin: 0 auto; }
-.feed-segs {
-  display: grid; grid-template-columns: repeat(2, 1fr);
-  border-bottom: 1px solid var(--border);
-  position: sticky; top: 90px; z-index: 100; background: var(--espuma);
-}
-.feed-seg-btn {
-  padding: 12px; text-align: center;
-  font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;
-  border: none; background: transparent; cursor: pointer;
-  color: var(--malta-soft); border-bottom: 2px solid transparent;
-  transition: all 0.15s; font-family: 'Inter', sans-serif;
-}
-.feed-seg-btn.active { color: var(--malta); border-bottom-color: var(--roja); }
-
-.feed-item {
-  display: flex; align-items: flex-start; gap: 11px;
-  padding: 13px 16px; border-bottom: 1px solid var(--border);
-  cursor: pointer; transition: background 0.12s;
-}
-.feed-item:hover { background: var(--dorada-light); }
-.feed-av {
-  width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
-  background: var(--malta); color: var(--espuma);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 11px; font-weight: 600;
-}
-.feed-body { flex: 1; min-width: 0; }
-.feed-line1 { font-size: 13px; line-height: 1.4; }
-.feed-line1 strong { font-family: 'Bebas Neue', sans-serif; font-size: 16px; }
-.feed-line2 { font-size: 12px; color: var(--malta-soft); margin-top: 2px; }
-.feed-time { font-size: 10px; color: var(--malta-soft); flex-shrink: 0; padding-top: 2px; }
-
-.drop-item {
-  display: flex; align-items: center; gap: 11px;
-  padding: 13px 16px; border-bottom: 1px solid var(--border);
-  cursor: pointer; transition: background 0.12s;
-}
-.drop-item:hover { background: #EAF5EB; }
-.drop-icon {
-  width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
-  background: #EAF5EB; color: var(--lupulo);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px; font-weight: 700;
-}
-.drop-body { flex: 1; min-width: 0; }
-.drop-nm { font-family: 'Bebas Neue', sans-serif; font-size: 18px; line-height: 1; }
-.drop-sub { font-size: 12px; color: var(--malta-soft); margin-top: 2px; }
-.drop-prices { text-align: right; flex-shrink: 0; }
-.drop-old { font-size: 11px; color: var(--malta-soft); text-decoration: line-through; }
-.drop-new { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--lupulo); line-height: 1; }
-
-/* ─────────────────────────────
-   PROFILE TAB
-───────────────────────────── */
-/* ─────────────────────────────
-   PROFILE — diseño rediseñado
-───────────────────────────── */
-.profile-wrap { width: 100%; padding-bottom: 2rem; }
-
-/* ── PROFILE HEADER ── */
-.profile-hero {
-  background: var(--malta);
-  padding: 1.25rem 1.5rem 0;
-}
-.profile-hero-top {
-  display: flex; align-items: center; gap: 14px;
-  flex-wrap: wrap; margin-bottom: 1rem;
-}
-.profile-avatar {
-  width: 70px; height: 70px; border-radius: 50%; flex-shrink: 0;
-  overflow: hidden; background: var(--roja);
-  display: flex; align-items: center; justify-content: center;
-  border: 3px solid var(--dorada);
-  box-shadow: 0 0 0 2px rgba(232,160,32,0.25), 0 4px 16px rgba(0,0,0,0.5);
-}
-.profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
-.profile-av-initials {
-  font-family: 'Bebas Neue', sans-serif; font-size: 26px; color: var(--espuma);
-}
-.profile-hero-info { flex: 1; min-width: 120px; }
-.profile-hero-name {
-  font-family: 'Bebas Neue', sans-serif; font-size: 20px;
-  color: var(--espuma); letter-spacing: 0.5px; line-height: 1; margin-bottom: 3px;
-}
-.profile-hero-email { font-size: 11px; color: rgba(255,252,244,0.4); }
-
-/* Stat chips — medal style */
-.profile-stat-chips {
-  display: flex; gap: 0;
-  border: 1px solid rgba(255,252,244,0.1); border-radius: 8px; overflow: hidden;
-}
-.profile-stat-chip {
-  display: flex; flex-direction: column; align-items: center;
-  padding: 10px 16px; cursor: pointer; transition: all 0.15s;
-  border-right: 1px solid rgba(255,252,244,0.1); min-width: 72px;
-}
-.profile-stat-chip:last-child { border-right: none; }
-.profile-stat-chip:hover { background: rgba(255,252,244,0.06); }
-.profile-stat-chip.active { background: rgba(232,160,32,0.12); }
-.psc-medal {
-  font-size: 20px; margin-bottom: 3px;
-  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4));
-}
-.psc-lbl {
-  font-size: 8px; text-transform: uppercase; letter-spacing: 1px;
-  color: rgba(255,252,244,0.35); margin-bottom: 2px; font-weight: 600;
-}
-.psc-num {
-  font-family: 'Bebas Neue', sans-serif; font-size: 24px; line-height: 1;
-  color: rgba(255,252,244,0.3);
-}
-.profile-stat-chip.active .psc-num { color: var(--dorada); }
-.profile-stat-chip.active .psc-lbl { color: rgba(255,252,244,0.65); }
-
-/* Vintage logo block */
-.profile-logo-block {
-  text-align: center; border: 2px solid rgba(232,160,32,0.3);
-  border-radius: 4px; padding: 8px 12px; flex-shrink: 0;
-}
-.profile-logo-block::before {
-  content: '🍺'; display: block; font-size: 20px; margin-bottom: 2px;
-}
-.profile-logo-top {
-  font-family: 'Bebas Neue', sans-serif; font-size: 13px;
-  color: var(--dorada); letter-spacing: 1px; line-height: 1;
-}
-.profile-logo-mid {
-  font-family: 'Bebas Neue', sans-serif; font-size: 18px;
-  color: var(--espuma); letter-spacing: 2px; line-height: 1;
-}
-.profile-logo-bot {
-  font-family: 'Bebas Neue', sans-serif; font-size: 13px;
-  color: var(--dorada); letter-spacing: 1px; line-height: 1;
-}
-.btn-logout-hero {
-  font-size: 11px; padding: 5px 12px; flex-shrink: 0; align-self: flex-start;
-  border: 1px solid rgba(255,252,244,0.2); border-radius: 20px;
-  background: transparent; color: rgba(255,252,244,0.45);
-  cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.15s;
-}
-.btn-logout-hero:hover { border-color: var(--roja); color: var(--roja); }
-
-/* Tab bar */
-.profile-tab-bar {
-  display: flex; border-top: 1px solid rgba(255,252,244,0.08);
-}
-.ptb-btn {
-  flex: 1; padding: 11px 0; text-align: center;
-  font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
-  border: none; background: transparent; cursor: pointer;
-  color: rgba(255,252,244,0.3); border-bottom: 2px solid transparent;
-  font-family: 'Inter', sans-serif; transition: all 0.15s;
-}
-.ptb-btn:hover { color: rgba(255,252,244,0.6); }
-.ptb-btn.active { color: var(--dorada); border-bottom-color: var(--dorada); }
-
-/* ── PROFILE CARDS GRID ── */
-.profile-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 12px; padding: 14px;
-}
-
-/* Vintage ticket / posavasos card */
-.pcard {
-  background: var(--espuma);
-  border: 2px solid var(--malta);
-  border-radius: 4px;
-  padding: 5px;
-  position: relative;
-  box-shadow: 2px 3px 8px rgba(24,9,0,0.15);
-  transition: box-shadow 0.15s;
-}
-.pcard:hover { box-shadow: 3px 5px 16px rgba(24,9,0,0.25); }
-.pcard-inner {
-  border: 1px solid var(--border-strong);
-  border-radius: 2px;
-  display: flex; overflow: hidden;
-  min-height: 100px;
-}
-.pcard-img {
-  width: 88px; flex-shrink: 0;
-  background: var(--malta-mid); position: relative;
-  border-right: 2px solid var(--malta);
-}
-.pcard-img-inner {
-  width: 100%; height: 100%; min-height: 100px;
-  background-size: cover; background-position: center;
-}
-.pcard-body { flex: 1; padding: 9px 11px; min-width: 0; position: relative; }
-
-/* Price badge — chapita */
-.pcard-price-badge {
-  position: absolute; top: 8px; right: 9px;
-  width: 48px; height: 48px; border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #E8C840, #C9A800);
-  border: 2px solid #8B6914;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  box-shadow: inset 0 1px 2px rgba(255,255,255,0.3), 0 2px 4px rgba(0,0,0,0.3);
-}
-.pcard-price-badge::before {
-  content: ''; position: absolute; inset: 4px;
-  border: 1px dashed rgba(139,105,20,0.4); border-radius: 50%;
-}
-.pcard-price-val {
-  font-family: 'Bebas Neue', sans-serif; font-size: 14px;
-  color: var(--malta); line-height: 1; position: relative;
-}
-
-.pcard-name {
-  font-family: 'Bebas Neue', sans-serif; font-size: 17px;
-  line-height: 1; color: var(--malta); margin-bottom: 4px;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  padding-right: 54px; /* room for badge */
-}
-.pcard-sub {
-  font-size: 10px; color: var(--malta-soft); margin-bottom: 7px;
-  display: flex; align-items: center; gap: 4px;
-}
-.pcard-canas {
-  display: flex; align-items: center; gap: 3px; margin-bottom: 8px;
-}
-.cana-svg { width: 15px; height: 15px; flex-shrink: 0; }
-.cana-label { font-size: 10px; color: var(--malta-soft); margin-left: 4px; }
-.pcard-comment {
-  font-size: 11px; color: var(--malta-mid); font-style: italic;
-  line-height: 1.4; margin-bottom: 8px;
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-.pcard-actions { display: flex; justify-content: flex-end; }
-.pcard-del {
-  font-size: 11px; padding: 5px 14px;
-  border-radius: 20px;
-  background: var(--malta); color: var(--espuma);
-  border: none; cursor: pointer;
-  font-family: 'Inter', sans-serif; font-weight: 500;
-  transition: background 0.15s;
-}
-.pcard-del:hover { background: var(--roja); }
-
-/* legacy for reports */
-.pli-body { flex: 1; min-width: 0; }
-.pli-name { font-family: 'Bebas Neue', sans-serif; font-size: 18px; line-height: 1; }
-.pli-sub  { font-size: 11px; color: var(--malta-soft); margin-top: 2px; }
-.pli-comment { font-size: 12px; color: var(--malta-mid); margin-top: 4px; font-style: italic; }
-.pli-right { text-align: right; flex-shrink: 0; }
-.pli-price { font-family: 'Bebas Neue', sans-serif; font-size: 18px; }
-
-/* Login screen */
-.profile-login-screen { text-align: center; padding: 4rem 2rem; }
-.profile-login-icon { font-size: 52px; margin-bottom: 1rem; }
-.profile-login-title {
-  font-family: 'Bebas Neue', sans-serif; font-size: 30px; margin-bottom: 8px;
-}
-.profile-login-sub {
-  font-size: 14px; color: var(--malta-soft); margin-bottom: 2rem;
-  line-height: 1.6; max-width: 300px; margin-inline: auto;
-}
-.btn-google {
-  display: inline-flex; align-items: center; gap: 10px;
-  padding: 12px 24px; background: var(--malta);
-  color: var(--espuma); border: none; border-radius: var(--radius);
-  font-size: 14px; font-weight: 500; cursor: pointer;
-  font-family: 'Inter', sans-serif; transition: background 0.15s;
-}
-.btn-google:hover { background: var(--malta-mid); }
-
-.empty-state {
-  padding: 3rem 2rem; text-align: center;
-  color: var(--malta-soft); font-size: 14px; line-height: 1.8;
-  max-width: 400px; margin: 0 auto;
-}
-
-/* ─────────────────────────────
-   BOTTOM NAV (mobile)
-───────────────────────────── */
-.bottom-nav {
-  display: flex; position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
-  background: var(--malta); border-top: 2px solid var(--roja); height: 64px;
-}
-@media (min-width: 768px) { .bottom-nav { display: none; } }
-.bot-tab {
-  flex: 1; display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 2px;
-  border: none; background: transparent; cursor: pointer;
-  color: rgba(255,252,244,0.4); transition: color 0.15s;
-  font-family: 'Inter', sans-serif;
-}
-.bot-tab.active { color: var(--dorada); }
-.bot-tab-icon { font-size: 18px; line-height: 1; }
-.bot-tab-label { font-size: 9px; font-weight: 500; }
-
-/* ─────────────────────────────
-   TOAST
-───────────────────────────── */
-.toast {
-  position: fixed; bottom: 80px; left: 50%;
-  transform: translateX(-50%) translateY(16px);
-  background: var(--malta); color: var(--espuma);
-  padding: 9px 18px; border-radius: 20px;
-  font-size: 13px; opacity: 0;
-  transition: all 0.25s; pointer-events: none; z-index: 500;
-  white-space: nowrap;
-}
-.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-/* ─────────────────────────────
-   HOME TAB (landing)
-───────────────────────────── */
-.home-wrap {
-  min-height: calc(100dvh - 90px - 68px);
-  display: flex; flex-direction: column;
-}
-.hero {
-  padding: 2.5rem 1.25rem 2rem;
-  background: radial-gradient(ellipse at 50% 0%, rgba(200,16,46,0.10) 0%, transparent 70%);
-  text-align: center; border-bottom: 1px solid var(--border);
-}
-.hero-eyebrow {
-  font-size: 10px; font-weight: 600; letter-spacing: 2px;
-  text-transform: uppercase; color: var(--roja); margin-bottom: 0.75rem;
-}
-.hero-h1 {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(52px, 14vw, 96px);
-  line-height: 0.9; letter-spacing: 1px;
-  color: var(--malta); margin-bottom: 1rem;
-}
-.hero-h1 em { color: var(--roja); font-style: normal; }
-.hero-sub {
-  font-size: 15px; color: var(--malta-soft);
-  max-width: 420px; margin: 0 auto 2rem; line-height: 1.6;
-}
-.hero-stats {
-  display: flex; justify-content: center; gap: 2rem;
-  flex-wrap: wrap; margin-bottom: 2rem;
-}
-.hero-stat-num {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 40px; line-height: 1; color: var(--malta);
-}
-.hero-stat-lbl { font-size: 11px; color: var(--malta-soft); margin-top: 2px; }
-.hero-cta {
-  display: inline-flex; align-items: center; gap: 8px;
-  padding: 13px 28px; background: var(--roja);
-  color: var(--espuma); border: none; border-radius: 6px;
-  font-family: 'Bebas Neue', sans-serif; font-size: 20px;
-  letter-spacing: 1px; cursor: pointer; transition: background 0.15s;
-}
-.hero-cta:hover { background: var(--roja-dark); }
-
-.home-sections { padding: 1.5rem 1.25rem; max-width: 600px; margin: 0 auto; width: 100%; }
-.home-section-title {
-  font-size: 10px; font-weight: 600; letter-spacing: 1.5px;
-  text-transform: uppercase; color: var(--malta-soft); margin-bottom: 10px;
-}
-.home-top3 { display: flex; flex-direction: column; gap: 6px; margin-bottom: 1.5rem; }
-.home-bar-row {
-  display: flex; align-items: center; gap: 10px;
-  padding: 10px 14px; background: white;
-  border: 1px solid var(--border); border-radius: var(--radius);
-  cursor: pointer; transition: border-color 0.15s;
-}
-.home-bar-row:hover { border-color: var(--roja); }
-.home-bar-medal { font-size: 18px; flex-shrink: 0; }
-.home-bar-info { flex: 1; min-width: 0; }
-.home-bar-name {
-  font-family: 'Bebas Neue', sans-serif; font-size: 18px; line-height: 1;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.home-bar-zona { font-size: 11px; color: var(--malta-soft); }
-.home-bar-price {
-  font-family: 'Bebas Neue', sans-serif; font-size: 22px;
-  color: var(--lupulo); flex-shrink: 0;
-}
-.home-quick-btns {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 1.5rem;
-}
-.home-quick-btn {
-  padding: 14px; border: 1.5px solid var(--border-strong);
-  border-radius: var(--radius); background: transparent;
-  cursor: pointer; text-align: left; transition: all 0.15s;
-  font-family: 'Inter', sans-serif;
-}
-.home-quick-btn:hover { border-color: var(--malta); background: var(--dorada-light); }
-.home-quick-icon { font-size: 22px; margin-bottom: 4px; }
-.home-quick-label { font-size: 12px; font-weight: 600; color: var(--malta); }
-.home-quick-sub { font-size: 11px; color: var(--malta-soft); margin-top: 1px; }
-/* ─────────────────────────────
-   RATING STARS
-───────────────────────────── */
-.stars-display { display: flex; gap: 2px; align-items: center; }
-.star { font-size: 13px; color: var(--border-strong); }
-.star.filled { color: var(--dorada); }
-.rating-summary {
-  display: flex; align-items: center; gap: 10px;
-  margin-bottom: 12px; padding-bottom: 12px;
-  border-bottom: 1px solid var(--border);
-}
-.rating-score {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 36px; line-height: 1;
-}
-.rating-count { font-size: 11px; color: var(--malta-soft); margin-top: 2px; }
-.rating-bars { flex: 1; display: flex; flex-direction: column; gap: 3px; }
-.rating-bar-row { display: flex; align-items: center; gap: 5px; }
-.rating-bar-lbl { font-size: 10px; color: var(--malta-soft); width: 8px; }
-.rating-bar-bg { flex: 1; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
-.rating-bar-fill { height: 4px; background: var(--dorada); border-radius: 2px; }
-.btn-maps-link {
-  display: inline-flex; align-items: center; gap: 6px;
-  font-size: 12px; color: var(--malta-soft); text-decoration: none;
-  padding: 4px 8px; border: 1px solid var(--border); border-radius: 4px;
-  transition: all 0.15s; margin-bottom: 12px;
-}
-.btn-maps-link:hover { border-color: var(--malta); color: var(--malta); }
-.star-picker { display: flex; gap: 6px; margin-bottom: 6px; cursor: pointer; align-items: center; }
-.star-pick { cursor: pointer; transition: transform 0.1s; display: flex; align-items: center; }
-.star-pick:hover { transform: scale(1.15); }
-.rating-sel-label { font-size: 12px; color: var(--malta-soft); margin-left: 4px; }
-.review-form {
-  margin-bottom: 14px; padding: 12px;
-  background: white; border: 1px solid var(--border); border-radius: var(--radius);
-}
-.review-form-lbl { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--malta-soft); margin-bottom: 8px; }
-.review-textarea {
-  width: 100%; padding: 8px 10px;
-  border: 1.5px solid var(--border-strong); border-radius: 6px;
-  font-size: 13px; font-family: 'Inter', sans-serif; color: var(--malta);
-  background: var(--espuma); resize: none; height: 68px; outline: none;
-  transition: border-color 0.15s;
-}
-.review-textarea:focus { border-color: var(--roja); }
-.btn-submit-review {
-  width: 100%; margin-top: 8px; padding: 9px;
-  background: var(--malta); color: var(--espuma);
-  border: none; border-radius: 6px; font-size: 13px; font-weight: 500;
-  cursor: pointer; font-family: 'Inter', sans-serif; transition: background 0.15s;
-}
-.btn-submit-review:hover { background: var(--malta-mid); }
-.btn-submit-review:disabled { opacity: 0.5; cursor: not-allowed; }
-.review-login-prompt {
-  font-size: 13px; color: var(--malta-soft);
-  text-align: center; padding: 10px 0; cursor: pointer;
-}
-.review-login-prompt span { color: var(--roja); font-weight: 600; }
-
-/* ─────────────────────────────
-   BADGES / INSIGNIAS
-───────────────────────────── */
-/* Unlocked — chips in header */
-.badges-unlocked-row {
-  display: flex; flex-wrap: wrap; gap: 6px;
-  padding: 0.6rem 1.5rem 0.75rem; border-top: 1px solid rgba(255,252,244,0.06);
-}
-.badge-chip {
-  display: flex; align-items: center; gap: 5px;
-  background: rgba(232,160,32,0.12); border: 1px solid rgba(232,160,32,0.3);
-  border-radius: 20px; padding: 4px 10px; cursor: pointer; transition: all 0.15s;
-}
-.badge-chip:hover { background: rgba(232,160,32,0.22); }
-.badge-chip-icon { font-size: 14px; line-height: 1; }
-.badge-chip-title { font-size: 11px; font-weight: 600; color: var(--dorada); }
-
-/* Locked — cards at bottom */
-.badges-locked-section { padding: 1.25rem 14px 1rem; border-top: 1px solid var(--border); }
-.badges-locked-title {
-  font-size: 11px; font-weight: 600; letter-spacing: 0.5px;
-  text-transform: uppercase; color: var(--malta-soft); margin-bottom: 10px;
-}
-.badges-locked-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px;
-}
-.badge-locked-card {
-  display: flex; align-items: flex-start; gap: 10px;
-  background: white; border: 1px solid var(--border);
-  border-radius: 8px; padding: 10px 12px; cursor: pointer; transition: border-color 0.15s;
-}
-.badge-locked-card:hover { border-color: var(--border-strong); }
-.blc-icon { font-size: 22px; flex-shrink: 0; opacity: 0.3; filter: grayscale(1); }
-.blc-body { flex: 1; min-width: 0; }
-.blc-title { font-size: 12px; font-weight: 600; color: var(--malta-soft); margin-bottom: 2px; }
-.blc-desc { font-size: 11px; color: var(--border-strong); margin-bottom: 6px; line-height: 1.3; }
-.blc-prog-bg { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; margin-bottom: 3px; }
-.blc-prog-fill { height: 4px; background: var(--dorada); border-radius: 2px; }
-.blc-prog-label { font-size: 10px; color: var(--border-strong); }
-
-/* Toast badge unlock */
-.badge-toast {
-  position: fixed; bottom: 80px; left: 50%;
-  transform: translateX(-50%) translateY(20px);
-  background: var(--malta); color: var(--espuma);
-  padding: 12px 20px; border-radius: 12px; border: 1px solid var(--dorada);
-  font-size: 14px; opacity: 0; transition: all 0.3s; pointer-events: none; z-index: 500;
-  text-align: center; min-width: 220px; box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-}
-.badge-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-.badge-toast-title { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--dorada); }
-.badge-date { font-size: 8px; color: rgba(232,160,32,0.6); margin-top: 3px; }
-
-/* Toast badge unlock */
-.badge-toast {
-  position: fixed; bottom: 80px; left: 50%;
-  transform: translateX(-50%) translateY(20px);
-  background: var(--malta); color: var(--espuma);
-  padding: 12px 20px; border-radius: 12px;
-  border: 1px solid var(--dorada);
-  font-size: 14px; opacity: 0;
-  transition: all 0.3s; pointer-events: none; z-index: 500;
-  text-align: center; min-width: 220px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-}
-.badge-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-.badge-toast-title { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--dorada); }
-.add-bar-cta {
-  background: var(--malta); border-radius: 10px;
-  padding: 1.25rem; display: flex; align-items: center; gap: 12px;
-  cursor: pointer; transition: background 0.15s;
-  border: none; width: 100%; text-align: left; margin-top: 1rem;
-}
-.add-bar-cta:hover { background: var(--malta-mid); }
-.add-bar-cta-icon { font-size: 26px; flex-shrink: 0; }
-.add-bar-cta-title {
-  font-family: 'Bebas Neue', sans-serif; font-size: 18px;
-  color: var(--espuma); line-height: 1; margin-bottom: 2px;
-}
-.add-bar-cta-sub { font-size: 12px; color: rgba(255,252,244,0.5); }
-.add-bar-cta-arrow { font-size: 18px; color: var(--dorada); margin-left: auto; flex-shrink: 0; }
-
-.badge-modal-overlay {
-  display: none; position: fixed; inset: 0; z-index: 1200;
-  background: rgba(24,9,0,0.65); backdrop-filter: blur(3px);
-}
-.badge-modal-overlay.open { display: flex; align-items: center; justify-content: center; padding: 1.5rem; }
-.badge-detail {
-  background: var(--malta); border-radius: 16px;
-  border: 1px solid rgba(232,160,32,0.3);
-  padding: 2rem 1.5rem; max-width: 300px; width: 100%;
-  text-align: center; box-shadow: 0 8px 40px rgba(0,0,0,0.6);
-  transform: scale(0.9); opacity: 0; transition: all 0.2s ease;
-}
-.badge-modal-overlay.open .badge-detail { transform: scale(1); opacity: 1; }
-.badge-detail-icon { font-size: 56px; margin-bottom: 0.75rem; display: block; }
-.badge-detail-title {
-  font-family: 'Bebas Neue', sans-serif; font-size: 26px;
-  color: var(--dorada); line-height: 1; margin-bottom: 8px;
-}
-.badge-detail-desc { font-size: 13px; color: rgba(255,252,244,0.65); line-height: 1.6; margin-bottom: 1rem; }
-.badge-detail-date { font-size: 11px; color: rgba(232,160,32,0.55); margin-bottom: 1.25rem; }
-.badge-prog-label { font-size: 11px; color: rgba(255,252,244,0.35); margin-bottom: 6px; }
-.badge-prog-bg { height: 6px; background: rgba(255,252,244,0.1); border-radius: 3px; overflow: hidden; margin-bottom: 1.25rem; }
-.badge-prog-fill { height: 6px; background: var(--dorada); border-radius: 3px; transition: width 0.5s ease; }
-.badge-detail-close {
-  background: rgba(255,252,244,0.1); border: none; color: rgba(255,252,244,0.7);
-  padding: 9px 28px; border-radius: 8px; cursor: pointer;
-  font-family: 'Inter', sans-serif; font-size: 13px; transition: background 0.15s;
-}
-.badge-detail-close:hover { background: rgba(255,252,244,0.18); }
-
-.modal-overlay {
-  display: none; position: fixed; inset: 0; z-index: 1100;
-  background: rgba(24,9,0,0.6); backdrop-filter: blur(2px);
-}
-.modal-overlay.open { display: block; }
-.add-bar-modal {
-  position: fixed; bottom: 0; left: 0; right: 0; z-index: 1101;
-  background: var(--espuma); border-radius: 16px 16px 0 0;
-  border-top: 2px solid var(--malta); max-height: 90dvh;
-  overflow-y: auto; transform: translateY(105%);
-  transition: transform 0.32s cubic-bezier(0.4,0,0.2,1);
-}
-.add-bar-modal.open { transform: translateY(0); }
-@media (min-width: 768px) {
-  .add-bar-modal {
-    left: 50%; right: auto; bottom: 2rem;
-    transform: translateX(-50%) translateY(calc(100% + 2rem));
-    width: 480px; border-radius: 12px; border: 2px solid var(--malta);
-  }
-  .add-bar-modal.open { transform: translateX(-50%) translateY(0); }
-}
-.modal-drag { display: flex; justify-content: center; padding: 10px 0 4px; }
-.modal-drag-bar { width: 36px; height: 4px; background: var(--border-strong); border-radius: 2px; }
-@media (min-width: 768px) { .modal-drag { display: none; } }
-.modal-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 16px 14px; border-bottom: 1px solid var(--border);
-}
-.modal-title { font-family: 'Bebas Neue', sans-serif; font-size: 24px; }
-.modal-close {
-  width: 32px; height: 32px; border-radius: 50%; border: none;
-  background: var(--border); cursor: pointer; font-size: 15px;
-  display: flex; align-items: center; justify-content: center;
-}
-.modal-body { padding: 16px; }
-.modal-auth-notice {
-  background: var(--dorada-light); border: 1px solid var(--dorada);
-  border-radius: var(--radius); padding: 12px 14px; margin-bottom: 16px;
-  font-size: 13px; color: var(--malta-mid); line-height: 1.5;
-}
-.add-bar-form { display: flex; flex-direction: column; gap: 12px; }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.form-field label {
-  display: block; font-size: 11px; font-weight: 600;
-  text-transform: uppercase; letter-spacing: 0.5px;
-  color: var(--malta-soft); margin-bottom: 4px;
-}
-.form-field input {
-  width: 100%; padding: 9px 12px;
-  border: 1.5px solid var(--border-strong); border-radius: 6px;
-  font-size: 14px; font-family: 'Inter', sans-serif;
-  color: var(--malta); background: white; outline: none;
-  transition: border-color 0.15s;
-}
-.form-field input:focus { border-color: var(--roja); }
-.form-field input::placeholder { color: rgba(0,0,0,0.25); }
-.form-hint { font-size: 11px; color: var(--malta-soft); margin-top: 3px; }
-.btn-submit-bar {
-  width: 100%; padding: 13px; background: var(--roja);
-  color: var(--espuma); border: none; border-radius: 6px;
-  font-family: 'Bebas Neue', sans-serif; font-size: 20px;
-  letter-spacing: 0.5px; cursor: pointer; transition: background 0.15s; margin-top: 4px;
-}
-.btn-submit-bar:hover { background: var(--roja-dark); }
-.btn-submit-bar:disabled { opacity: 0.5; cursor: not-allowed; }
-
-.site-footer {
-  background: var(--malta); color: var(--espuma);
-  padding: 2rem 1.25rem; text-align: center; margin-top: 2rem;
-}
-.footer-logo { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 1px; }
-.footer-logo span { color: var(--dorada); }
-.footer-sub { font-size: 12px; color: rgba(255,252,244,0.4); margin: 4px 0 1rem; }
-.footer-links { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; }
-.footer-links a {
-  font-size: 12px; color: rgba(255,252,244,0.5);
-  text-decoration: none; transition: color 0.15s;
-}
-.footer-links a:hover { color: var(--dorada); }
-
-/* ─────────────────────────────
-   UTILITIES
-───────────────────────────── */
-.loading-state {
-  padding: 3rem; text-align: center;
-  color: var(--malta-soft); font-size: 14px;
-}
-.loading-spinner {
-  width: 28px; height: 28px; border: 2px solid var(--border);
-  border-top-color: var(--roja); border-radius: 50%;
-  animation: spin 0.8s linear infinite; margin: 0 auto 12px;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
 
-<!-- ── TOP NAV ── -->
-<nav class="top-nav">
-  <div class="nav-row">
-    <a href="#" class="nav-logo" onclick="switchTab('home');return false;">
-      Dame Una <span>Doble</span> 🍺
-    </a>
-    <div class="nav-tabs">
-      <button class="nav-tab-btn active" data-tab="home"    onclick="switchTab('home')">🏠 <span data-i18n="nav-home">Inicio</span></button>
-      <button class="nav-tab-btn"        data-tab="mapa"    onclick="switchTab('mapa')">🗺️ <span data-i18n="nav-map">Mapa</span></button>
-      <button class="nav-tab-btn"        data-tab="ranking" onclick="switchTab('ranking')">🏆 Ranking</button>
-      <button class="nav-tab-btn"        data-tab="feed"    onclick="switchTab('feed')">📡 Feed</button>
-      <button class="nav-tab-btn"        data-tab="perfil"  onclick="switchTab('perfil')">👤 <span data-i18n="nav-profile">Perfil</span></button>
-    </div>
-    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
-      <div class="lang-switcher">
-        <button class="lang-btn active" onclick="setLang('es')">ES</button>
-        <button class="lang-btn" onclick="setLang('en')">EN</button>
-      </div>
-      <button class="nav-login-btn" id="nav-login-btn" onclick="handleAuthBtn()" data-i18n="nav-login">Entrar</button>
-    </div>
-  </div>
-  <div class="ticker" aria-hidden="true">
-    <div class="ticker-inner">
-      <div class="ticker-track" id="ticker-track">
-        <span class="ticker-item">Cargando precios<span class="ticker-sep">·</span></span>
-      </div>
-    </div>
-  </div>
-</nav>
-
-<!-- ── MAIN ── -->
-<main class="main">
-
-  <!-- TAB: HOME -->
-  <section id="tab-home" class="tab-content active">
-    <div class="home-wrap">
-      <div class="hero">
-        <div class="hero-eyebrow" data-i18n="hero-eyebrow">El mapa de la cerveza en Madrid</div>
-        <h1 class="hero-h1">DAME UNA<br><em>DOBLE</em></h1>
-        <p class="hero-sub" data-i18n="hero-sub">De bar en bar por Madrid. Los precios los ponemos entre todos.</p>
-        <div class="hero-stats">
-          <div class="hero-stat">
-            <div class="hero-stat-num" id="h-bares">—</div>
-            <div class="hero-stat-lbl" data-i18n="stat-bars">bares en el mapa</div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-num" id="h-avg">—</div>
-            <div class="hero-stat-lbl" data-i18n="stat-avg">precio medio</div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-num" id="h-cheap">—</div>
-            <div class="hero-stat-lbl" data-i18n="stat-cheapest">el más barato</div>
-          </div>
-        </div>
-        <button class="hero-cta" onclick="switchTab('mapa')" data-i18n="hero-cta">🗺️ Ver el mapa</button>
-        <div style="margin-top:1rem">
-          <button onclick="findNearMe()" id="geo-home-btn" data-i18n="hero-near" style="background:transparent;border:1.5px solid var(--border-strong);color:var(--malta);padding:10px 20px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s">
-            📍 Bares cerca de mí
-          </button>
-        </div>
-      </div>
-
-      <div class="home-sections">
-        <div class="home-section-title" data-i18n="home-top3">🏆 Top 3 más baratos ahora</div>
-        <div class="home-top3" id="home-top3">
-          <div class="loading-state"><div class="loading-spinner"></div></div>
-        </div>
-
-        <div id="home-cerca-section" style="display:none">
-          <div class="home-section-title" data-i18n="home-near">📍 Más cercanos a ti</div>
-          <div class="home-top3" id="home-cerca-list"></div>
-        </div>
-
-        <div class="home-section-title" data-i18n="home-explore">Explorar</div>
-        <div class="home-quick-btns">
-          <button class="home-quick-btn" onclick="switchTab('ranking')">
-            <div class="home-quick-icon">🏆</div>
-            <div class="home-quick-label" data-i18n="quick-ranking">Ranking</div>
-            <div class="home-quick-sub" data-i18n="quick-ranking-sub">Ordenados por precio</div>
-          </button>
-          <button class="home-quick-btn" onclick="switchTab('feed')">
-            <div class="home-quick-icon">📡</div>
-            <div class="home-quick-label" data-i18n="quick-feed">Feed en vivo</div>
-            <div class="home-quick-sub" data-i18n="quick-feed-sub">Últimas actualizaciones</div>
-          </button>
-          <button class="home-quick-btn" onclick="setMapFilter('cheap', document.querySelector('[data-filter=cheap]'));switchTab('mapa')">
-            <div class="home-quick-icon">🟢</div>
-            <div class="home-quick-label" data-i18n="quick-cheap">Precio bajo</div>
-            <div class="home-quick-sub" data-i18n="quick-cheap-sub">Dobles económicos</div>
-          </button>
-          <button class="home-quick-btn" onclick="switchTab('perfil')">
-            <div class="home-quick-icon">❤️</div>
-            <div class="home-quick-label" data-i18n="quick-favs">Mis favoritos</div>
-            <div class="home-quick-sub" data-i18n="quick-favs-sub">Tus bares guardados</div>
-          </button>
-        </div>
-
-        <button class="add-bar-cta" onclick="openAddBar()">
-          <div class="add-bar-cta-icon">🍻</div>
-          <div>
-            <div class="add-bar-cta-title" data-i18n="addbar-cta-title">¿Conoces un bar que falta?</div>
-            <div class="add-bar-cta-sub" data-i18n="addbar-cta-sub">Añádelo al mapa y ayuda a la comunidad</div>
-          </div>
-          <div class="add-bar-cta-arrow">→</div>
-        </button>
-
-      </div>
-    </div>
-  </section>
-  <section id="tab-mapa" class="tab-content">
-    <div class="map-filters">
-      <button class="filter-chip active" data-filter="all"   onclick="setMapFilter('all',this)">Todos</button>
-      <button class="filter-chip"        data-filter="cerca" onclick="geolocate()">📍 Cerca de mí</button>
-      <button class="filter-chip"        data-filter="cheap" onclick="setMapFilter('cheap',this)">🟢 Precio bajo</button>
-      <button class="filter-chip"        data-filter="fav"   onclick="setMapFilter('fav',this)">❤️ Favoritos</button>
-    </div>
-    <div id="map"></div>
-  </section>
-
-  <!-- TAB: RANKING -->
-  <section id="tab-ranking" class="tab-content">
-    <div class="ranking-wrap">
-
-      <div class="ranking-header">
-        <div class="ranking-vol">Madrid · Temporada 2025</div>
-        <h1 class="ranking-h1" id="rk-h1">Los dobles<br>más baratos<em>.</em></h1>
-        <div class="ranking-meta-row">
-          <div>
-            <div class="ranking-avg-lbl">Media ciudad</div>
-            <div class="ranking-avg-num" id="rk-avg">€—</div>
-          </div>
-          <div class="ranking-trend" id="rk-trend">↓ actualizado hoy</div>
-        </div>
-      </div>
-
-      <!-- Only Doble metric shown -->
-
-
-      <div class="seg-bar">
-        <button class="seg-btn active" onclick="setRkSeg('ranking',this)">Ranking</button>
-        <button class="seg-btn"        onclick="setRkSeg('live',this)">En vivo</button>
-        <button class="seg-btn"        id="drops-seg-btn" onclick="setRkSeg('drops',this)">Bajadas</button>
-      </div>
-
-      <div id="rk-body">
-        <div class="loading-state">
-          <div class="loading-spinner"></div>
-          Cargando bares…
-        </div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- TAB: FEED -->
-  <section id="tab-feed" class="tab-content">
-    <div class="feed-wrap">
-      <div class="feed-segs">
-        <button class="feed-seg-btn active" onclick="setFeedSeg('live',this)">📡 En vivo</button>
-        <button class="feed-seg-btn"        onclick="setFeedSeg('drops',this)">↘ Bajadas</button>
-      </div>
-      <div id="feed-body">
-        <div class="loading-state">
-          <div class="loading-spinner"></div>
-          Cargando actividad…
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- TAB: PERFIL -->
-  <section id="tab-perfil" class="tab-content">
-    <div class="profile-wrap" id="profile-content">
-      <div class="loading-state"><div class="loading-spinner"></div></div>
-    </div>
-  </section>
-
-</main>
-
-<!-- ── BAR DETAIL SHEET ── -->
-<div class="sheet-overlay" id="sheet-overlay" onclick="closeSheet()"></div>
-<aside class="bar-sheet" id="bar-sheet" role="dialog" aria-label="Detalles del bar">
-  <div class="sheet-drag"><div class="sheet-drag-bar"></div></div>
-  <div class="sheet-cover" id="sheet-cover">
-    <div class="sheet-cover-gradient"></div>
-    <button class="sheet-close-btn" onclick="closeSheet()" aria-label="Cerrar">✕</button>
-    <button class="sheet-fav-btn"   id="sheet-fav-btn" onclick="toggleFav()" aria-label="Favorito">🤍</button>
-    <div class="sheet-cover-info">
-      <div class="sheet-zona" id="sheet-zona"></div>
-      <div class="sheet-bar-name" id="sheet-bar-name">—</div>
-    </div>
-  </div>
-  <div class="sheet-body">
-    <div class="sheet-hero-price">
-      <div>
-        <div class="sheet-price-label" data-i18n="sheet-doble-label">Doble de Mahou</div>
-        <div class="sheet-price-big" id="sheet-price-big">—</div>
-      </div>
-      <div class="sheet-delta" id="sheet-delta"></div>
-    </div>
-    <div class="sheet-addr" id="sheet-addr">📍 <span>—</span></div>
-    <div class="sheet-actions">
-      <button class="btn-report" onclick="openReport()" data-i18n="sheet-report">✏️ Reportar precio</button>
-    </div>
-
-    <div id="report-form-wrap" style="display:none;margin-bottom:14px">
-      <div style="background:var(--dorada-light);border:1px solid var(--dorada);border-radius:8px;padding:14px">
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;margin-bottom:10px">✏️ <span data-i18n="report-title">Reportar precio incorrecto</span></div>
-        <div style="margin-bottom:10px">
-          <label style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--malta-soft);display:block;margin-bottom:6px">🍺 <span data-i18n="report-price-label">Precio real del doble (€)</span></label>
-          <input id="report-precio" type="number" step="0.10" min="0.50" max="15" inputmode="decimal"
-            style="width:100%;padding:10px 12px;border:1.5px solid var(--border-strong);border-radius:6px;font-size:20px;font-family:'Bebas Neue',sans-serif;outline:none;background:white;color:var(--malta)"
-            placeholder="2.80">
-        </div>
-        <div style="margin-bottom:12px">
-          <label style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--malta-soft);display:block;margin-bottom:3px" data-i18n="report-msg-label">Comentario (opcional)</label>
-          <textarea id="report-msg-input" rows="2"
-            style="width:100%;padding:9px 12px;border:1.5px solid var(--border-strong);border-radius:6px;font-size:13px;font-family:'Inter',sans-serif;resize:none;outline:none;background:white;color:var(--malta)"
-            data-i18n-placeholder="report-msg-placeholder" placeholder="Ej: El precio subió, ahora cobra 3€"></textarea>
-        </div>
-        <div style="display:flex;gap:8px">
-          <button onclick="submitReport()" id="btn-submit-report"
-            style="flex:1;padding:10px;background:var(--malta);color:var(--espuma);border:none;border-radius:6px;font-family:'Bebas Neue',sans-serif;font-size:17px;cursor:pointer"
-            data-i18n="report-submit">🍺 Enviar reporte</button>
-          <button onclick="closeReport()"
-            style="padding:10px 16px;border:1.5px solid var(--border-strong);border-radius:6px;background:transparent;cursor:pointer;font-size:13px;font-family:'Inter',sans-serif;color:var(--malta-soft)"
-            data-i18n="report-cancel">Cancelar</button>
-        </div>
-      </div>
-    </div>
-    <div class="sheet-reviews-title" data-i18n="sheet-reviews-title">Reseñas</div>
-    <div id="sheet-reviews-body"></div>
-  </div>
-</aside>
-
-<!-- ── BADGE DETAIL MODAL ── -->
-<div class="badge-modal-overlay" id="badge-modal-overlay" onclick="closeBadgeModal()">
-  <div class="badge-detail" onclick="event.stopPropagation()" id="badge-detail-content"></div>
-</div>
-
-<!-- ── ADD BAR MODAL ── -->
-<div class="modal-overlay" id="add-bar-overlay" onclick="closeAddBar()"></div>
-<div class="add-bar-modal" id="add-bar-modal">
-  <div class="modal-drag"><div class="modal-drag-bar"></div></div>
-  <div class="modal-header">
-    <div class="modal-title">Añadir un bar 🍺</div>
-    <button class="modal-close" onclick="closeAddBar()">✕</button>
-  </div>
-  <div class="modal-body" id="add-bar-body">
-    <!-- filled by JS -->
+<div class="login-wrap" id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">Dame Una <span>Doble</span> 🍺</div>
+    <div class="login-sub">Panel de administración</div>
+    <input type="password" id="pwd-input" placeholder="Contraseña" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="btn-primary" onclick="doLogin()">Entrar</button>
+    <div class="login-error" id="login-error">Contraseña incorrecta</div>
   </div>
 </div>
 
-<!-- ── BOTTOM NAV ── -->
-<nav class="bottom-nav" aria-label="Navegación principal">
-  <button class="bot-tab active" id="bt-home"    onclick="switchTab('home')">
-    <div class="bot-tab-icon">🏠</div>
-    <div class="bot-tab-label" data-i18n="bot-home">Inicio</div>
-  </button>
-  <button class="bot-tab" id="bt-mapa"    onclick="switchTab('mapa')">
-    <div class="bot-tab-icon">🗺️</div>
-    <div class="bot-tab-label" data-i18n="bot-map">Mapa</div>
-  </button>
-  <button class="bot-tab" id="bt-ranking" onclick="switchTab('ranking')">
-    <div class="bot-tab-icon">🏆</div>
-    <div class="bot-tab-label" data-i18n="bot-ranking">Ranking</div>
-  </button>
-  <button class="bot-tab" id="bt-feed"    onclick="switchTab('feed')">
-    <div class="bot-tab-icon">📡</div>
-    <div class="bot-tab-label" data-i18n="bot-feed">Feed</div>
-  </button>
-  <button class="bot-tab" id="bt-perfil"  onclick="switchTab('perfil')">
-    <div class="bot-tab-icon">👤</div>
-    <div class="bot-tab-label" data-i18n="bot-profile">Perfil</div>
-  </button>
-</nav>
+<div class="admin-wrap" id="admin-screen">
+  <nav class="admin-nav">
+    <div class="admin-logo">Dame Una <span>Doble</span> 🍺 <span style="font-size:13px;font-family:'Inter';font-weight:400;color:rgba(255,248,237,0.4);margin-left:8px">Admin</span></div>
+    <div class="admin-nav-right">
+      <a href="doble.html" target="_blank">Ver web →</a>
+      <button class="btn-secondary" onclick="loadBars()" style="font-size:12px;padding:5px 12px;border:1px solid rgba(255,248,237,0.3);border-radius:6px;background:transparent;color:rgba(255,248,237,0.7);cursor:pointer;font-family:'Inter',sans-serif;">🔄 Actualizar</button>
+      <button class="btn-logout" onclick="doLogout()">Cerrar sesión</button>
+    </div>
+  </nav>
 
-<!-- ── TOAST ── -->
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
-<div class="badge-toast" id="badge-toast"></div>
+  <div class="admin-body">
+    <div class="admin-stats" id="admin-stats">
+      <div class="stat-card"><div class="stat-label">Total bares</div><div class="stat-val" id="s-total">—</div></div>
+      <div class="stat-card"><div class="stat-label">Precio medio</div><div class="stat-val" id="s-avg">—</div></div>
+      <div class="stat-card"><div class="stat-label">Más barato</div><div class="stat-val" style="color:#3B6D11" id="s-min">—</div><div class="stat-sub" id="s-min-name"></div></div>
+      <div class="stat-card"><div class="stat-label">Comunidades</div><div class="stat-val">17</div></div>
+    </div>
 
-<!-- Leaflet JS -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<!-- Supabase JS -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('bares',this)">🍺 Bares</button>
+      <button class="tab-btn" onclick="switchTab('csv',this)">📂 Importar CSV</button>
+      <button class="tab-btn" onclick="switchTab('regiones',this)">🗺️ Regiones</button>
+      <button class="tab-btn" onclick="switchTab('reportes',this)">💬 Reportes</button>
+      <button class="tab-btn" onclick="switchTab('pendientes',this)">⏳ Sin precio</button>
+      <button class="tab-btn" onclick="switchTab('destacar',this)">⭐ Destacados</button>
+    </div>
+
+    <!-- TAB BARES -->
+    <div class="tab-panel active" id="tab-bares">
+      <div class="panel-card">
+        <div class="panel-card-title">Añadir nuevo bar</div>
+        <div class="form-grid">
+          <div class="form-group"><label>Nombre</label><input type="text" id="new-nombre" placeholder="Bar El Patio"></div>
+          <div class="form-group"><label>Ciudad</label><input type="text" id="new-ciudad" placeholder="Sevilla"></div>
+          <div class="form-group"><label>Comunidad</label><select id="new-region"></select></div>
+          <div class="form-group"><label>Precio (€)</label><input type="number" id="new-precio" placeholder="2.50" step="0.10" min="0.50" max="15"></div>
+          <div class="form-group"><label>Dirección</label><input type="text" id="new-direccion" placeholder="Calle Mayor 12"></div>
+          <div class="form-group"><label>Latitud</label><input type="number" id="new-lat" placeholder="40.4168" step="0.0001"></div>
+          <div class="form-group"><label>Longitud</label><input type="number" id="new-lng" placeholder="-3.7038" step="0.0001"></div>
+          <div class="form-group"><label>Caña (€)</label><input type="number" id="new-cana" placeholder="1.80" step="0.10" min="0.50" max="15"></div>
+          <div class="form-group"><label>Bravas (€)</label><input type="number" id="new-bravas" placeholder="5.50" step="0.10" min="0.50" max="30"></div>
+          <div class="form-group"><label>Tortilla (€)</label><input type="number" id="new-tortilla" placeholder="4.50" step="0.10" min="0.50" max="30"></div>
+          <div class="form-group"><label>Croquetas (€)</label><input type="number" id="new-croquetas" placeholder="6.00" step="0.10" min="0.50" max="30"></div>
+        </div>
+        <p style="font-size:12px;color:var(--slate-light);margin-bottom:1rem">💡 Para obtener lat/lng: abre Google Maps → clic derecho en la ubicación → copiar coordenadas</p>
+        <button class="btn-add" onclick="addBar()">+ Añadir bar</button>
+      </div>
+
+      <div class="panel-card">
+        <div class="panel-card-title">
+          <span>Todos los bares <span style="font-size:13px;font-weight:400;color:var(--slate-light)" id="bars-count-label"></span></span>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <input class="search-bar" type="text" placeholder="Buscar..." id="bars-search" oninput="renderBarsTable()">
+            <select class="search-bar" style="width:auto" id="admin-sort" onchange="adminSort=this.value;renderBarsTable()">
+              <option value="nombre">A-Z</option>
+              <option value="reciente">Más reciente</option>
+              <option value="barrio">Barrio</option>
+              <option value="precio">Precio</option>
+            </select>
+            <select class="search-bar" style="width:auto" id="admin-fuente" onchange="adminFuente=this.value;renderBarsTable()">
+              <option value="">Todas las fuentes</option>
+              <option value="usuario">👥 Comunidad</option>
+              <option value="bot">🤖 Bot</option>
+              <option value="admin">👤 Admin</option>
+            </select>
+            <button class="btn-secondary" onclick="exportCSV()">⬇ Exportar CSV</button>
+          </div>
+        </div>
+        <div class="bulk-bar" id="bulk-bar">
+          <span id="bulk-count">0 seleccionados</span>
+          <button class="btn-danger" onclick="deleteSelected()">🗑 Eliminar seleccionados</button>
+          <button class="btn-secondary" style="font-size:12px;padding:4px 10px" onclick="clearSelection()">Cancelar</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th><input type="checkbox" class="cb" id="check-all" onchange="toggleAll(this)"></th>
+                <th>#</th><th>Bar</th><th>Barrio</th><th>Dirección</th><th>Doble</th><th>Fuente</th><th>Estado</th><th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="bars-tbody"></tbody>
+          </table>
+        </div>
+        <div id="loading-bars" class="loading">Cargando bares...</div>
+      </div>
+    </div>
+
+    <!-- TAB CSV -->
+    <div class="tab-panel" id="tab-csv">
+      <div class="panel-card">
+        <div class="panel-card-title">Importar bares desde CSV</div>
+        <div class="csv-zone" id="csv-zone" onclick="document.getElementById('csv-file').click()" ondragover="csvDrag(event,true)" ondragleave="csvDrag(event,false)" ondrop="csvDrop(event)">
+          <p>Arrastra tu archivo CSV aquí o <strong>haz clic para seleccionarlo</strong></p>
+          <p style="font-size:12px;margin-top:4px">Columnas requeridas: <code>nombre, ciudad, region, precio, direccion</code> · Las coordenadas se obtienen automáticamente.</p>
+        </div>
+        <input type="file" id="csv-file" accept=".csv" style="display:none" onchange="handleCSV(this.files[0])">
+        <div id="csv-preview"></div>
+      </div>
+      <div class="panel-card">
+        <div class="panel-card-title">Plantilla CSV</div>
+        <p style="font-size:14px;color:var(--slate-light);margin-bottom:1rem">Descarga la plantilla y rellénala con tus datos.</p>
+        <button class="btn-csv" onclick="downloadTemplate()">⬇ Descargar plantilla CSV</button>
+      </div>
+    </div>
+
+    <!-- TAB REPORTES -->
+    <div class="tab-panel" id="tab-reportes">
+      <div class="panel-card">
+        <div class="panel-card-title">
+          <span>💬 Reportes de usuarios <span style="font-size:13px;font-weight:400;color:var(--slate-light)" id="reportes-count"></span></span>
+          <button class="btn-secondary" onclick="loadReportes()">🔄 Actualizar</button>
+        </div>
+        <p style="font-size:13px;color:var(--slate-light);margin-bottom:1rem">Los usuarios reportan precios desde la web. Acepta para actualizar el precio del bar, o rechaza si es incorrecto.</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Bar</th><th>Precio reportado</th><th>Fecha</th><th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="reportes-tbody"></tbody>
+          </table>
+        </div>
+        <div id="reportes-empty" style="text-align:center;padding:2rem;color:var(--slate-light);font-size:14px;display:none">No hay reportes pendientes 🎉</div>
+      </div>
+    </div>
+
+    <!-- TAB PENDIENTES -->
+    <div class="tab-panel" id="tab-pendientes">
+      <div class="panel-card">
+        <div class="panel-card-title">
+          <span>⏳ Bares sin precio <span style="font-size:13px;font-weight:400;color:var(--slate-light)" id="pending-count"></span></span>
+          <button class="btn-secondary" onclick="loadBars();switchTab('pendientes',document.querySelectorAll('.tab-btn')[3])">🔄 Actualizar</button>
+        </div>
+        <p style="font-size:13px;color:var(--slate-light);margin-bottom:1.5rem">Introduce el precio rápidamente. Haz clic en "Buscar" para ver si Google tiene info del bar.</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th><th>Bar</th><th>Dirección</th><th>Precios (Doble / Caña / Bravas / Tortilla / Croquetas)</th><th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="pending-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB DESTACAR -->
+    <div class="tab-panel" id="tab-destacar">
+      <div class="panel-card">
+        <div class="panel-card-title">⭐ Bares Destacados <span style="font-size:12px;font-weight:400;color:var(--slate-light)">(Oculto en la web pública hasta activar)</span></div>
+        <p style="font-size:14px;color:var(--slate-light);margin-bottom:1.5rem">Aquí gestionarás los bares que pagan por aparecer destacados. Cuando estés listo para activarlo, avísame y lo conectamos al sistema de pago.</p>
+        <div style="background:var(--dorada-light);border:1px solid var(--roja);border-radius:10px;padding:1.25rem;margin-bottom:1.5rem">
+          <div style="font-size:14px;font-weight:600;color:var(--roja);margin-bottom:8px">📧 Email de contacto para destacados</div>
+          <div style="font-size:14px;color:var(--slate)">dameunadoble@gmail.com</div>
+          <div style="font-size:12px;color:var(--slate-light);margin-top:4px">Los bares interesados te escriben aquí. Cuando confirmes el pago, márcalos como destacados.</div>
+        </div>
+        <div class="panel-card-title" style="margin-top:1rem">Añadir bar destacado manualmente</div>
+        <div class="form-grid">
+          <div class="form-group"><label>Nombre del bar</label><input type="text" id="dest-nombre" placeholder="Bar El Patio"></div>
+          <div class="form-group"><label>Ciudad</label><input type="text" id="dest-ciudad" placeholder="Madrid"></div>
+          <div class="form-group"><label>Comunidad</label><select id="dest-region"></select></div>
+          <div class="form-group"><label>Precio (€)</label><input type="number" id="dest-precio" placeholder="2.50" step="0.10" min="0.50" max="15"></div>
+          <div class="form-group"><label>Dirección</label><input type="text" id="dest-direccion" placeholder="Calle Mayor 12"></div>
+        </div>
+        <button class="btn-add" onclick="addDestacado()">⭐ Añadir como destacado</button>
+      </div>
+      <div class="panel-card">
+        <div class="panel-card-title">Bares destacados activos</div>
+        <div id="destacados-list" style="font-size:14px;color:var(--slate-light);text-align:center;padding:2rem">Cargando...</div>
+      </div>
+    </div>
+
+    <!-- TAB REGIONES -->
+    <div class="tab-panel" id="tab-regiones">
+      <div class="panel-card">
+        <div class="panel-card-title">Precios medios por comunidad</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Comunidad</th><th>Precio medio (€)</th><th>Bares</th><th>Guardar</th></tr></thead>
+            <tbody id="regions-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script>
-/* ══════════════════════════════
-   CONFIG
-══════════════════════════════ */
+const ADMIN_PASSWORD = 'Av0c4dOJ0S3';
 const SUPABASE_URL = 'https://cldpkjdzikjzqrfbsghh.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZHBramR6aWtqenFyZmJzZ2hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4NzE0NzEsImV4cCI6MjA5NzQ0NzQ3MX0.-OFHTqGUan5e9thGp8B38eOeo5aJvwD99oDE7aW53Ws';
-const MADRID = [40.4168, -3.7038];
 
-/* ══════════════════════════════
-   STATE
-══════════════════════════════ */
-let allBars     = [];
-let reportes    = [];
-let currentMetric  = 'precio';
-let currentRkSeg   = 'ranking';
-let currentFeedSeg = 'live';
-let mapFilter      = 'all';
-let favorites      = JSON.parse(localStorage.getItem('dud_favs') || '[]');
-let activeBarId    = null;
-let currentUser    = null;
-let map            = null;
-let leafletMarkers = {};
-let mapInited      = false;
-let userLat        = null;
-let userLng        = null;
-let geoActive      = false;
+const REGIONS = ['Andalucía','Aragón','Asturias','Baleares','Canarias','Cantabria','Castilla-La Mancha','Castilla y León','Cataluña','Extremadura','Galicia','La Rioja','Madrid','Murcia','Navarra','País Vasco','Valencia'];
 
-/* ══════════════════════════════
-   SUPABASE CLIENT + AUTH
-══════════════════════════════ */
-const { createClient } = supabase;
-const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+const REGION_PRICES = {
+  'Andalucía':2.00,'Aragón':2.10,'Asturias':2.20,'Baleares':3.20,'Canarias':2.80,
+  'Cantabria':2.30,'Castilla-La Mancha':1.80,'Castilla y León':1.90,'Cataluña':3.10,
+  'Extremadura':1.60,'Galicia':1.90,'La Rioja':2.00,'Madrid':3.40,'Murcia':2.10,
+  'Navarra':2.40,'País Vasco':2.80,'Valencia':2.50
+};
 
-sb.auth.onAuthStateChange((_event, session) => {
-  currentUser = session?.user || null;
-  updateNavBtn();
-  renderProfile();
-  if (currentUser) {
-    loadFavoritesFromSupabase().catch(() => {});
-    loadUserStats();
-  }
-});
+let allBars = [];
+let selected = new Set();
 
-function updateNavBtn() {
-  const btn = document.getElementById('nav-login-btn');
-  btn.textContent = currentUser
-    ? (currentUser.user_metadata?.name?.split(' ')[0] || t('nav-profile'))
-    : t('nav-login');
-  // Sync lang buttons
-  document.querySelectorAll('.lang-btn').forEach(b =>
-    b.classList.toggle('active', b.textContent === currentLang.toUpperCase())
-  );
+async function api(method, path, body) {
+  const opts = {
+    method,
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': method === 'POST' ? 'return=representation' : ''
+    }
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch(SUPABASE_URL + '/rest/v1/' + path, opts);
+  if (!r.ok) throw new Error(await r.text());
+  return r.status === 204 ? null : r.json();
 }
 
-async function handleAuthBtn() {
-  if (currentUser) {
-    switchTab('perfil');
+function doLogin() {
+  if (document.getElementById('pwd-input').value === ADMIN_PASSWORD) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('admin-screen').style.display = 'block';
+    initAdmin();
   } else {
-    await sb.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: window.location.href }
-    });
+    document.getElementById('login-error').style.display = 'block';
+    document.getElementById('pwd-input').value = '';
   }
 }
 
-async function logout() {
-  await sb.auth.signOut();
-  currentUser = null;
-  updateNavBtn();
-  renderProfile();
-  showToast('Sesión cerrada');
+function doLogout() {
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('admin-screen').style.display = 'none';
+  document.getElementById('pwd-input').value = '';
 }
 
-/* ══════════════════════════════
-   DATA LOADING
-══════════════════════════════ */
+function initAdmin() {
+  populateRegionSelect();
+  loadBars();
+  renderRegionsTable();
+}
+
+function populateRegionSelect() {
+  const sel = document.getElementById('new-region');
+  sel.innerHTML = [...REGIONS].sort().map(r => `<option value="${r}">${r}</option>`).join('');
+}
+
 async function loadBars() {
+  document.getElementById('loading-bars').style.display = 'block';
+  document.getElementById('bars-tbody').innerHTML = '';
   try {
-    const { data, error } = await sb.from('bares').select('*').order('nombre');
-    if (error) throw error;
-    allBars = (data || []).map(b => ({
-      ...b,
-      _precio: parseFloat(b.precio) || 0,
-    }));
-    renderTicker();
-    renderRanking();
-    renderHome();
-    calcPriceThresholds();
-    if (mapInited) renderMapMarkers();
-  } catch (err) {
-    console.error('Error cargando bares:', err);
-    showToast('⚠️ Error cargando datos: ' + (err.message || err));
-    document.getElementById('home-top3').innerHTML =
-      `<div class="empty-state">Error al conectar con Supabase.<br><small>${err.message || ''}</small></div>`;
+    allBars = await api('GET', 'bares?select=*&order=nombre.asc');
+    updateStats();
+    renderBarsTable();
+  } catch(e) {
+    showToast('Error cargando bares: ' + e.message, 'error');
+  }
+  document.getElementById('loading-bars').style.display = 'none';
+}
+
+function updateStats() {
+  const prices = allBars.map(b => parseFloat(b.precio)||0).filter(p => p > 0);
+  const avg = prices.length ? prices.reduce((a,b)=>a+b,0)/prices.length : 0;
+  const min = prices.length ? Math.min(...prices) : 0;
+  const minBar = allBars.find(b => parseFloat(b.precio) === min);
+  document.getElementById('s-total').textContent = allBars.length;
+  document.getElementById('s-avg').textContent = avg.toFixed(2) + '€';
+  document.getElementById('s-min').textContent = min.toFixed(2) + '€';
+  document.getElementById('s-min-name').textContent = minBar ? minBar.nombre : '';
+}
+
+function priceClass(p) { p=parseFloat(p)||0; return p<2?'price-cheap':p<=3?'price-mid':'price-exp'; }
+
+function extractZona(d) {
+  if (!d) return 'Otros';
+  d = d.toLowerCase();
+  if (d.includes('centro') || d.includes('sol') || d.includes('gran via')) return 'Centro';
+  if (d.includes('malasa') || d.includes('acuerdo') || d.includes('pez') || d.includes('san bernardo')) return 'Malasaña';
+  if (d.includes('lavapi') || d.includes('embajadores')) return 'Lavapiés';
+  if (d.includes('chueca') || d.includes('infantas') || d.includes('libertad')) return 'Chueca';
+  if (d.includes('latina') || d.includes('cava baja')) return 'La Latina';
+  if (d.includes('chamber') || d.includes('ponzano') || d.includes('luchana')) return 'Chamberí';
+  if (d.includes('salamanca') || d.includes('serrano') || d.includes('goya')) return 'Salamanca';
+  if (d.includes('retiro')) return 'Retiro';
+  if (d.includes('arguelles') || d.includes('princesa')) return 'Argüelles';
+  if (d.includes('tetuan') || d.includes('bravo murillo')) return 'Tetuán';
+  if (d.includes('carabanchel')) return 'Carabanchel';
+  if (d.includes('vallecas')) return 'Vallecas';
+  if (d.includes('usera')) return 'Usera';
+  if (d.includes('fuencarral') || d.includes('el pardo') || d.includes('montecarmelo') || d.includes('las tablas') || d.includes('mirasierra')) return 'Fuencarral';
+  if (d.includes('san blas') || d.includes('canillejas')) return 'San Blas';
+  if (d.includes('ciudad lineal') || d.includes('pueblo nuevo')) return 'Ciudad Lineal';
+  if (d.includes('moncloa') || d.includes('aravaca')) return 'Moncloa';
+  if (d.includes('barajas')) return 'Barajas';
+  if (d.includes('hortaleza') || d.includes('arturo soria')) return 'Hortaleza';
+  if (d.includes('villaverde')) return 'Villaverde';
+  if (d.includes('moratalaz')) return 'Moratalaz';
+  return 'Otros';
+}
+
+let adminSort  = 'nombre';
+let adminFuente = '';
+
+function renderBarsTable() {
+  const q = (document.getElementById('bars-search')?.value||'').toLowerCase();
+  const filtered = allBars.filter(b => !q || 
+    (b.nombre||'').toLowerCase().includes(q) || 
+    (b.ciudad||'').toLowerCase().includes(q) || 
+    (b.region||'').toLowerCase().includes(q) ||
+    (b.direccion||'').toLowerCase().includes(q) ||
+    extractZona(b.direccion).toLowerCase().includes(q)
+  );
+  const withFuente = adminFuente ? filtered.filter(b => (b.fuente || '') === adminFuente) : filtered;
+  if (adminSort === 'barrio')    withFuente.sort((a,b) => extractZona(a.direccion).localeCompare(extractZona(b.direccion)));
+  else if (adminSort === 'precio')   withFuente.sort((a,b) => (parseFloat(a.precio)||999) - (parseFloat(b.precio)||999));
+  else if (adminSort === 'reciente') withFuente.sort((a,b) => new Date(b.created_at||0) - new Date(a.created_at||0));
+  else withFuente.sort((a,b) => (a.nombre||'').localeCompare(b.nombre||''));
+  document.getElementById('bars-count-label').textContent = `(${withFuente.length} de ${allBars.length})`;
+  document.getElementById('bars-tbody').innerHTML = withFuente.map((b,i) => {
+    const approveBtn = b.aprobado
+      ? '<span style="font-size:11px;padding:3px 8px;border-radius:20px;background:#E8F5E9;color:#2E7D32;font-weight:500">✅ Aprobado</span>'
+      : `<button onclick="approveBar(${b.id})" style="font-size:11px;padding:4px 10px;background:#E8A020;color:#180900;border:none;border-radius:6px;cursor:pointer;font-weight:600">⏳ Aprobar</button>`;
+    return `<tr id="row-${b.id}">
+      <td><input type="checkbox" class="cb" onchange="toggleSelect(${b.id},this)" ${selected.has(b.id)?'checked':''}></td>
+      <td style="color:var(--slate-light);font-size:12px">${i+1}</td>
+      <td style="font-weight:500">${b.nombre||'—'}</td>
+      <td><span class="badge-region">${extractZona(b.direccion)}</span></td>
+      <td style="font-size:13px;color:var(--slate-light);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${b.direccion||''}">${b.direccion||'—'}</td>
+      <td class="price-cell ${priceClass(parseFloat(b.precio)||0)}">${parseFloat(b.precio||0).toFixed(2)}€</td>
+      <td><span style="font-size:11px;padding:3px 8px;border-radius:20px;background:${b.fuente==='bot'?'#E3F2FD':b.fuente==='comunidad'?'#E8F5E9':b.fuente==='formulario'?'#FFF3E0':b.fuente==='admin'?'#F3E5F5':'#F5F5F5'};color:${b.fuente==='bot'?'#1565C0':b.fuente==='comunidad'?'#2E7D32':b.fuente==='formulario'?'#E65100':b.fuente==='admin'?'#6A1B9A':'#757575'};font-weight:500">${b.fuente==='bot'?'🤖 Bot':b.fuente==='comunidad'?'👥 Comunidad':b.fuente==='formulario'?'📋 Formulario':b.fuente==='admin'?'👤 Admin':'—'}</span></td>
+      <td>${approveBtn}</td>
+      <td>
+        <button class="btn-edit" onclick="editBar(${b.id})">Editar</button>
+        <button class="btn-danger" onclick="deleteBar(${b.id},'${(b.nombre||'').replace(/'/g,"\\'")}')">✕</button>
+      </td>
+    </tr>`;
+  }).join('');
+  updateBulkBar();
+}
+
+function toggleSelect(id, cb) {
+  if (cb.checked) selected.add(id); else selected.delete(id);
+  updateBulkBar();
+}
+
+function toggleAll(cb) {
+  const q = (document.getElementById('bars-search')?.value||'').toLowerCase();
+  const filtered = allBars.filter(b => !q || (b.nombre||'').toLowerCase().includes(q) || (b.ciudad||'').toLowerCase().includes(q));
+  filtered.forEach(b => { if(cb.checked) selected.add(b.id); else selected.delete(b.id); });
+  renderBarsTable();
+}
+
+function clearSelection() { selected.clear(); document.getElementById('check-all').checked = false; renderBarsTable(); }
+
+function updateBulkBar() {
+  const bar = document.getElementById('bulk-bar');
+  if (selected.size > 0) { bar.classList.add('show'); document.getElementById('bulk-count').textContent = `${selected.size} seleccionados`; }
+  else bar.classList.remove('show');
+}
+
+async function addBar() {
+  const nombre = document.getElementById('new-nombre').value.trim();
+  const ciudad = document.getElementById('new-ciudad').value.trim();
+  const region = document.getElementById('new-region').value;
+  const precio = parseFloat(document.getElementById('new-precio').value);
+  const direccion = document.getElementById('new-direccion').value.trim();
+  const lat_raw = parseFloat(document.getElementById('new-lat').value) || null;
+  const lng_raw = parseFloat(document.getElementById('new-lng').value) || null;
+  const cana_precio = document.getElementById('new-cana').value ? String(parseFloat(document.getElementById('new-cana').value)) : null;
+  const bravas_precio = document.getElementById('new-bravas').value ? String(parseFloat(document.getElementById('new-bravas').value)) : null;
+  const tortilla_precio = document.getElementById('new-tortilla').value ? String(parseFloat(document.getElementById('new-tortilla').value)) : null;
+  const croquetas_precio = document.getElementById('new-croquetas').value ? String(parseFloat(document.getElementById('new-croquetas').value)) : null;
+  if (!nombre||!ciudad||!precio||precio<0.5||precio>15) { showToast('Rellena todos los campos obligatorios','error'); return; }
+  let lat = lat_raw, lng = lng_raw;
+  if (!lat || !lng) {
+    showToast('🌍 Buscando coordenadas...', 'success');
+    const coords = await geocodeAddress(direccion, ciudad);
+    lat = coords.lat; lng = coords.lng;
+  }
+  try {
+    await api('POST','bares',{nombre,ciudad,region,precio,direccion,lat,lng,cana_precio,bravas_precio,tortilla_precio,croquetas_precio,aprobado:true,fuente:'admin'});
+    document.getElementById('new-nombre').value='';
+    document.getElementById('new-ciudad').value='';
+    document.getElementById('new-precio').value='';
+    document.getElementById('new-direccion').value='';
+    document.getElementById('new-lat').value='';
+    document.getElementById('new-lng').value='';
+    document.getElementById('new-cana').value='';
+    document.getElementById('new-bravas').value='';
+    document.getElementById('new-tortilla').value='';
+    document.getElementById('new-croquetas').value='';
+    showToast(`✅ "${nombre}" añadido`,'success');
+    loadBars();
+  } catch(e) { showToast('Error: '+e.message,'error'); }
+}
+
+async function deleteBar(id, nombre) {
+  if (!confirm(`¿Eliminar "${nombre}"?`)) return;
+  try {
+    await api('DELETE',`bares?id=eq.${id}`);
+    allBars = allBars.filter(b=>b.id!==id);
+    selected.delete(id);
+    updateStats(); renderBarsTable();
+    showToast(`🗑 "${nombre}" eliminado`,'success');
+  } catch(e) { showToast('Error: '+e.message,'error'); }
+}
+
+async function deleteSelected() {
+  if (!selected.size) return;
+  if (!confirm(`¿Eliminar ${selected.size} bares?`)) return;
+  try {
+    const ids = [...selected].join(',');
+    await api('DELETE',`bares?id=in.(${ids})`);
+    allBars = allBars.filter(b=>!selected.has(b.id));
+    selected.clear();
+    updateStats(); renderBarsTable();
+    showToast(`🗑 ${selected.size} bares eliminados`,'success');
+  } catch(e) { showToast('Error: '+e.message,'error'); }
+}
+
+function editBar(id) {
+  const b = allBars.find(x=>x.id===id);
+  const row = document.getElementById('row-'+id);
+  row.innerHTML = `
+    <td></td><td style="color:var(--slate-light);font-size:12px">#</td>
+    <td><input style="width:130px;padding:4px 8px;border:1px solid var(--roja);border-radius:6px;font-size:13px" id="e-nombre-${id}" value="${b.nombre||''}"></td>
+    <td><input style="width:100px;padding:4px 8px;border:1px solid var(--border-strong);border-radius:6px;font-size:13px" id="e-ciudad-${id}" value="${b.ciudad||''}"></td>
+    <td><span class="badge-region">${b.region||''}</span></td>
+    <td><input style="width:140px;padding:4px 8px;border:1px solid var(--border-strong);border-radius:6px;font-size:13px" id="e-dir-${id}" value="${b.direccion||''}"></td>
+    <td><input class="region-price-input" type="number" id="e-precio-${id}" value="${b.precio}" step="0.10" min="0.50" max="15"></td>
+    <td><input class="region-price-input" type="number" id="e-cana-${id}" value="${b.cana_precio||''}" step="0.10" min="0.50" max="15" placeholder="—"></td>
+    <td><input class="region-price-input" type="number" id="e-bravas-${id}" value="${b.bravas_precio||''}" step="0.10" min="0.50" max="30" placeholder="—"></td>
+    <td><input class="region-price-input" type="number" id="e-tortilla-${id}" value="${b.tortilla_precio||''}" step="0.10" min="0.50" max="30" placeholder="—"></td>
+    <td><input class="region-price-input" type="number" id="e-croquetas-${id}" value="${b.croquetas_precio||''}" step="0.10" min="0.50" max="30" placeholder="—"></td>
+    <td style="display:flex;gap:4px;align-items:center">
+      <input style="width:70px;padding:4px;border:1px solid var(--border-strong);border-radius:4px;font-size:11px" type="number" id="e-lat-${id}" value="${b.lat||''}" placeholder="lat" step="0.0001">
+      <input style="width:70px;padding:4px;border:1px solid var(--border-strong);border-radius:4px;font-size:11px" type="number" id="e-lng-${id}" value="${b.lng||''}" placeholder="lng" step="0.0001">
+    </td>
+    <td>
+      <button class="btn-save" onclick="saveBar(${id})">Guardar</button>
+      <button class="btn-danger" onclick="renderBarsTable()">Cancelar</button>
+    </td>`;
+}
+
+async function saveBar(id) {
+  const nombre = document.getElementById(`e-nombre-${id}`).value.trim();
+  const ciudad = document.getElementById(`e-ciudad-${id}`).value.trim();
+  const direccion = document.getElementById(`e-dir-${id}`).value.trim();
+  const precio = parseFloat(document.getElementById(`e-precio-${id}`).value);
+  const lat = parseFloat(document.getElementById(`e-lat-${id}`).value) || null;
+  const lng = parseFloat(document.getElementById(`e-lng-${id}`).value) || null;
+  const cana_precio = document.getElementById(`e-cana-${id}`).value ? String(parseFloat(document.getElementById(`e-cana-${id}`).value)) : null;
+  const bravas_precio = document.getElementById(`e-bravas-${id}`).value ? String(parseFloat(document.getElementById(`e-bravas-${id}`).value)) : null;
+  const tortilla_precio = document.getElementById(`e-tortilla-${id}`).value ? String(parseFloat(document.getElementById(`e-tortilla-${id}`).value)) : null;
+  const croquetas_precio = document.getElementById(`e-croquetas-${id}`).value ? String(parseFloat(document.getElementById(`e-croquetas-${id}`).value)) : null;
+  try {
+    await api('PATCH',`bares?id=eq.${id}`,{nombre,ciudad,direccion,precio,lat,lng,cana_precio,bravas_precio,tortilla_precio,croquetas_precio});
+    const bar = allBars.find(b=>b.id===id);
+    Object.assign(bar,{nombre,ciudad,direccion,precio,lat,lng,cana_precio,bravas_precio,tortilla_precio,croquetas_precio});
+    updateStats(); renderBarsTable();
+    showToast(`✅ "${nombre}" actualizado`,'success');
+  } catch(e) { showToast('Error: '+e.message,'error'); }
+}
+
+function exportCSV() {
+  const rows = [['nombre','ciudad','region','precio','direccion','lat','lng']];
+  allBars.forEach(b => rows.push([b.nombre,b.ciudad,b.region,b.precio,b.direccion||'',b.lat||'',b.lng||'']));
+  const csv = rows.map(r=>r.map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = 'dameunadoble_bares.csv'; a.click();
+  showToast('✅ CSV exportado','success');
+}
+
+function downloadTemplate() {
+  const csv = 'nombre,ciudad,region,precio,direccion\n"Bar El Patio","Sevilla","Andalucía",1.80,"Calle Mayor 12"\n"La Taberna","Madrid","Comunidad de Madrid",3.20,"Gran Vía 45"';
+  const blob = new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = 'plantilla_bares.csv'; a.click();
+}
+
+function csvDrag(e,over) { e.preventDefault(); document.getElementById('csv-zone').classList.toggle('drag',over); }
+function csvDrop(e) { e.preventDefault(); csvDrag(e,false); handleCSV(e.dataTransfer.files[0]); }
+
+function handleCSV(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const lines = e.target.result.split('\n').filter(l=>l.trim());
+    const headers = lines[0].split(',').map(h=>h.trim().replace(/"/g,'').toLowerCase());
+    const rows = lines.slice(1).map(line => {
+      const vals = line.match(/(".*?"|[^,]+)/g)||[];
+      const obj = {};
+      headers.forEach((h,i) => { obj[h] = (vals[i]||'').trim().replace(/^"|"$/g,''); });
+      return obj;
+    }).filter(r=>r.nombre);
+    
+    const preview = document.getElementById('csv-preview');
+    preview.innerHTML = `
+      <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:1rem;margin-top:1rem;">
+        <p style="font-size:14px;color:var(--slate);margin-bottom:1rem"><strong>${rows.length} bares</strong> listos para importar</p>
+        <div style="overflow-x:auto;max-height:200px;overflow-y:auto">
+          <table style="width:100%;font-size:13px;border-collapse:collapse">
+            <thead><tr style="background:var(--espuma)">${headers.map(h=>`<th style="padding:6px 10px;text-align:left;border-bottom:1px solid var(--border)">${h}</th>`).join('')}</tr></thead>
+            <tbody>${rows.slice(0,5).map(r=>`<tr>${headers.map(h=>`<td style="padding:6px 10px;border-bottom:1px solid var(--border)">${r[h]||'—'}</td>`).join('')}</tr>`).join('')}
+            ${rows.length>5?`<tr><td colspan="${headers.length}" style="padding:6px 10px;color:var(--slate-light);font-size:12px">...y ${rows.length-5} más</td></tr>`:''}
+            </tbody>
+          </table>
+        </div>
+        <div style="margin-top:1rem;display:flex;gap:8px">
+          <button class="btn-add" onclick="importCSVRows(${JSON.stringify(rows).replace(/"/g,'&quot;')})">⬆ Importar ${rows.length} bares</button>
+          <button class="btn-secondary" onclick="document.getElementById('csv-preview').innerHTML=''">Cancelar</button>
+        </div>
+      </div>`;
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+async function geocodeAddress(direccion, ciudad) {
+  try {
+    const q = encodeURIComponent(`${direccion}, ${ciudad}, España`);
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${q}&format=json&limit=1`, {
+      headers: { 'Accept-Language': 'es', 'User-Agent': 'DameUnaDoble/1.0' }
+    });
+    const data = await res.json();
+    if (data && data[0]) return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+  } catch(e) {}
+  return { lat: null, lng: null };
+}
+
+async function importCSVRows(rows) {
+  try {
+    showToast(`🌍 Geocodificando ${rows.length} bares...`, 'success');
+    const data = [];
+    for (const r of rows) {
+      let lat = parseFloat(r.lat) || null;
+      let lng = parseFloat(r.lng) || null;
+      if (!lat || !lng) {
+        const coords = await geocodeAddress(r.direccion || '', r.ciudad || '');
+        lat = coords.lat; lng = coords.lng;
+        await new Promise(res => setTimeout(res, 1100)); // Nominatim: max 1 req/s
+      }
+      data.push({
+        nombre: r.nombre, ciudad: r.ciudad, region: r.region,
+        precio: parseFloat(r.precio) || 0, direccion: r.direccion || '',
+        lat, lng,
+        cana_precio: r.cana_precio || null, bravas_precio: r.bravas_precio || null,
+        tortilla_precio: r.tortilla_precio || null, croquetas_precio: r.croquetas_precio || null
+      });
+    }
+    await api('POST','bares',data);
+    document.getElementById('csv-preview').innerHTML='';
+    showToast(`✅ ${data.length} bares importados`,'success');
+    loadBars();
+    switchTab('bares', document.querySelector('.tab-btn'));
+  } catch(e) { showToast('Error importando: '+e.message,'error'); }
+}
+
+function renderRegionsTable() {
+  document.getElementById('regions-tbody').innerHTML = Object.entries(REGION_PRICES)
+    .sort((a,b)=>a[1]-b[1])
+    .map(([name,price])=>`<tr>
+      <td style="font-weight:500">${name}</td>
+      <td><input class="region-price-input" type="number" id="rp-${name.replace(/\s/g,'_')}" value="${price.toFixed(2)}" step="0.10" min="0.50" max="15"></td>
+      <td style="color:var(--slate-light);font-size:13px">${allBars.filter(b=>b.region===name).length} bares</td>
+      <td><button class="btn-save" onclick="saveRegion('${name}')">Guardar</button></td>
+    </tr>`).join('');
+}
+
+function saveRegion(name) {
+  const key = name.replace(/\s/g,'_');
+  const val = parseFloat(document.getElementById('rp-'+key).value);
+  if (!val||val<0.5||val>15) { showToast('Precio inválido','error'); return; }
+  REGION_PRICES[name] = val;
+  showToast(`✅ ${name} → ${val.toFixed(2)}€`,'success');
+}
+
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  document.getElementById('tab-'+tab).classList.add('active');
+  if (tab==='regiones') renderRegionsTable();
+  if (tab==='reportes') loadReportes();
+  if (tab==='pendientes') renderPendientes();
+  if (tab==='destacar') { loadDestacados(); populateDestacadoSelect(); }
+}
+
+function populateDestacadoSelect() {
+  const sel = document.getElementById('dest-region');
+  if(sel) sel.innerHTML = [...REGIONS].sort().map(r => `<option value="${r}">${r}</option>`).join('');
+}
+
+async function addDestacado() {
+  const nombre = document.getElementById('dest-nombre').value.trim();
+  const ciudad = document.getElementById('dest-ciudad').value.trim();
+  const region = document.getElementById('dest-region').value;
+  const precio = document.getElementById('dest-precio').value;
+  const direccion = document.getElementById('dest-direccion').value.trim();
+  if (!nombre||!ciudad) { showToast('Rellena nombre y ciudad','error'); return; }
+  try {
+    await api('POST','bares',{nombre,ciudad,region,precio,direccion,aprobado:true,destacado:true});
+    document.getElementById('dest-nombre').value='';
+    document.getElementById('dest-ciudad').value='';
+    document.getElementById('dest-precio').value='';
+    document.getElementById('dest-direccion').value='';
+    showToast(`⭐ "${nombre}" añadido como destacado`,'success');
+    loadDestacados();
+  } catch(e) { showToast('Error: '+e.message,'error'); }
+}
+
+async function loadDestacados() {
+  const list = document.getElementById('destacados-list');
+  if(!list) return;
+  try {
+    const data = await api('GET','bares?destacado=eq.true&select=*&order=nombre.asc');
+    if(!data||!data.length) { list.innerHTML='<p style="color:var(--slate-light);text-align:center;padding:1rem">No hay bares destacados aún.</p>'; return; }
+    list.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:14px">
+      <thead><tr style="border-bottom:2px solid var(--border)">
+        <th style="padding:8px 12px;text-align:left;font-size:11px;color:var(--slate-light)">Bar</th>
+        <th style="padding:8px 12px;text-align:left;font-size:11px;color:var(--slate-light)">Ciudad</th>
+        <th style="padding:8px 12px;text-align:left;font-size:11px;color:var(--slate-light)">Precio</th>
+        <th style="padding:8px 12px;text-align:left;font-size:11px;color:var(--slate-light)">Acción</th>
+      </tr></thead>
+      <tbody>${data.map(b=>`<tr style="border-bottom:1px solid var(--border)">
+        <td style="padding:8px 12px;font-weight:500">${b.nombre}</td>
+        <td style="padding:8px 12px">${b.ciudad}</td>
+        <td style="padding:8px 12px;font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--roja)">${parseFloat(b.precio||0).toFixed(2)}€</td>
+        <td style="padding:8px 12px"><button class="btn-danger" onclick="removeDestacado(${b.id},'${(b.nombre||'').replace(/'/g,"\\'")}')">Quitar</button></td>
+      </tr>`).join('')}</tbody>
+    </table>`;
+  } catch(e) { list.innerHTML='<p style="color:var(--red)">Error cargando destacados</p>'; }
+}
+
+async function removeDestacado(id, nombre) {
+  if(!confirm(`¿Quitar destacado de "${nombre}"?`)) return;
+  try {
+    await api('PATCH',`bares?id=eq.${id}`,{destacado:false});
+    showToast(`✅ "${nombre}" ya no es destacado`,'success');
+    loadDestacados();
+  } catch(e) { showToast('Error: '+e.message,'error'); }
+}
+
+function renderPendientes() {
+  const pending = allBars.filter(b => !b.precio || parseFloat(b.precio) === 0);
+  document.getElementById('pending-count').textContent = '(' + pending.length + ' pendientes)';
+  document.getElementById('pending-tbody').innerHTML = pending.map((b, i) => {
+    const searchQuery = encodeURIComponent(b.nombre + ' ' + (b.direccion ? b.direccion.split(',').slice(0,2).join(',') : 'Madrid') + ' precios');
+    return `<tr>
+      <td style="color:var(--slate-light);font-size:12px">${i + 1}</td>
+      <td>
+        <div style="font-weight:500">${b.nombre || '—'}</div>
+        <div style="font-size:11px;color:var(--slate-light)">${b.region || 'Madrid'}</div>
+      </td>
+      <td style="font-size:12px;color:var(--slate-light);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${b.direccion || '—'}</td>
+      <td>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <input type="number" id="qp-${b.id}" placeholder="Doble €" step="0.10" min="0.50" max="15"
+            style="width:90px;padding:5px 8px;border:1px solid var(--border-strong);border-radius:6px;font-size:13px;font-family:'Bebas Neue',sans-serif;text-align:center"
+            onkeydown="if(event.key==='Enter')quickSavePrice(${b.id})">
+          <input type="number" id="qc-${b.id}" placeholder="Caña €" step="0.10" min="0.50" max="10"
+            style="width:90px;padding:5px 8px;border:1px solid var(--border-strong);border-radius:6px;font-size:13px;font-family:'Bebas Neue',sans-serif;text-align:center">
+          <input type="number" id="qb-${b.id}" placeholder="Bravas €" step="0.10" min="0.50" max="30"
+            style="width:90px;padding:5px 8px;border:1px solid var(--border-strong);border-radius:6px;font-size:13px;font-family:'Bebas Neue',sans-serif;text-align:center">
+          <input type="number" id="qt-${b.id}" placeholder="Tortilla €" step="0.10" min="0.50" max="30"
+            style="width:90px;padding:5px 8px;border:1px solid var(--border-strong);border-radius:6px;font-size:13px;font-family:'Bebas Neue',sans-serif;text-align:center">
+          <input type="number" id="qq-${b.id}" placeholder="Croquetas €" step="0.10" min="0.50" max="30"
+            style="width:90px;padding:5px 8px;border:1px solid var(--border-strong);border-radius:6px;font-size:13px;font-family:'Bebas Neue',sans-serif;text-align:center">
+        </div>
+      </td>
+      <td style="white-space:nowrap;vertical-align:top;padding-top:4px">
+        <button class="btn-save" onclick="quickSavePrice(${b.id})">Guardar</button>
+        <a href="https://www.google.com/search?q=${searchQuery}" target="_blank"
+          style="display:inline-block;margin-top:4px;font-size:11px;padding:5px 8px;border:1px solid var(--roja);border-radius:6px;color:var(--roja);text-decoration:none">🔍 Buscar</a>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function quickSavePrice(id) {
+  const precio    = document.getElementById('qp-' + id)?.value;
+  const cana      = document.getElementById('qc-' + id)?.value;
+  const bravas    = document.getElementById('qb-' + id)?.value;
+  const tortilla  = document.getElementById('qt-' + id)?.value;
+  const croquetas = document.getElementById('qq-' + id)?.value;
+
+  if (!precio && !cana && !bravas && !tortilla && !croquetas) {
+    showToast('Introduce al menos un precio', 'error'); return;
+  }
+  if (precio && (parseFloat(precio) < 0.5 || parseFloat(precio) > 15)) {
+    showToast('Precio del doble inválido (0.50–15.00)', 'error'); return;
+  }
+
+  const data = { aprobado: true };
+  if (precio)    data.precio            = precio;
+  if (cana)      data.cana_precio       = cana;
+  if (bravas)    data.bravas_precio     = bravas;
+  if (tortilla)  data.tortilla_precio   = tortilla;
+  if (croquetas) data.croquetas_precio  = croquetas;
+
+  try {
+    await api('PATCH', 'bares?id=eq.' + id, data);
+    const bar = allBars.find(b => b.id === id);
+    if (bar) Object.assign(bar, data);
+    showToast('✅ Precios guardados y bar aprobado', 'success');
+    renderPendientes();
+    renderBarsTable();
+    updateStats();
+  } catch (e) {
+    showToast('Error: ' + e.message, 'error');
   }
 }
+
+let allReportes = [];
 
 async function loadReportes() {
   try {
-    const { data } = await sb
-      .from('reportes')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(40);
-    reportes = data || [];
-    renderFeed();
-  } catch (err) {
-    console.error('Error cargando reportes:', err);
+    allReportes = await api('GET', 'reportes?select=*&revisado=eq.false&order=created_at.desc');
+    renderReportes();
+  } catch(e) {
+    console.warn('No reportes table', e);
+    allReportes = [];
+    renderReportes();
   }
 }
 
-/* ══════════════════════════════
-   MAP
-══════════════════════════════ */
-function initMap() {
-  if (mapInited) { map.invalidateSize(); return; }
-  mapInited = true;
-
-  map = L.map('map', {
-    center: MADRID, zoom: 13,
-    zoomControl: false,
-  });
-
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-    attribution: '© <a href="https://www.openstreetmap.org/copyright">OSM</a> © <a href="https://carto.com/">CARTO</a>',
-    subdomains: 'abcd', maxZoom: 19,
-  }).addTo(map);
-
-  L.control.zoom({ position: 'bottomright' }).addTo(map);
-
-  // Geolocation button
-  const LocBtn = L.Control.extend({
-    options: { position: 'bottomright' },
-    onAdd() {
-      const btn = L.DomUtil.create('button', '');
-      btn.innerHTML = '📍';
-      btn.title = 'Mi ubicación';
-      btn.style.cssText = 'width:34px;height:34px;border:2px solid var(--malta);border-radius:50%;background:var(--espuma);cursor:pointer;font-size:16px;margin-bottom:6px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.2)';
-      L.DomEvent.on(btn, 'click', () => geolocate());
-      return btn;
-    }
-  });
-  new LocBtn().addTo(map);
-
-  if (allBars.length) renderMapMarkers();
-}
-
-// 5-tier color scale relative to mean
-let priceMean = 3.0;
-let priceP33  = 3.0;  // alias for cheap filter
-let priceP66  = 4.5;
-
-// Tier boundaries (dynamic, based on mean)
-let t1Max, t2Max, t3Max, t4Max; // t5 = everything above t4Max
-
-function calcPriceThresholds() {
-  const prices = allBars.map(b => b._precio).filter(p => p > 0);
-  if (prices.length < 3) return;
-  priceMean = prices.reduce((s, p) => s + p, 0) / prices.length;
-  priceP33  = priceMean;        // below mean = cheap filter
-  priceP66  = priceMean + 1.0;  // for ranking colors
-
-  // 5 tiers centered on mean
-  t1Max = priceMean - 1.0;   // very cheap (dark green)
-  t2Max = priceMean;          // below average (light green)
-  t3Max = priceMean + 0.5;   // around average (yellow)
-  t4Max = priceMean + 1.5;   // above average (orange)
-  // > t4Max = red
-}
-
-function pinClass(price) {
-  if (price <= t1Max) return 't1';
-  if (price <= t2Max) return 't2';
-  if (price <= t3Max) return 't3';
-  if (price <= t4Max) return 't4';
-  return 't5';
-}
-
-function priceColor(price) {
-  if (price <= t1Max) return '#1B7A2A';
-  if (price <= t2Max) return '#5DAB3D';
-  if (price <= t3Max) return '#C9A800';
-  if (price <= t4Max) return '#E06820';
-  return 'var(--roja)';
-}
-
-function renderMapMarkers() {
-  // Remove old markers
-  Object.values(leafletMarkers).forEach(m => map.removeLayer(m));
-  leafletMarkers = {};
-
-  const visible = allBars.filter(b => {
-    if (!b.lat || !b.lng || !b._precio) return false;
-    if (mapFilter === 'cheap') return b._precio <= priceP33;
-    if (mapFilter === 'fav')   return favorites.includes(b.id);
-    if (mapFilter === 'cerca') {
-      if (!geoActive) return true;
-      return haversine(userLat, userLng, b.lat, b.lng) <= 1.0;
-    }
-    return true;
-  });
-
-  visible.forEach(b => {
-    const cls  = pinClass(b._precio);
-    const dist = geoActive && b.lat && b.lng
-      ? ` <span style="font-size:10px;opacity:0.8">${formatDist(haversine(userLat,userLng,b.lat,b.lng))}</span>`
-      : '';
-    const icon = L.divIcon({
-      className: '',
-      html: `<div class="price-pin ${cls}" id="pin-${b.id}">€${b._precio.toFixed(2)}${dist}</div>`,
-      iconAnchor: [0, 0],
-    });
-    const mk = L.marker([b.lat, b.lng], { icon })
-      .addTo(map)
-      .on('click', () => openSheet(b.id));
-    leafletMarkers[b.id] = mk;
-  });
-}
-
-function setMapFilter(filter, el) {
-  mapFilter = filter;
-  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-  el.classList.add('active');
-  if (mapInited) renderMapMarkers();
-}
-
-function geolocate() {
-  if (!navigator.geolocation) { showToast('Geolocalización no disponible'); return; }
-  if (geoActive) {
-    geoActive = false; userLat = null; userLng = null;
-    document.querySelector('[data-filter="cerca"]')?.classList.remove('active');
-    renderMapMarkers();
-    renderHome();
-    showToast('Distancia desactivada');
+function renderReportes() {
+  document.getElementById('reportes-count').textContent = '(' + allReportes.length + ' pendientes)';
+  const tbody = document.getElementById('reportes-tbody');
+  const empty = document.getElementById('reportes-empty');
+  if (!allReportes.length) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
     return;
   }
-  showToast('📍 Localizando...');
-  navigator.geolocation.getCurrentPosition(pos => {
-    userLat = pos.coords.latitude;
-    userLng = pos.coords.longitude;
-    geoActive = true;
-    map.setView([userLat, userLng], 15);
-    L.circleMarker([userLat, userLng], {
-      radius: 8, fillColor: '#2563eb', fillOpacity: 1,
-      color: '#fff', weight: 3,
-    }).addTo(map);
-    // Activate cerca filter chip
-    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-    document.querySelector('[data-filter="cerca"]')?.classList.add('active');
-    mapFilter = 'cerca';
-    renderMapMarkers();
-    renderHome();
-    showToast('📍 Mostrando bares cercanos');
-  }, () => showToast('No se pudo obtener tu ubicación'), { enableHighAccuracy: true, timeout: 10000 });
-}
-
-/* ══════════════════════════════
-   HOME
-══════════════════════════════ */
-function findNearMe() {
-  if (!navigator.geolocation) { showToast('Geolocalización no disponible'); return; }
-  if (geoActive) {
-    geoActive = false; userLat = null; userLng = null;
-    document.getElementById('geo-home-btn').textContent = '📍 Bares cerca de mí';
-    document.getElementById('geo-home-btn').style.borderColor = '';
-    document.getElementById('home-cerca-section').style.display = 'none';
-    return;
-  }
-  showToast('📍 Localizando...');
-  navigator.geolocation.getCurrentPosition(pos => {
-    userLat = pos.coords.latitude;
-    userLng = pos.coords.longitude;
-    geoActive = true;
-    const btn = document.getElementById('geo-home-btn');
-    btn.textContent = '📍 Ubicación activa · Desactivar';
-    btn.style.borderColor = 'var(--lupulo)';
-    btn.style.color = 'var(--lupulo)';
-    renderHome();
-    showToast('📍 Mostrando bares cercanos');
-  }, () => showToast('No se pudo obtener tu ubicación'), { enableHighAccuracy: true, timeout: 10000 });
-}
-
-function renderHome() {
-  if (!allBars.length) return;
-  const valid  = allBars.filter(b => b._precio > 0);
-  const avg    = valid.reduce((s, b) => s + b._precio, 0) / valid.length;
-  const sorted = [...valid].sort((a, b) => a._precio - b._precio);
-  const cheapest = sorted[0];
-  const medals = ['🥇','🥈','🥉'];
-
-  document.getElementById('h-bares').textContent = valid.length;
-  document.getElementById('h-avg').textContent   = `€${avg.toFixed(2)}`;
-  document.getElementById('h-cheap').textContent = cheapest ? `€${cheapest._precio.toFixed(2)}` : '—';
-
-  const top3 = sorted.slice(0, 3);
-  document.getElementById('home-top3').innerHTML = top3.map((b, i) => {
-    const zona = extractZona(b.direccion || '') || b.ciudad || 'Madrid';
-    return `<div class="home-bar-row" onclick="openSheet(${b.id})">
-      <div class="home-bar-medal">${medals[i]}</div>
-      <div class="home-bar-info">
-        <div class="home-bar-name">${b.nombre}</div>
-        <div class="home-bar-zona">${zona}</div>
-      </div>
-      <div class="home-bar-price">€${b._precio.toFixed(2)}</div>
-    </div>`;
-  }).join('');
-
-  // Nearby bars
-  const cercaSection = document.getElementById('home-cerca-section');
-  if (geoActive && userLat && userLng) {
-    const nearby = [...valid]
-      .filter(b => b.lat && b.lng)
-      .map(b => ({ ...b, _dist: haversine(userLat, userLng, b.lat, b.lng) }))
-      .sort((a, b) => a._dist - b._dist)
-      .slice(0, 5);
-    cercaSection.style.display = 'block';
-    document.getElementById('home-cerca-list').innerHTML = nearby.map(b => {
-      const zona = extractZona(b.direccion || '') || b.ciudad || 'Madrid';
-      return `<div class="home-bar-row" onclick="openSheet(${b.id})">
-        <div class="home-bar-medal">📍</div>
-        <div class="home-bar-info">
-          <div class="home-bar-name">${b.nombre}</div>
-          <div class="home-bar-zona">${zona} · ${formatDist(b._dist)}</div>
-        </div>
-        <div class="home-bar-price">€${b._precio.toFixed(2)}</div>
-      </div>`;
-    }).join('');
-  } else {
-    cercaSection.style.display = 'none';
-  }
-}
-
-function renderTicker() {
-  const sorted = [...allBars]
-    .filter(b => b._precio > 0 && b.nombre)
-    .sort((a, b) => a._precio - b._precio)
-    .slice(0, 22);
-
-  const items = sorted.map(b =>
-    `<span class="ticker-item">${b.nombre}<span class="ticker-sep">·</span><span class="ticker-price">€${b._precio.toFixed(2)}</span></span>`
-  ).join('');
-
-  const track = document.getElementById('ticker-track');
-  track.innerHTML = items + items; // duplicate for seamless loop
-}
-
-/* ══════════════════════════════
-   TAB NAVIGATION
-══════════════════════════════ */
-function switchTab(tab) {
-  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('.bot-tab').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('.nav-tab-btn').forEach(el => el.classList.remove('active'));
-
-  document.getElementById('tab-' + tab).classList.add('active');
-  document.getElementById('bt-'  + tab)?.classList.add('active');
-  document.querySelector(`.nav-tab-btn[data-tab="${tab}"]`)?.classList.add('active');
-
-  if (tab === 'mapa') {
-    setTimeout(() => {
-      if (!mapInited) initMap();
-      else map.invalidateSize();
-    }, 80);
-  }
-}
-
-/* ══════════════════════════════
-   BAR DETAIL SHEET
-══════════════════════════════ */
-function openSheet(barId) {
-  selectedRating = 0;
-  const bar = allBars.find(b => b.id === barId);
-  if (!bar) return;
-  activeBarId = barId;
-
-  const zona = extractZona(bar.direccion || '') || bar.ciudad || 'Madrid';
-  document.getElementById('sheet-zona').textContent     = zona.toUpperCase();
-  document.getElementById('sheet-bar-name').textContent = bar.nombre || '—';
-
-  // Price + delta
-  const avg  = avgPrice();
-  const del  = bar._precio - avg;
-  const pBig = document.getElementById('sheet-price-big');
-  pBig.textContent = bar._precio > 0 ? `€${bar._precio.toFixed(2)}` : '—';
-  pBig.style.color = priceColor(bar._precio);
-
-  const dEl = document.getElementById('sheet-delta');
-  if (bar._precio > 0) {
-    dEl.textContent  = `${del >= 0 ? '+' : ''}€${del.toFixed(2)} vs media`;
-    dEl.className    = 'sheet-delta ' + (del < 0 ? 'cheaper' : 'pricier');
-  } else {
-    dEl.textContent = ''; dEl.className = 'sheet-delta';
-  }
-
-  // Cover background (colour-coded by price)
-  const cover = document.getElementById('sheet-cover');
-  const hue   = bar._precio < 2.5 ? '#1B6B24' : bar._precio > 3.5 ? '#8B0A1E' : '#9C4A1A';
-  cover.style.background = `linear-gradient(135deg, ${hue} 0%, var(--malta) 100%)`;
-
-  // Address
-  document.querySelector('#sheet-addr span').textContent =
-    bar.direccion || 'Dirección no disponible';
-
-  // Fav button
-  document.getElementById('sheet-fav-btn').textContent =
-    favorites.includes(barId) ? '❤️' : '🤍';
-
-  // Open
-  document.getElementById('sheet-overlay').classList.add('open');
-  document.getElementById('bar-sheet').classList.add('open');
-
-  // Track view for Explorer badge
-  trackBarView(barId);
-
-  // Load reviews async
-  loadReviews(barId);
-
-  // Highlight map pin
-  highlightPin(barId);
-}
-
-function highlightPin(barId) {
-  Object.entries(leafletMarkers).forEach(([id, mk]) => {
-    const el = mk.getElement()?.querySelector('.price-pin');
-    if (!el) return;
-    el.classList.toggle('sel', String(id) === String(barId));
-  });
-}
-
-function closeSheet() {
-  document.getElementById('sheet-overlay').classList.remove('open');
-  document.getElementById('bar-sheet').classList.remove('open');
-  closeReport();
-  activeBarId = null;
-  Object.values(leafletMarkers).forEach(mk =>
-    mk.getElement()?.querySelector('.price-pin')?.classList.remove('sel')
-  );
-}
-
-function toggleFav() {
-  if (!activeBarId) return;
-  const idx = favorites.indexOf(activeBarId);
-  if (idx === -1) {
-    favorites.push(activeBarId);
-    document.getElementById('sheet-fav-btn').textContent = '❤️';
-    showToast('Añadido a favoritos ❤️');
-    if (currentUser) {
-      sb.from('favorites').insert({ user_id: currentUser.id, bar_id: activeBarId })
-        .then(() => {}).catch(() => {});
-    }
-  } else {
-    favorites.splice(idx, 1);
-    document.getElementById('sheet-fav-btn').textContent = '🤍';
-    showToast('Eliminado de favoritos');
-    if (currentUser) {
-      sb.from('favorites')
-        .delete()
-        .eq('user_id', currentUser.id)
-        .eq('bar_id', activeBarId)
-        .then(() => {}).catch(() => {});
-    }
-  }
-  localStorage.setItem('dud_favs', JSON.stringify(favorites));
-  renderProfile();
-  if (mapInited) renderMapMarkers();
-  checkBadges();
-}
-
-async function loadFavoritesFromSupabase() {
-  if (!currentUser) return;
-  try {
-    const { data } = await sb.from('favorites')
-      .select('bar_id')
-      .eq('user_id', currentUser.id);
-
-    const serverFavs = (data || []).map(f => f.bar_id);
-
-    // Upload any local favs not yet on server (first login sync)
-    const toUpload = favorites.filter(id => !serverFavs.includes(id));
-    if (toUpload.length > 0) {
-      await sb.from('favorites').insert(
-        toUpload.map(bar_id => ({ user_id: currentUser.id, bar_id }))
-      );
-      favorites = [...new Set([...serverFavs, ...toUpload])];
-    } else {
-      // Server is authoritative — use server state, don't re-merge local
-      favorites = serverFavs;
-    }
-
-    localStorage.setItem('dud_favs', JSON.stringify(favorites));
-    renderProfile();
-    if (mapInited) renderMapMarkers();
-  } catch(e) {
-    console.error('Error syncing favorites:', e);
-  }
-}
-
-function openReport() {
-  const wrap = document.getElementById('report-form-wrap');
-  wrap.style.display = 'block';
-  const bar = allBars.find(b => b.id === activeBarId);
-  if (bar && bar._precio > 0) document.getElementById('report-precio').value = bar._precio.toFixed(2);
-  document.getElementById('report-precio').focus();
-  wrap.querySelectorAll('[data-i18n]').forEach(el => el.textContent = t(el.getAttribute('data-i18n')));
-  wrap.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-    el.placeholder = t(el.getAttribute('data-i18n-placeholder')) || el.placeholder;
-  });
-}
-
-function closeReport() {
-  document.getElementById('report-form-wrap').style.display = 'none';
-  document.getElementById('report-precio').value = '';
-  document.getElementById('report-msg-input').value = '';
-}
-
-async function submitReport() {
-  const bar = allBars.find(b => b.id === activeBarId);
-  if (!bar) return;
-  const precio  = document.getElementById('report-precio').value;
-  const mensaje = document.getElementById('report-msg-input').value.trim();
-  if (!precio || parseFloat(precio) < 0.5 || parseFloat(precio) > 15) {
-    showToast(currentLang === 'en' ? 'Enter a valid price (€0.50–€15)' : 'Introduce un precio válido (0.50–15€)');
-    return;
-  }
-  const btn = document.getElementById('btn-submit-report');
-  btn.disabled = true; btn.textContent = '⏳';
-  try {
-    await sb.from('reportes').insert({
-      bar_id:     bar.id,
-      nombre_bar: bar.nombre,
-      precio:     String(parseFloat(precio).toFixed(2)),
-      mensaje:    mensaje || null,
-      email:      currentUser?.email || null,
-      usuario:    currentUser?.user_metadata?.name || null,
-    });
-    closeReport();
-    showToast(currentLang === 'en' ? '✅ Thanks for the report!' : '✅ ¡Gracias por el reporte!');
-    await loadReportes();
-    if (currentUser) { await loadUserStats(); checkBadges(); }
-  } catch(e) {
-    showToast(currentLang === 'en' ? 'Error sending report' : 'Error al enviar el reporte');
-    btn.disabled = false; btn.textContent = t('report-submit') || '🍺 Enviar reporte';
-  }
-}
-
-/* ══════════════════════════════
-   ADD BAR MODAL
-══════════════════════════════ */
-function openAddBar() {
-  const body = document.getElementById('add-bar-body');
-
-  if (!currentUser) {
-    body.innerHTML = `
-      <div class="modal-auth-notice">
-        🔐 Para añadir o actualizar bares necesitas iniciar sesión. Así sabemos que eres una persona real y no un bot con sed.
-      </div>
-      <button class="btn-google" onclick="handleAuthBtn()" style="width:100%;justify-content:center">
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-          <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908C16.607 14.009 17.64 11.768 17.64 9.2z" fill="#4285F4"/>
-          <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z" fill="#34A853"/>
-          <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
-          <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
-        </svg>
-        Entrar a la barra (con Google)
-      </button>`;
-  } else {
-    body.innerHTML = `
-      <div class="add-bar-form">
-        <div class="form-field">
-          <label>Nombre del bar *</label>
-          <input id="nb-nombre" type="text" placeholder="Ej: Casa Labra">
-        </div>
-        <div class="form-field">
-          <label>Dirección *</label>
-          <input id="nb-dir" type="text" placeholder="Ej: Calle de Tetuan, 12">
-          <div class="form-hint">📍 Las coordenadas se obtienen automáticamente</div>
-        </div>
-        <div class="form-field">
-          <label>Precio doble (€) *</label>
-          <input id="nb-precio" type="number" placeholder="2.50" step="0.10" min="0.50" max="15">
-        </div>
-        <button class="btn-submit-bar" id="btn-submit-bar" onclick="submitNewBar()">
-          🍺 Poner en el mapa
-        </button>
-      </div>`;
-  }
-
-  document.getElementById('add-bar-overlay').classList.add('open');
-  document.getElementById('add-bar-modal').classList.add('open');
-}
-
-function closeAddBar() {
-  document.getElementById('add-bar-overlay').classList.remove('open');
-  document.getElementById('add-bar-modal').classList.remove('open');
-}
-
-async function submitNewBar() {
-  const nombre = document.getElementById('nb-nombre')?.value.trim();
-  const dir    = document.getElementById('nb-dir')?.value.trim();
-  const precio = parseFloat(document.getElementById('nb-precio')?.value);
-  if (!nombre) { showToast('Falta el nombre del bar'); return; }
-  if (!dir)    { showToast('Falta la dirección'); return; }
-  if (!precio || precio < 0.5 || precio > 15) { showToast('Precio del doble inválido'); return; }
-
-  const btn = document.getElementById('btn-submit-bar');
-  btn.disabled = true; btn.textContent = '⏳ Guardando...';
-
-  try {
-    // 1 — Guardar inmediatamente sin coordenadas
-    const { data, error } = await sb.from('bares').insert({
-      nombre, direccion: dir, ciudad: 'Madrid',
-      region: 'Comunidad de Madrid',
-      precio: String(precio),
-      aprobado: false, fuente: 'usuario'
-    }).select('id').single();
-
-    if (error) throw error;
-
-    closeAddBar();
-    showToast('✅ Bar añadido, ¡gracias!');
-    await loadBars();
-
-    // 2 — Geocodificar en segundo plano (sin bloquear al usuario)
-    if (data?.id) {
-      geocodeAddress(dir, 'Madrid').then(coords => {
-        if (coords?.lat && coords?.lng) {
-          sb.from('bares').update({ lat: coords.lat, lng: coords.lng })
-            .eq('id', data.id).then(() => {});
-        }
-      }).catch(() => {});
-    }
-
-  } catch(e) {
-    showToast('Error al guardar el bar');
-    btn.disabled = false; btn.textContent = '🍺 Poner en el mapa';
-  }
-}
-let selectedRating = 0;
-
-function starsHTML(score) {
-  return cañasHTML(Math.round(score));
-}
-
-function bayesianRating(reviews) {
-  const n = reviews.length;
-  if (!n) return null;
-  const sum = reviews.reduce((s, r) => s + (r.rating || 0), 0);
-  return sum / n;
-}
-
-function ratingBars(reviews) {
-  return [5,4,3,2,1].map(star => {
-    const count = reviews.filter(r => r.rating === star).length;
-    const pct = reviews.length ? (count / reviews.length) * 100 : 0;
-    return `<div class="rating-bar-row">
-      <div class="rating-bar-lbl">${star}</div>
-      <div class="rating-bar-bg"><div class="rating-bar-fill" style="width:${pct}%"></div></div>
-    </div>`;
+  empty.style.display = 'none';
+  tbody.innerHTML = allReportes.map(r => {
+    const fecha = r.created_at ? new Date(r.created_at).toLocaleDateString('es-ES', {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
+    return '<tr>' +
+      '<td><div style="font-weight:500">' + (r.bar_nombre||'—') + '</div><div style="font-size:11px;color:var(--slate-light)">ID: ' + (r.bar_id||'—') + '</div></td>' +
+      '<td class="price-cell" style="font-size:22px;color:var(--roja)">' + parseFloat(r.precio||0).toFixed(2) + '€</td>' +
+      '<td style="font-size:12px;color:var(--slate-light)">' + fecha + '</td>' +
+      '<td style="white-space:nowrap">' +
+        '<button class="btn-save" onclick="acceptReporte(' + r.id + ',' + r.bar_id + ',\'' + (r.precio||'').replace(/'/g, '') + '\')">✅ Aceptar</button>' +
+        '<button class="btn-danger" style="margin-left:4px" onclick="rejectReporte(' + r.id + ')">✕ Rechazar</button>' +
+      '</td></tr>';
   }).join('');
 }
 
-async function loadReviews(barId) {
-  const container = document.getElementById('sheet-reviews-body');
-  container.innerHTML = '<div class="loading-state" style="padding:1rem"><div class="loading-spinner"></div></div>';
-  const { data: reviews } = await sb.from('reviews').select('*')
-    .eq('bar_id', barId).order('created_at', { ascending: false });
-  const list = reviews || [];
-  const score = bayesianRating(list);
-  const bar = allBars.find(b => b.id === barId);
-  const mapsQ = bar ? encodeURIComponent(`${bar.nombre} ${bar.direccion || ''} Madrid`) : '';
-  let html = '';
-
-  if (list.length > 0) {
-    html += `<div class="rating-summary">
-      <div>
-        <div class="rating-score">${score.toFixed(1)}</div>
-        <div class="stars-display">${starsHTML(score)}</div>
-        <div class="rating-count">${list.length} reseña${list.length !== 1 ? 's' : ''}</div>
-      </div>
-      <div class="rating-bars">${ratingBars(list)}</div>
-    </div>`;
-  }
-
-  html += `<a class="btn-maps-link" href="https://www.google.com/maps/search/?api=1&query=${mapsQ}" target="_blank" rel="noopener">${t('maps-link')}</a>`;
-
-  if (currentUser) {
-    const alreadyReviewed = list.some(r => r.user_id === currentUser.id);
-    if (!alreadyReviewed) {
-      html += `<div class="review-form">
-        <div class="review-form-lbl">Tu reseña</div>
-        <div class="star-picker" id="star-picker">
-          ${[1,2,3,4,5].map(i => `<span class="star-pick" data-v="${i}" onclick="pickStar(${i})">${mugPickerSVG(false)}</span>`).join('')}
-          <span class="rating-sel-label" id="rating-sel-label">—</span>
-        </div>
-        <textarea class="review-textarea" id="review-text" placeholder="${t('review-placeholder')}"></textarea>
-        <button class="btn-submit-review" onclick="submitReview(${barId})">${t('review-btn')}</button>
-      </div>`;
-    }
-  } else {
-    html += `<div class="review-login-prompt" onclick="handleAuthBtn()">
-      <span>${currentLang === 'en' ? 'Sign in with Google' : 'Entra con Google'}</span> ${t('review-login')}
-    </div>`;
-  }
-
-  if (list.length === 0) {
-    html += `<div class="empty-state">Sé el primero en reseñar este bar.</div>`;
-  } else {
-    html += list.map(r => {
-      const initials = (r.user_name || 'AN').slice(0,2).toUpperCase();
-      const ago = timeAgo(r.created_at);
-      const canas = cañasHTML(r.rating || 0);
-      return `<div class="review-row">
-        <div class="review-meta">
-          <div class="review-av">${r.user_avatar
-            ? `<img src="${r.user_avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
-            : initials}</div>
-          <div class="review-name">${r.user_name || 'Anónimo'}</div>
-          <div class="review-stars">${canas}</div>
-          <div class="review-date">${ago}</div>
-        </div>
-        ${r.comment ? `<div class="review-comment">${r.comment}</div>` : ''}
-      </div>`;
-    }).join('');
-  }
-
-  container.innerHTML = html;
-  selectedRating = 0;
-}
-
-function mugPickerSVG(filled) {
-  const c = filled ? '#C9A800' : '#D0C8BC';
-  return `<svg width="28" height="28" viewBox="0 0 24 24" fill="${c}" xmlns="http://www.w3.org/2000/svg" style="display:block"><path d="M6 2h11l1.5 4H4.5L6 2zm-2 6h15l-1.5 14H5.5L4 8zm15 2h3l.5 7H19l-1-7z"/></svg>`;
-}
-
-function pickStar(val) {
-  selectedRating = val;
-  document.querySelectorAll('.star-pick').forEach(s => {
-    s.innerHTML = mugPickerSVG(parseInt(s.dataset.v) <= val);
-  });
-  const lbl = document.getElementById('rating-sel-label');
-  if (lbl) lbl.textContent = val + '/5';
-}
-
-async function submitReview(barId) {
-  if (!currentUser) { handleAuthBtn(); return; }
-  if (!selectedRating) { showToast(currentLang === 'en' ? 'Select a rating first' : 'Selecciona una puntuación primero'); return; }
-  const comment = document.getElementById('review-text')?.value.trim() || '';
-  const btn = document.querySelector('.btn-submit-review');
-  if (btn) btn.disabled = true;
+async function acceptReporte(reporteId, barId, precio) {
   try {
-    await sb.from('reviews').insert({
-      bar_id:     barId,
-      user_id:    currentUser.id,
-      user_name:  currentUser.user_metadata?.name || currentUser.email,
-      user_avatar:currentUser.user_metadata?.avatar_url || null,
-      rating:     selectedRating,
-      comment:    comment || null,
-    });
-    showToast('✅ Reseña publicada, ¡gracias!');
-    await loadReviews(barId);
-    await loadUserStats();
-    checkBadges();
-  } catch(e) {
-    showToast('Error al publicar reseña');
-    if (btn) btn.disabled = false;
-  }
+    await api('PATCH', 'bares?id=eq.' + barId, { precio: String(precio), aprobado: true });
+    await api('PATCH', 'reportes?id=eq.' + reporteId, { revisado: true });
+    var bar = allBars.find(function(b) { return b.id === barId; });
+    if (bar) { bar.precio = String(precio); bar.aprobado = true; }
+    allReportes = allReportes.filter(function(r) { return r.id !== reporteId; });
+    renderReportes();
+    renderBarsTable();
+    updateStats();
+    showToast('✅ Precio actualizado y bar publicado', 'success');
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
 }
 
-/* ══════════════════════════════
-   RANKING
-══════════════════════════════ */
-function setMetric(metric, el) {
-  currentMetric = metric;
-  document.querySelectorAll('.metric-pill').forEach(p => p.classList.remove('active'));
-  el.classList.add('active');
-  renderRanking();
-}
-
-function setRkSeg(seg, el) {
-  currentRkSeg = seg;
-  document.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-  renderRkBody();
-}
-
-function metricLabel(key) {
-  return ({ precio:'dobles', cana_precio:'cañas', bravas_precio:'bravas',
-            tortilla_precio:'tortillas', croquetas_precio:'croquetas' })[key] || key;
-}
-
-function sortedByMetric() {
-  return allBars
-    .filter(b => b._precio > 0)
-    .map(b => ({ ...b, _val: b._precio }))
-    .sort((a, b) => a._val - b._val);
-}
-
-function renderRanking() {
-  const sorted = sortedByMetric();
-  if (!sorted.length) return;
-
-  const avg = sorted.reduce((s, b) => s + b._val, 0) / sorted.length;
-  document.getElementById('rk-avg').textContent = `€${avg.toFixed(2)}`;
-  document.getElementById('rk-h1').innerHTML =
-    `Los ${metricLabel(currentMetric)}<br>más baratos<em>.</em>`;
-
-  renderRkBody();
-}
-
-function renderRkBody() {
-  const sorted  = sortedByMetric();
-  const body    = document.getElementById('rk-body');
-
-  if (currentRkSeg === 'ranking') {
-    const top3  = sorted.slice(0, 3);
-    const rest  = sorted.slice(3, 50);
-    // Column order: [2nd, 1st, 3rd] for podium visual
-    const order     = [1, 0, 2];
-    const blkCls    = ['podium-blk-2', 'podium-blk-1', 'podium-blk-3'];
-    const medals    = ['🥈', '🥇', '🥉'];
-    const positions = [2, 1, 3];
-
-    const podiumHTML = order.map((idx, col) => {
-      const b = top3[idx];
-      if (!b) return '<div></div>';
-      const zona = extractZona(b.direccion || '') || b.ciudad || '—';
-      return `<div class="podium-col" onclick="openSheet(${b.id})">
-        <div class="podium-nm">${b.nombre}</div>
-        <div class="podium-sub">${zona}</div>
-        <div class="podium-block ${blkCls[col]}">
-          <div class="podium-price">€${b._val.toFixed(2)}</div>
-          <div class="podium-medal">${medals[col]} #${positions[col]}</div>
-        </div>
-      </div>`;
-    }).join('');
-
-    const listHTML = rest.map((b, i) => {
-      const zona  = extractZona(b.direccion || '') || b.ciudad || '—';
-      const color = priceColor(b._val);
-      return `<li class="bar-row" onclick="openSheet(${b.id})">
-        <div class="bar-num">${String(i + 4).padStart(2, '0')}</div>
-        <div>
-          <div class="bar-nm">${b.nombre}</div>
-          <div class="bar-sub">
-            <span>${zona}</span>
-            ${favorites.includes(b.id) ? '<span>❤️</span>' : ''}
-          </div>
-        </div>
-        <div class="bar-val" style="color:${color}">€${b._val.toFixed(2)}</div>
-      </li>`;
-    }).join('');
-
-    body.innerHTML =
-      `<div class="podium">${podiumHTML}</div>
-       <ol class="bar-list">${listHTML}</ol>`;
-
-  } else if (currentRkSeg === 'live') {
-    body.innerHTML = buildFeedHTML();
-
-  } else if (currentRkSeg === 'drops') {
-    body.innerHTML = buildDropsHTML();
-  }
-}
-
-/* ══════════════════════════════
-   FEED
-══════════════════════════════ */
-function setFeedSeg(seg, el) {
-  currentFeedSeg = seg;
-  document.querySelectorAll('.feed-seg-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-  renderFeed();
-}
-
-function renderFeed() {
-  const body = document.getElementById('feed-body');
-  if (!body) return;
-  body.innerHTML = currentFeedSeg === 'live' ? buildFeedHTML() : buildDropsHTML();
-}
-
-function buildFeedHTML() {
-  if (!reportes.length) {
-    return `<div class="empty-state">Sin actividad reciente.<br>Sé el primero en reportar un precio.</div>`;
-  }
-  return reportes.map(r => {
-    const initials = (r.usuario || r.email || 'AN').slice(0, 2).toUpperCase();
-    const barName  = r.nombre_bar || r.bar_nombre || '—';
-    const ago      = timeAgo(r.created_at);
-    const precio   = r.precio ? `€${parseFloat(r.precio).toFixed(2)}` : '';
-    return `<div class="feed-item" onclick="openSheetByName('${esc(barName)}')">
-      <div class="feed-av">${initials}</div>
-      <div class="feed-body">
-        <div class="feed-line1">Reportado en <strong>${barName}</strong></div>
-        <div class="feed-line2">${precio} ${r.mensaje || ''}</div>
-      </div>
-      <div class="feed-time">${ago}</div>
-    </div>`;
-  }).join('');
-}
-
-function buildDropsHTML() {
-  const cheap = [...allBars]
-    .filter(b => b._precio > 0)
-    .sort((a, b) => a._precio - b._precio)
-    .slice(0, 12);
-  if (!cheap.length) return `<div class="empty-state">Sin datos disponibles.</div>`;
-  return cheap.map(b => {
-    const zona = extractZona(b.direccion || '') || b.ciudad || 'Madrid';
-    return `<div class="drop-item" onclick="openSheet(${b.id})">
-      <div class="drop-icon">↘</div>
-      <div class="drop-body">
-        <div class="drop-nm">${b.nombre}</div>
-        <div class="drop-sub">${zona} · Doble</div>
-      </div>
-      <div class="drop-prices">
-        <div class="drop-new">€${b._precio.toFixed(2)}</div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-/* ══════════════════════════════
-   PROFILE
-══════════════════════════════ */
-let profileSection = 'favs'; // 'favs' | 'reviews' | 'reports'
-let userReviews = [];
-let userReports = [];
-
-async function loadUserStats() {
-  if (!currentUser) return;
+async function rejectReporte(reporteId) {
   try {
-    const [revRes, repRes] = await Promise.all([
-      sb.from('reviews').select('*, bares(nombre, precio)').eq('user_id', currentUser.id).order('created_at', { ascending: false }),
-      sb.from('reportes').select('*').eq('email', currentUser.email).order('created_at', { ascending: false })
-    ]);
-    userReviews = revRes.data || [];
-    userReports = repRes.data || [];
-    renderProfile();
-  } catch(e) {
-    console.error('Error loading user stats:', e);
-  }
+    await api('PATCH', 'reportes?id=eq.' + reporteId, { revisado: true });
+    allReportes = allReportes.filter(function(r) { return r.id !== reporteId; });
+    renderReportes();
+    showToast('Reporte descartado', 'success');
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
 }
 
-function setProfileSection(sec) {
-  profileSection = sec;
-  renderProfile();
-}
-
-function renderProfile() {
-  const c = document.getElementById('profile-content');
-  if (!c) return;
-
-  if (!currentUser) {
-    c.innerHTML = `
-      <div class="profile-login-screen">
-        <div class="profile-login-icon">🍺</div>
-        <div class="profile-login-title">${t('login-title')}</div>
-        <p class="profile-login-sub">${t('login-sub')}</p>
-        <button class="btn-google" onclick="handleAuthBtn()">
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-            <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908C16.607 14.009 17.64 11.768 17.64 9.2z" fill="#4285F4"/>
-            <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z" fill="#34A853"/>
-            <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
-            <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
-          </svg>
-          ${t('login-btn')}
-        </button>
-      </div>`;
-    return;
-  }
-
-  const favBars  = allBars.filter(b => favorites.includes(b.id));
-  const name     = currentUser.user_metadata?.name || currentUser.email || 'Usuario';
-  const avatar   = currentUser.user_metadata?.avatar_url;
-  const initials = name.slice(0, 2).toUpperCase();
-
-  // Build list content
-  let listHTML = '';
-  if (profileSection === 'favs') {
-    listHTML = favBars.length === 0
-      ? `<div class="empty-state">
-          <div style="font-size:48px;margin-bottom:1rem">🌵</div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--malta);margin-bottom:8px">${t('empty-favs-title')}</div>
-          <p style="font-size:13px;color:var(--malta-soft);line-height:1.6;max-width:280px;margin:0 auto 1.5rem">${t('empty-favs-sub')}</p>
-          <button onclick="switchTab('mapa')" style="background:var(--roja);color:var(--espuma);border:none;border-radius:6px;padding:10px 20px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.5px;cursor:pointer">${t('empty-favs-btn')}</button>
-        </div>`
-      : favBars.map(b => {
-          const zona = extractZona(b.direccion || '') || b.ciudad || 'Madrid';
-          const bgColor = priceColor(b._precio).replace('var(--roja)', '#C8102E');
-          return `<div class="pcard" onclick="openSheet(${b.id})">
-            <div class="pcard-inner">
-              <div class="pcard-img">
-                <div class="pcard-img-inner" style="background:linear-gradient(135deg,${bgColor}99,var(--malta-mid))"></div>
-              </div>
-              <div class="pcard-body">
-                <div class="pcard-name">${b.nombre}</div>
-                <div class="pcard-price-badge"><div class="pcard-price-val">€${b._precio.toFixed(2)}</div></div>
-                <div class="pcard-sub">🏙️ ${b.ciudad || 'Madrid'} · ${zona}</div>
-                ${(() => { const r = userReviews.find(r => r.bar_id === b.id); return r ? `<div class="pcard-canas">${cañasHTML(r.rating || 0)}</div>` : ''; })()}
-                <div class="pcard-actions">
-                  <button class="pcard-del" onclick="event.stopPropagation();removeFav(${b.id})">${currentLang === 'en' ? 'Remove' : 'Eliminar'}</button>
-                </div>
-              </div>
-            </div>
-          </div>`;
-        }).join('');
-
-  } else if (profileSection === 'reviews') {
-    listHTML = userReviews.length === 0
-      ? `<div class="empty-state">
-          <div style="font-size:48px;margin-bottom:1rem">🍺</div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--malta);margin-bottom:8px">${t('empty-reviews-title')}</div>
-          <p style="font-size:13px;color:var(--malta-soft);line-height:1.6;max-width:280px;margin:0 auto">${t('empty-reviews-sub')}</p>
-        </div>`
-      : userReviews.map(r => {
-          const barName = r.bares?.nombre || '—';
-          const bar = allBars.find(b => b.id === r.bar_id);
-          const bgColor = bar ? priceColor(bar._precio).replace('var(--roja)', '#C8102E') : '#3D1A08';
-          return `<div class="pcard" onclick="openSheet(${r.bar_id})">
-            <div class="pcard-inner">
-              <div class="pcard-img">
-                <div class="pcard-img-inner" style="background:linear-gradient(135deg,${bgColor}99,var(--malta-mid))"></div>
-              </div>
-              <div class="pcard-body">
-                <div class="pcard-name">${barName}</div>
-                ${bar ? `<div class="pcard-price-badge"><div class="pcard-price-val">€${bar._precio.toFixed(2)}</div></div>` : ''}
-                <div class="pcard-sub">🏙️ ${bar?.ciudad || 'Madrid'} · ${timeAgo(r.created_at)}</div>
-                <div class="pcard-canas">${cañasHTML(r.rating || 0)}</div>
-                ${r.comment ? `<div class="pcard-comment">"${r.comment}"</div>` : ''}
-                <div class="pcard-actions">
-                  <button class="pcard-del" onclick="event.stopPropagation();deleteReview('${r.id}')">${currentLang === 'en' ? 'Delete' : 'Eliminar'}</button>
-                </div>
-              </div>
-            </div>
-          </div>`;
-        }).join('');
-
-  } else {
-    listHTML = userReports.length === 0
-      ? `<div class="empty-state">
-          <div style="font-size:48px;margin-bottom:1rem">✏️</div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--malta);margin-bottom:8px">${t('empty-reports-title')}</div>
-          <p style="font-size:13px;color:var(--malta-soft);line-height:1.6;max-width:280px;margin:0 auto">${t('empty-reports-sub')}</p>
-        </div>`
-      : userReports.map(r => {
-          const barName = r.nombre_bar || r.bar_nombre || '—';
-          return `<div class="pcard">
-            <div class="pcard-inner">
-              <div class="pcard-img">
-                <div class="pcard-img-inner" style="background:linear-gradient(135deg,#166B2499,var(--malta-mid))"></div>
-              </div>
-              <div class="pcard-body">
-                <div class="pcard-name">${barName}</div>
-                ${r.precio ? `<div class="pcard-price-badge"><div class="pcard-price-val">€${parseFloat(r.precio).toFixed(2)}</div></div>` : ''}
-                <div class="pcard-sub">✏️ ${timeAgo(r.created_at)}</div>
-                ${r.mensaje ? `<div class="pcard-comment">"${r.mensaje}"</div>` : ''}
-              </div>
-            </div>
-          </div>`;
-        }).join('');
-  }
-
-  c.innerHTML = `
-    <div class="profile-hero">
-      <div class="profile-hero-top">
-        <div class="profile-avatar">
-          ${avatar
-            ? `<img src="${avatar}" alt="${name}">`
-            : `<div class="profile-av-initials">${initials}</div>`}
-        </div>
-        <div class="profile-hero-info">
-          <div class="profile-hero-name">${name}</div>
-          <div class="profile-hero-email">${currentUser.email || ''}</div>
-        </div>
-        <div class="profile-stat-chips">
-          <div class="profile-stat-chip ${profileSection==='favs'?'active':''}" onclick="setProfileSection('favs')">
-            <div class="psc-medal">🥇</div>
-            <div class="psc-lbl">${t('profile-favs')}</div>
-            <div class="psc-num">${favBars.length}</div>
-          </div>
-          <div class="profile-stat-chip ${profileSection==='reviews'?'active':''}" onclick="setProfileSection('reviews')">
-            <div class="psc-medal">🥈</div>
-            <div class="psc-lbl">${t('profile-reviews')}</div>
-            <div class="psc-num">${userReviews.length}</div>
-          </div>
-          <div class="profile-stat-chip ${profileSection==='reports'?'active':''}" onclick="setProfileSection('reports')">
-            <div class="psc-medal">🥉</div>
-            <div class="psc-lbl">${t('profile-reports')}</div>
-            <div class="psc-num">${userReports.length}</div>
-          </div>
-        </div>
-        <div class="profile-logo-block">
-          <div class="profile-logo-top">PONME</div>
-          <div class="profile-logo-mid">UN</div>
-          <div class="profile-logo-bot">DOBLE</div>
-        </div>
-        <button class="btn-logout-hero" onclick="logout()">${t('profile-logout')}</button>
-      </div>
-      <div class="profile-tab-bar">
-        <button class="ptb-btn ${profileSection==='favs'?'active':''}"    onclick="setProfileSection('favs')">${t('profile-favs')}</button>
-        <button class="ptb-btn ${profileSection==='reviews'?'active':''}" onclick="setProfileSection('reviews')">${t('profile-reviews')}</button>
-        <button class="ptb-btn ${profileSection==='reports'?'active':''}" onclick="setProfileSection('reports')">${t('profile-reports')}</button>
-      </div>
-      ${renderUnlockedBadges()}
-    </div>
-    <div class="profile-cards">${listHTML}</div>
-    ${renderLockedBadges()}`;
-}
-
-function cañasHTML(rating) {
-  const full = `<svg class="cana-svg" viewBox="0 0 24 24" fill="#C9A800" xmlns="http://www.w3.org/2000/svg"><path d="M6 2h11l1.5 4H4.5L6 2zm-2 6h15l-1.5 14H5.5L4 8zm15 2h3l.5 7H19l-1-7z"/></svg>`;
-  const empty= `<svg class="cana-svg" viewBox="0 0 24 24" fill="#D0C8BC" xmlns="http://www.w3.org/2000/svg"><path d="M6 2h11l1.5 4H4.5L6 2zm-2 6h15l-1.5 14H5.5L4 8zm15 2h3l.5 7H19l-1-7z"/></svg>`;
-  return [1,2,3,4,5].map(i => i <= rating ? full : empty).join('')
-    + `<span class="cana-label">${rating}/5 ${currentLang === 'en' ? 'pints' : 'cañas'}</span>`;
-}
-
-async function removeFav(id) {
-  favorites = favorites.filter(f => f !== id);
-  localStorage.setItem('dud_favs', JSON.stringify(favorites));
-  renderProfile();
-  if (mapInited) renderMapMarkers();
-  showToast('Eliminado de favoritos');
-  if (currentUser) {
-    try {
-      await sb.from('favorites').delete()
-        .eq('user_id', currentUser.id)
-        .eq('bar_id', id);
-    } catch(e) { console.error('Error deleting fav:', e); }
-  }
-}
-
-async function deleteReview(reviewId) {
-  if (!currentUser) return;
+async function approveBar(id) {
   try {
-    await sb.from('reviews').delete()
-      .eq('id', reviewId)
-      .eq('user_id', currentUser.id);
-    userReviews = userReviews.filter(r => r.id !== reviewId);
-    renderProfile();
-    showToast('Reseña eliminada');
-  } catch(e) {
-    showToast('Error al eliminar la reseña');
-  }
+    await api('PATCH',`bares?id=eq.${id}`,{aprobado:true});
+    const bar = allBars.find(b=>b.id===id);
+    if(bar) bar.aprobado = true;
+    renderBarsTable();
+    showToast(`✅ Bar aprobado y publicado en la web`,'success');
+  } catch(e) { showToast('Error: '+e.message,'error'); }
 }
 
-/* ══════════════════════════════
-   UTILITIES
-══════════════════════════════ */
-function haversine(la1,lo1,la2,lo2){
-  const R=6371,dLa=(la2-la1)*Math.PI/180,dLo=(lo2-lo1)*Math.PI/180,
-    a=Math.sin(dLa/2)**2+Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dLo/2)**2;
-  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+function showToast(msg,type='success') {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className=`toast ${type} show`;
+  setTimeout(()=>t.classList.remove('show'),3000);
 }
-function formatDist(km){ return km<1 ? Math.round(km*1000)+'m' : km.toFixed(1)+'km'; }
-
-function avgPrice() {
-  const valid = allBars.filter(b => b._precio > 0);
-  if (!valid.length) return 0;
-  return valid.reduce((s, b) => s + b._precio, 0) / valid.length;
-}
-
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2600);
-}
-
-function timeAgo(dateStr) {
-  if (!dateStr) return '';
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const m = Math.floor(diff / 60000);
-  if (m < 1)  return 'ahora';
-  if (m < 60) return `${m}m`;
-  const h = Math.floor(m / 60);
-  if (h < 24) return `${h}h`;
-  return `${Math.floor(h / 24)}d`;
-}
-
-function openSheetByName(name) {
-  const bar = allBars.find(b => b.nombre === name);
-  if (bar) openSheet(bar.id);
-}
-
-function esc(str) {
-  return (str || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-}
-
-function extractZona(dir) {
-  if (!dir) return '';
-  const d = dir.toLowerCase();
-  if (d.includes('malasaña') || d.includes('manuela mal'))  return 'Malasaña';
-  if (d.includes('fuencarral'))                              return 'Malasaña';
-  if (d.includes('chueca') || d.includes('pelayo'))         return 'Chueca';
-  if (d.includes('hortaleza'))                               return 'Chueca';
-  if (d.includes('lavap'))                                   return 'Lavapiés';
-  if (d.includes('sol') || d.includes('mayor') ||
-      d.includes('gran vía') || d.includes('gran via'))     return 'Centro';
-  if (d.includes('retiro') || d.includes('alcalá'))         return 'Retiro';
-  if (d.includes('salamanca') || d.includes('serrano') ||
-      d.includes('velázquez') || d.includes('goya'))        return 'Salamanca';
-  if (d.includes('chamberí') || d.includes('chamberi') ||
-      d.includes('ríos rosas') || d.includes('almagro'))    return 'Chamberí';
-  if (d.includes('moncloa') || d.includes('argüelles') ||
-      d.includes('arguelles'))                               return 'Moncloa';
-  if (d.includes('la latina') || d.includes('cava'))        return 'La Latina';
-  if (d.includes('embajadores') || d.includes('rastro'))    return 'Embajadores';
-  if (d.includes('huertas') || d.includes('atocha'))        return 'Huertas';
-  return '';
-}
-
-/* ══════════════════════════════
-   BADGES / INSIGNIAS
-══════════════════════════════ */
-const BADGES = [
-  {
-    id: 'first_review', icon: '🍺',
-    es: { title: 'Primer Trago', desc: 'Deja tu primera reseña' },
-    en: { title: 'First Round', desc: 'Leave your first review' },
-    check: () => userReviews.length >= 1,
-    progress: () => ({ cur: Math.min(userReviews.length, 1), max: 1 })
-  },
-  {
-    id: 'collector_5', icon: '❤️',
-    es: { title: 'Coleccionista', desc: 'Guarda 5 bares favoritos' },
-    en: { title: 'Collector', desc: 'Save 5 favourite bars' },
-    check: () => favorites.length >= 5,
-    progress: () => ({ cur: Math.min(favorites.length, 5), max: 5 })
-  },
-  {
-    id: 'bargain_hunter', icon: '💚',
-    es: { title: 'Cazaganga', desc: 'Guarda un bar con doble < €2' },
-    en: { title: 'Bargain Hunter', desc: 'Save a bar with a pint under €2' },
-    check: () => favorites.some(id => { const b = allBars.find(b => b.id === id); return b && b._precio > 0 && b._precio < 2.0; }),
-    progress: () => ({ cur: favorites.some(id => { const b = allBars.find(b => b.id === id); return b && b._precio > 0 && b._precio < 2.0; }) ? 1 : 0, max: 1 })
-  },
-  {
-    id: 'explorer_10', icon: '🗺️',
-    es: { title: 'Explorador', desc: 'Descubre 10 bares distintos' },
-    en: { title: 'Explorer', desc: 'Discover 10 different bars' },
-    check: () => (JSON.parse(localStorage.getItem('dud_viewed') || '[]')).length >= 10,
-    progress: () => { const v = JSON.parse(localStorage.getItem('dud_viewed') || '[]').length; return { cur: Math.min(v, 10), max: 10 }; }
-  },
-  {
-    id: 'reporter_3', icon: '✏️',
-    es: { title: 'Periodista', desc: 'Reporta 3 precios' },
-    en: { title: 'Journalist', desc: 'Report 3 prices' },
-    check: () => userReports.length >= 3,
-    progress: () => ({ cur: Math.min(userReports.length, 3), max: 3 })
-  },
-  {
-    id: 'critic_5', icon: '⭐',
-    es: { title: 'Crítico', desc: 'Escribe 5 reseñas' },
-    en: { title: 'Critic', desc: 'Write 5 reviews' },
-    check: () => userReviews.length >= 5,
-    progress: () => ({ cur: Math.min(userReviews.length, 5), max: 5 })
-  },
-  {
-    id: 'reporter_10', icon: '📡',
-    es: { title: 'Informador', desc: 'Reporta 10 precios' },
-    en: { title: 'Informant', desc: 'Report 10 prices' },
-    check: () => userReports.length >= 10,
-    progress: () => ({ cur: Math.min(userReports.length, 10), max: 10 })
-  },
-  {
-    id: 'collector_20', icon: '👑',
-    es: { title: 'Maestro', desc: 'Guarda 20 bares favoritos' },
-    en: { title: 'Master', desc: 'Save 20 favourite bars' },
-    check: () => favorites.length >= 20,
-    progress: () => ({ cur: Math.min(favorites.length, 20), max: 20 })
-  },
-  {
-    id: 'legend', icon: '🎖️',
-    es: { title: 'Leyenda Local', desc: 'Escribe 20 reseñas' },
-    en: { title: 'Local Legend', desc: 'Write 20 reviews' },
-    check: () => userReviews.length >= 20,
-    progress: () => ({ cur: Math.min(userReviews.length, 20), max: 20 })
-  },
-];
-
-let unlockedBadges = JSON.parse(localStorage.getItem('dud_badges') || '{}');
-
-function checkBadges() {
-  if (!currentUser) return;
-  let newUnlock = null;
-  BADGES.forEach(badge => {
-    if (!unlockedBadges[badge.id] && badge.check()) {
-      unlockedBadges[badge.id] = new Date().toISOString();
-      newUnlock = badge;
-    }
-  });
-  localStorage.setItem('dud_badges', JSON.stringify(unlockedBadges));
-  if (newUnlock) {
-    showBadgeToast(newUnlock);
-    renderProfile();
-  }
-}
-
-function showBadgeToast(badge) {
-  const el = document.getElementById('badge-toast');
-  const info = badge[currentLang] || badge.es;
-  el.innerHTML = `
-    <div style="font-size:28px;margin-bottom:4px">${badge.icon}</div>
-    <div class="badge-toast-title">${info.title}</div>
-    <div style="font-size:12px;opacity:0.6;margin-top:2px">¡Insignia desbloqueada!</div>`;
-  el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 3500);
-}
-
-function openBadgeModal(badgeId) {
-  const badge = BADGES.find(b => b.id === badgeId);
-  if (!badge) return;
-  const info = badge[currentLang] || badge.es;
-  const unlocked = !!unlockedBadges[badge.id];
-  const prog = badge.progress();
-  const pct = Math.round((prog.cur / prog.max) * 100);
-  const lang = currentLang;
-
-  document.getElementById('badge-detail-content').innerHTML = `
-    <span class="badge-detail-icon">${badge.icon}</span>
-    <div class="badge-detail-title">${info.title}</div>
-    <div class="badge-detail-desc">${info.desc}</div>
-    ${unlocked
-      ? `<div class="badge-detail-date">${lang === 'en' ? 'Unlocked' : 'Desbloqueada'} · ${timeAgo(unlockedBadges[badge.id])}</div>`
-      : ''
-    }
-    <div class="badge-prog-label">${prog.cur} / ${prog.max} · ${pct}%</div>
-    <div class="badge-prog-bg">
-      <div class="badge-prog-fill" style="width:${pct}%"></div>
-    </div>
-    <button class="badge-detail-close" onclick="closeBadgeModal()">
-      ${lang === 'en' ? 'Close' : 'Cerrar'}
-    </button>`;
-
-  document.getElementById('badge-modal-overlay').classList.add('open');
-}
-
-function closeBadgeModal() {
-  document.getElementById('badge-modal-overlay').classList.remove('open');
-}
-
-function trackBarView(barId) {
-  const viewed = JSON.parse(localStorage.getItem('dud_viewed') || '[]');
-  if (!viewed.includes(barId)) {
-    viewed.push(barId);
-    localStorage.setItem('dud_viewed', JSON.stringify(viewed));
-  }
-}
-
-function renderUnlockedBadges() {
-  const unlocked = BADGES.filter(b => !!unlockedBadges[b.id]);
-  if (!unlocked.length) return '';
-  return `<div class="badges-unlocked-row">
-    ${unlocked.map(b => {
-      const info = b[currentLang] || b.es;
-      return `<div class="badge-chip" onclick="openBadgeModal('${b.id}')" title="${info.title}">
-        <span class="badge-chip-icon">${b.icon}</span>
-        <span class="badge-chip-title">${info.title}</span>
-      </div>`;
-    }).join('')}
-  </div>`;
-}
-
-function renderLockedBadges() {
-  const locked = BADGES.filter(b => !unlockedBadges[b.id]);
-  if (!locked.length) return '';
-  const lang = currentLang;
-  return `<div class="badges-locked-section">
-    <div class="badges-locked-title">${lang === 'en' ? '🔒 Badges to unlock' : '🔒 Insignias por desbloquear'}</div>
-    <div class="badges-locked-grid">
-      ${locked.map(b => {
-        const info = b[lang] || b.es;
-        const prog = b.progress();
-        const pct = Math.round((prog.cur / prog.max) * 100);
-        return `<div class="badge-locked-card" onclick="openBadgeModal('${b.id}')">
-          <div class="blc-icon">${b.icon}</div>
-          <div class="blc-body">
-            <div class="blc-title">${info.title}</div>
-            <div class="blc-desc">${info.desc}</div>
-            <div class="blc-prog-bg"><div class="blc-prog-fill" style="width:${pct}%"></div></div>
-            <div class="blc-prog-label">${prog.cur}/${prog.max}</div>
-          </div>
-        </div>`;
-      }).join('')}
-    </div>
-  </div>`;
-}
-
-function renderBadges() { return ''; } // kept for compatibility
-
-/* ══════════════════════════════
-   i18n — Cultural adaptation
-══════════════════════════════ */
-const i18n = {
-  es: {
-    'nav-home':'Inicio','nav-map':'Mapa','nav-profile':'Perfil','nav-login':'Entrar',
-    'hero-eyebrow':'El mapa de la cerveza en Madrid',
-    'hero-sub':'De bar en bar por Madrid. Los precios los ponemos entre todos.',
-    'stat-bars':'bares en el mapa','stat-avg':'precio medio','stat-cheapest':'el más barato',
-    'hero-cta':'🗺️ Ver el mapa','hero-near':'📍 Bares cerca de mí',
-    'home-top3':'🏆 Top 3 más baratos ahora','home-near':'📍 Más cercanos a ti',
-    'home-explore':'Explorar',
-    'quick-ranking':'Ranking','quick-ranking-sub':'Ordenados por precio',
-    'quick-feed':'Feed en vivo','quick-feed-sub':'Últimas actualizaciones',
-    'quick-cheap':'Precio bajo','quick-cheap-sub':'Dobles económicos',
-    'quick-favs':'Mis favoritos','quick-favs-sub':'Tus bares guardados',
-    'addbar-cta-title':'¿Conoces un bar que falta?',
-    'addbar-cta-sub':'Añádelo al mapa y ayuda a la comunidad',
-    'map-all':'Todos','map-cheap':'🟢 Precio bajo','map-near':'📍 Cerca de mí','map-favs':'❤️ Favoritos',
-    'feed-live':'📡 En vivo','feed-drops':'↘ Bajadas',
-    'rk-vol':'Madrid · Temporada 2025',
-    'rk-avg-lbl':'Media ciudad','rk-trend':'↓ actualizado hoy',
-    'metric-precio':'🍺 Doble','metric-cana':'🥤 Caña','metric-bravas':'🔥 Bravas',
-    'metric-tortilla':'🍳 Tortilla','metric-croquetas':'⚪ Croquetas',
-    'rk-seg-ranking':'Ranking','rk-seg-live':'En vivo','rk-seg-drops':'Bajadas',
-    'bot-home':'Inicio','bot-map':'Mapa','bot-ranking':'Ranking','bot-feed':'Feed','bot-profile':'Perfil',
-    'login-title':'Únete a la barra','login-sub':'Guarda tus bares favoritos, reporta precios y ayuda a hacer el mapa más completo de Madrid.',
-    'login-btn':'🍺 Entrar a la barra (con Google)',
-    'profile-favs':'Favoritos','profile-reviews':'Reseñas','profile-reports':'Reportes',
-    'profile-logout':'Salir',
-    'empty-favs-title':'Tu ruta está más seca que el esparto.',
-    'empty-favs-sub':'Aún no has guardado ningún bar. Pásate por el mapa y dale al ❤️ a esos sitios donde te tratan como en casa (o donde la cerveza está regalada).',
-    'empty-favs-btn':'🗺️ Vámonos de bares',
-    'empty-reviews-title':'¿Con dos dedos de crema o parecía caldo?',
-    'empty-reviews-sub':'Todavía no has dejado ninguna reseña. Madrid necesita saber si ese bar pone buena tapa con el doble o si los vasos huelen a lavavajillas. ¡Sé el crítico que merecemos!',
-    'empty-reports-title':'Si encuentras un doble a 2€, es tu deber moral contarlo.',
-    'empty-reports-sub':'Todavía no has reportado ningún precio. El pueblo de Madrid confía en ti.',
-    'addbar-title':'Añadir un bar 🍺',
-    'addbar-auth':'🔐 Para añadir o actualizar bares necesitas iniciar sesión. Así sabemos que eres una persona real y no un bot con sed.',
-    'addbar-name':'Nombre del bar *','addbar-dir':'Dirección *','addbar-geocode':'📍 Las coordenadas se obtienen automáticamente',
-    'addbar-precio':'Precio doble (€) *','addbar-cana':'Precio caña (€)',
-    'addbar-bravas':'Bravas (€)','addbar-tortilla':'Tortilla (€)','addbar-croquetas':'Croquetas (€)',
-    'addbar-btn':'🍺 Poner en el mapa',
-    'geo-active':'📍 Ubicación activa · Desactivar',
-    'toast-fav-add':'Añadido a favoritos ❤️','toast-fav-rm':'Eliminado de favoritos',
-    'toast-review-ok':'✅ Reseña publicada, ¡gracias!','toast-review-rm':'Reseña eliminada',
-    'toast-bar-ok':'✅ Bar añadido, pendiente de revisión. ¡Gracias!',
-    'sheet-report':'✏️ Reportar precio','sheet-reviews-title':'Reseñas',
-    'report-title':'Reportar precio incorrecto',
-    'report-price-label':'Precio real del doble (€)',
-    'report-msg-label':'Comentario (opcional)',
-    'report-msg-placeholder':'Ej: El precio subió, ahora cobra 3€',
-    'report-submit':'🍺 Enviar reporte','report-cancel':'Cancelar',
-    'review-placeholder':'¿Cómo fue tu experiencia?','review-btn':'Publicar reseña',
-    'review-login':'para dejar tu reseña','maps-link':'🗺️ Ver en Google Maps',
-    'sheet-doble-label':'Doble de Mahou',
-    'filter-f':'Favoritos',
-  },
-  en: {
-    'nav-home':'Home','nav-map':'Map','nav-profile':'Profile','nav-login':'Sign in',
-    'hero-eyebrow':'Madrid\'s bar price map',
-    'hero-sub':'Bar by bar across Madrid. Together we keep tabs on the prices.',
-    'stat-bars':'bars on the map','stat-avg':'avg. price','stat-cheapest':'cheapest pint',
-    'hero-cta':'🗺️ See the map','hero-near':'📍 Bars near me',
-    'home-top3':'🏆 Top 3 cheapest right now','home-near':'📍 Closest to you',
-    'home-explore':'Explore',
-    'quick-ranking':'Ranking','quick-ranking-sub':'Sorted by price',
-    'quick-feed':'Live feed','quick-feed-sub':'Latest updates',
-    'quick-cheap':'Cheap pints','quick-cheap-sub':'Budget-friendly',
-    'quick-favs':'My favourites','quick-favs-sub':'Your saved bars',
-    'addbar-cta-title':'Know a bar we\'re missing?',
-    'addbar-cta-sub':'Add it to the map and help the community',
-    'map-all':'All','map-cheap':'🟢 Cheap pints','map-near':'📍 Near me','map-favs':'❤️ Favourites',
-    'feed-live':'📡 Live','feed-drops':'↘ Price drops',
-    'rk-vol':'Madrid · Season 2025',
-    'rk-avg-lbl':'City average','rk-trend':'↓ updated today',
-    'metric-precio':'🍺 Pint','metric-cana':'🥤 Small beer','metric-bravas':'🔥 Bravas',
-    'metric-tortilla':'🍳 Tortilla','metric-croquetas':'⚪ Croquettes',
-    'rk-seg-ranking':'Ranking','rk-seg-live':'Live','rk-seg-drops':'Price drops',
-    'bot-home':'Home','bot-map':'Map','bot-ranking':'Ranking','bot-feed':'Feed','bot-profile':'Profile',
-    'login-title':'Join the bar','login-sub':'Save your favourite bars, report prices and help build the most complete map of Madrid.',
-    'login-btn':'🍺 Get behind the bar (with Google)',
-    'profile-favs':'Favourites','profile-reviews':'Reviews','profile-reports':'Reports',
-    'profile-logout':'Sign out',
-    'empty-favs-title':'Your route is drier than a British summer.',
-    'empty-favs-sub':'You haven\'t saved any bars yet. Head to the map and ❤️ the spots where the pint price is right.',
-    'empty-favs-btn':'🗺️ Let\'s find a bar',
-    'empty-reviews-title':'Was the head perfect, or just fizzy tap water?',
-    'empty-reviews-sub':'You haven\'t left any reviews yet. Madrid needs to know if this bar serves a proper pint or if the glasses smell like a dishwasher. Be the critic we deserve!',
-    'empty-reports-title':'If you find a pint under €2, it\'s your civic duty to report it.',
-    'empty-reports-sub':'You haven\'t reported any prices yet. The people of Madrid are counting on you.',
-    'addbar-title':'Add a bar 🍺',
-    'addbar-auth':'🔐 You need to sign in to add or update bars. This way we know you\'re a real person and not a thirsty bot.',
-    'addbar-name':'Bar name *','addbar-dir':'Address *','addbar-geocode':'📍 Coordinates are obtained automatically',
-    'addbar-precio':'Pint price (€) *','addbar-cana':'Small beer price (€)',
-    'addbar-bravas':'Bravas (€)','addbar-tortilla':'Tortilla (€)','addbar-croquetas':'Croquettes (€)',
-    'addbar-btn':'🍺 Put it on the map',
-    'geo-active':'📍 Location active · Disable',
-    'toast-fav-add':'Added to favourites ❤️','toast-fav-rm':'Removed from favourites',
-    'toast-review-ok':'✅ Review published, thanks!','toast-review-rm':'Review deleted',
-    'toast-bar-ok':'✅ Bar submitted, pending review. Thanks!',
-    'sheet-report':'✏️ Report price','sheet-reviews-title':'Reviews',
-    'report-title':'Report incorrect price',
-    'report-price-label':'Actual pint price (€)',
-    'report-msg-label':'Comment (optional)',
-    'report-msg-placeholder':'e.g. Price went up, now charging €3',
-    'report-submit':'🍺 Send report','report-cancel':'Cancel',
-    'review-placeholder':'How was your experience?','review-btn':'Post review',
-    'review-login':'to leave a review','maps-link':'🗺️ View on Google Maps',
-    'sheet-doble-label':'Draught beer',
-    'filter-f':'Favourites',
-  }
-};
-
-let currentLang = localStorage.getItem('dud_lang') ||
-  (navigator.language?.startsWith('en') ? 'en' : 'es');
-
-function t(key) {
-  return (i18n[currentLang] && i18n[currentLang][key]) || i18n['es'][key] || key;
-}
-
-function setLang(lang) {
-  currentLang = lang;
-  localStorage.setItem('dud_lang', lang);
-  document.querySelectorAll('.lang-btn').forEach(b =>
-    b.classList.toggle('active', b.textContent === lang.toUpperCase())
-  );
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    el.textContent = t(el.getAttribute('data-i18n'));
-  });
-  // Re-render dynamic sections
-  renderHome();
-  renderRanking();
-  renderFeed();
-  renderProfile();
-  updateNavBtn();
-}
-
-/* ══════════════════════════════
-   INIT
-══════════════════════════════ */
-(async () => {
-  // Apply stored/detected language on load
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    el.textContent = t(el.getAttribute('data-i18n'));
-  });
-  document.querySelectorAll('.lang-btn').forEach(b =>
-    b.classList.toggle('active', b.textContent === currentLang.toUpperCase())
-  );
-
-  // 1. Cargar datos inmediatamente, sin esperar auth
-  loadBars();
-  loadReportes();
-  // initMap() se llama desde switchTab cuando el usuario abre el mapa por primera vez
-
-  // 2. Auth en paralelo — no bloquea la carga de datos
-  try {
-    const { data: { session } } = await sb.auth.getSession();
-    currentUser = session?.user || null;
-  } catch(e) {
-    currentUser = null;
-  }
-  updateNavBtn();
-  renderProfile();
-
-  // 3. Sincronizar favoritos si está logueado (fire and forget)
-  if (currentUser) {
-    loadFavoritesFromSupabase().catch(() => {});
-    loadUserStats();
-  }
-})();
 </script>
 </body>
 </html>
