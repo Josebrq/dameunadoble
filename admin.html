@@ -186,7 +186,7 @@ tbody tr:hover{background:var(--espuma);}
             <thead>
               <tr>
                 <th><input type="checkbox" class="cb" id="check-all" onchange="toggleAll(this)"></th>
-                <th>#</th><th>Bar</th><th>Barrio</th><th>Dirección</th><th>Doble</th><th>Caña</th><th>Bravas</th><th>Tortilla</th><th>Croquetas</th><th>Fuente</th><th>Estado</th><th>Acciones</th>
+                <th>#</th><th>Bar</th><th>Barrio</th><th>Dirección</th><th>Doble</th><th>Fuente</th><th>Estado</th><th>Acciones</th>
               </tr>
             </thead>
             <tbody id="bars-tbody"></tbody>
@@ -202,7 +202,7 @@ tbody tr:hover{background:var(--espuma);}
         <div class="panel-card-title">Importar bares desde CSV</div>
         <div class="csv-zone" id="csv-zone" onclick="document.getElementById('csv-file').click()" ondragover="csvDrag(event,true)" ondragleave="csvDrag(event,false)" ondrop="csvDrop(event)">
           <p>Arrastra tu archivo CSV aquí o <strong>haz clic para seleccionarlo</strong></p>
-          <p style="font-size:12px;margin-top:4px">Columnas requeridas: <code>nombre, ciudad, region, precio, direccion</code> · Opcionales: <code>cana_precio, bravas_precio, tortilla_precio, croquetas_precio</code> · Las coordenadas se obtienen automáticamente.</p>
+          <p style="font-size:12px;margin-top:4px">Columnas requeridas: <code>nombre, ciudad, region, precio, direccion</code> · Las coordenadas se obtienen automáticamente.</p>
         </div>
         <input type="file" id="csv-file" accept=".csv" style="display:none" onchange="handleCSV(this.files[0])">
         <div id="csv-preview"></div>
@@ -440,10 +440,6 @@ function renderBarsTable() {
       <td><span class="badge-region">${extractZona(b.direccion)}</span></td>
       <td style="font-size:13px;color:var(--slate-light);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${b.direccion||''}">${b.direccion||'—'}</td>
       <td class="price-cell ${priceClass(parseFloat(b.precio)||0)}">${parseFloat(b.precio||0).toFixed(2)}€</td>
-      <td style="font-size:13px;color:var(--slate-light)">${b.cana_precio ? parseFloat(b.cana_precio).toFixed(2)+'€' : '—'}</td>
-      <td style="font-size:13px;color:var(--slate-light)">${b.bravas_precio ? parseFloat(b.bravas_precio).toFixed(2)+'€' : '—'}</td>
-      <td style="font-size:13px;color:var(--slate-light)">${b.tortilla_precio ? parseFloat(b.tortilla_precio).toFixed(2)+'€' : '—'}</td>
-      <td style="font-size:13px;color:var(--slate-light)">${b.croquetas_precio ? parseFloat(b.croquetas_precio).toFixed(2)+'€' : '—'}</td>
       <td><span style="font-size:11px;padding:3px 8px;border-radius:20px;background:${b.fuente==='bot'?'#E3F2FD':b.fuente==='comunidad'?'#E8F5E9':b.fuente==='formulario'?'#FFF3E0':b.fuente==='admin'?'#F3E5F5':'#F5F5F5'};color:${b.fuente==='bot'?'#1565C0':b.fuente==='comunidad'?'#2E7D32':b.fuente==='formulario'?'#E65100':b.fuente==='admin'?'#6A1B9A':'#757575'};font-weight:500">${b.fuente==='bot'?'🤖 Bot':b.fuente==='comunidad'?'👥 Comunidad':b.fuente==='formulario'?'📋 Formulario':b.fuente==='admin'?'👤 Admin':'—'}</span></td>
       <td>${approveBtn}</td>
       <td>
@@ -580,8 +576,8 @@ async function saveBar(id) {
 }
 
 function exportCSV() {
-  const rows = [['nombre','ciudad','region','precio','direccion','lat','lng','cana_precio','bravas_precio','tortilla_precio','croquetas_precio']];
-  allBars.forEach(b => rows.push([b.nombre,b.ciudad,b.region,b.precio,b.direccion||'',b.lat||'',b.lng||'',b.cana_precio||'',b.bravas_precio||'',b.tortilla_precio||'',b.croquetas_precio||'']));
+  const rows = [['nombre','ciudad','region','precio','direccion','lat','lng']];
+  allBars.forEach(b => rows.push([b.nombre,b.ciudad,b.region,b.precio,b.direccion||'',b.lat||'',b.lng||'']));
   const csv = rows.map(r=>r.map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');
   const blob = new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
@@ -590,7 +586,7 @@ function exportCSV() {
 }
 
 function downloadTemplate() {
-  const csv = 'nombre,ciudad,region,precio,direccion,cana_precio,bravas_precio,tortilla_precio,croquetas_precio\n"Bar El Patio","Sevilla","Andalucía",1.80,"Calle Mayor 12",1.20,5.50,4.00,6.00\n"La Taberna","Madrid","Comunidad de Madrid",3.20,"Gran Vía 45",2.00,6.50,5.00,7.50';
+  const csv = 'nombre,ciudad,region,precio,direccion\n"Bar El Patio","Sevilla","Andalucía",1.80,"Calle Mayor 12"\n"La Taberna","Madrid","Comunidad de Madrid",3.20,"Gran Vía 45"';
   const blob = new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
   a.download = 'plantilla_bares.csv'; a.click();
