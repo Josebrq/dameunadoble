@@ -633,16 +633,30 @@ async function geocodeAddress(direccion, ciudad) {
 
 async function importCSVRows(rows) {
   try {
-    // 1 — Detectar duplicados contra los bares ya existentes (nombre+dirección)
+    // Normaliza dirección: minúsculas, sin acentos/puntuación, se queda solo con
+    // "calle + número" (ignora barrio/CP/ciudad/país y variaciones de formato)
+    const normAddr = (addr) => {
+      const clean = (addr||'').toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+        .replace(/[^a-z0-9\s]/g,' ')
+        .replace(/\s+/g,' ').trim();
+      const m = clean.match(/^(.*?\d+)/);
+      return m ? m[1].trim() : clean;
+    };
+    const normNombre = s => (s||'').trim().toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+
+    // 1 — Detectar duplicados por NOMBRE + DIRECCIÓN normalizados
+    //     (misma cadena en distintos barrios NO se considera duplicado)
     const existingKeys = new Set(
-      allBars.map(b => (b.nombre||'').trim().toLowerCase() + '|' + (b.direccion||'').trim().toLowerCase())
+      allBars.map(b => normNombre(b.nombre) + '|' + normAddr(b.direccion))
     );
     const seenInBatch = new Set();
     const toInsert = [];
     let skippedExisting = 0, skippedDupInFile = 0;
 
     for (const r of rows) {
-      const key = (r.nombre||'').trim().toLowerCase() + '|' + (r.direccion||'').trim().toLowerCase();
+      const key = normNombre(r.nombre) + '|' + normAddr(r.direccion);
       if (existingKeys.has(key)) { skippedExisting++; continue; }
       if (seenInBatch.has(key))  { skippedDupInFile++; continue; }
       seenInBatch.add(key);
