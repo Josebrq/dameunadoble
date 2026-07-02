@@ -150,14 +150,10 @@ tbody tr:hover{background:var(--espuma);}
           <div class="form-group"><label>Nombre</label><input type="text" id="new-nombre" placeholder="Bar El Patio"></div>
           <div class="form-group"><label>Ciudad</label><input type="text" id="new-ciudad" placeholder="Sevilla"></div>
           <div class="form-group"><label>Comunidad</label><select id="new-region"></select></div>
-          <div class="form-group"><label>Precio (€)</label><input type="number" id="new-precio" placeholder="2.50" step="0.10" min="0.50" max="15"></div>
+          <div class="form-group"><label>Precio doble (€)</label><input type="number" id="new-precio" placeholder="2.50" step="0.10" min="0.50" max="15"></div>
           <div class="form-group"><label>Dirección</label><input type="text" id="new-direccion" placeholder="Calle Mayor 12"></div>
           <div class="form-group"><label>Latitud</label><input type="number" id="new-lat" placeholder="40.4168" step="0.0001"></div>
           <div class="form-group"><label>Longitud</label><input type="number" id="new-lng" placeholder="-3.7038" step="0.0001"></div>
-          <div class="form-group"><label>Caña (€)</label><input type="number" id="new-cana" placeholder="1.80" step="0.10" min="0.50" max="15"></div>
-          <div class="form-group"><label>Bravas (€)</label><input type="number" id="new-bravas" placeholder="5.50" step="0.10" min="0.50" max="30"></div>
-          <div class="form-group"><label>Tortilla (€)</label><input type="number" id="new-tortilla" placeholder="4.50" step="0.10" min="0.50" max="30"></div>
-          <div class="form-group"><label>Croquetas (€)</label><input type="number" id="new-croquetas" placeholder="6.00" step="0.10" min="0.50" max="30"></div>
         </div>
         <p style="font-size:12px;color:var(--slate-light);margin-bottom:1rem">💡 Para obtener lat/lng: abre Google Maps → clic derecho en la ubicación → copiar coordenadas</p>
         <button class="btn-add" onclick="addBar()">+ Añadir bar</button>
@@ -255,7 +251,7 @@ tbody tr:hover{background:var(--espuma);}
           <table>
             <thead>
               <tr>
-                <th>#</th><th>Bar</th><th>Dirección</th><th>Precios (Doble / Caña / Bravas / Tortilla / Croquetas)</th><th>Acciones</th>
+                <th>#</th><th>Bar</th><th>Dirección</th><th>Precio doble (€)</th><th>Acciones</th>
               </tr>
             </thead>
             <tbody id="pending-tbody"></tbody>
@@ -482,36 +478,30 @@ function updateBulkBar() {
 }
 
 async function addBar() {
-  const nombre = document.getElementById('new-nombre').value.trim();
-  const ciudad = document.getElementById('new-ciudad').value.trim();
-  const region = document.getElementById('new-region').value;
-  const precio = parseFloat(document.getElementById('new-precio').value);
+  const nombre   = document.getElementById('new-nombre').value.trim();
+  const ciudad   = document.getElementById('new-ciudad').value.trim();
+  const region   = document.getElementById('new-region').value;
+  const precio   = parseFloat(document.getElementById('new-precio').value);
   const direccion = document.getElementById('new-direccion').value.trim();
-  const lat_raw = parseFloat(document.getElementById('new-lat').value) || null;
-  const lng_raw = parseFloat(document.getElementById('new-lng').value) || null;
-  const cana_precio = document.getElementById('new-cana').value ? String(parseFloat(document.getElementById('new-cana').value)) : null;
-  const bravas_precio = document.getElementById('new-bravas').value ? String(parseFloat(document.getElementById('new-bravas').value)) : null;
-  const tortilla_precio = document.getElementById('new-tortilla').value ? String(parseFloat(document.getElementById('new-tortilla').value)) : null;
-  const croquetas_precio = document.getElementById('new-croquetas').value ? String(parseFloat(document.getElementById('new-croquetas').value)) : null;
+  const lat_raw  = parseFloat(document.getElementById('new-lat').value) || null;
+  const lng_raw  = parseFloat(document.getElementById('new-lng').value) || null;
   if (!nombre||!ciudad||!precio||precio<0.5||precio>15) { showToast('Rellena todos los campos obligatorios','error'); return; }
   let lat = lat_raw, lng = lng_raw;
   if (!lat || !lng) {
     showToast('🌍 Buscando coordenadas...', 'success');
-    const coords = await geocodeAddress(direccion, ciudad);
-    lat = coords.lat; lng = coords.lng;
+    try {
+      const q = encodeURIComponent(direccion + ', ' + ciudad + ', España');
+      const r = await fetch('https://nominatim.openstreetmap.org/search?q=' + q + '&format=json&limit=1');
+      const d = await r.json();
+      if (d && d[0]) { lat = parseFloat(d[0].lat); lng = parseFloat(d[0].lon); }
+      else { lat = 40.4168; lng = -3.7038; }
+    } catch(e) { lat = 40.4168; lng = -3.7038; }
   }
   try {
-    await api('POST','bares',{nombre,ciudad,region,precio,direccion,lat,lng,cana_precio,bravas_precio,tortilla_precio,croquetas_precio,aprobado:true,fuente:'admin'});
-    document.getElementById('new-nombre').value='';
-    document.getElementById('new-ciudad').value='';
-    document.getElementById('new-precio').value='';
-    document.getElementById('new-direccion').value='';
-    document.getElementById('new-lat').value='';
-    document.getElementById('new-lng').value='';
-    document.getElementById('new-cana').value='';
-    document.getElementById('new-bravas').value='';
-    document.getElementById('new-tortilla').value='';
-    document.getElementById('new-croquetas').value='';
+    await api('POST','bares',{nombre,ciudad,region,precio:String(precio),direccion,lat,lng,aprobado:true,fuente:'admin'});
+    ['new-nombre','new-ciudad','new-precio','new-direccion','new-lat','new-lng'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.value = '';
+    });
     showToast(`✅ "${nombre}" añadido`,'success');
     loadBars();
   } catch(e) { showToast('Error: '+e.message,'error'); }
@@ -551,14 +541,8 @@ function editBar(id) {
     <td><span class="badge-region">${b.region||''}</span></td>
     <td><input style="width:140px;padding:4px 8px;border:1px solid var(--border-strong);border-radius:6px;font-size:13px" id="e-dir-${id}" value="${b.direccion||''}"></td>
     <td><input class="region-price-input" type="number" id="e-precio-${id}" value="${b.precio}" step="0.10" min="0.50" max="15"></td>
-    <td><input class="region-price-input" type="number" id="e-cana-${id}" value="${b.cana_precio||''}" step="0.10" min="0.50" max="15" placeholder="—"></td>
-    <td><input class="region-price-input" type="number" id="e-bravas-${id}" value="${b.bravas_precio||''}" step="0.10" min="0.50" max="30" placeholder="—"></td>
-    <td><input class="region-price-input" type="number" id="e-tortilla-${id}" value="${b.tortilla_precio||''}" step="0.10" min="0.50" max="30" placeholder="—"></td>
-    <td><input class="region-price-input" type="number" id="e-croquetas-${id}" value="${b.croquetas_precio||''}" step="0.10" min="0.50" max="30" placeholder="—"></td>
-    <td style="display:flex;gap:4px;align-items:center">
-      <input style="width:70px;padding:4px;border:1px solid var(--border-strong);border-radius:4px;font-size:11px" type="number" id="e-lat-${id}" value="${b.lat||''}" placeholder="lat" step="0.0001">
-      <input style="width:70px;padding:4px;border:1px solid var(--border-strong);border-radius:4px;font-size:11px" type="number" id="e-lng-${id}" value="${b.lng||''}" placeholder="lng" step="0.0001">
-    </td>
+    <td><input style="width:70px;padding:4px;border:1px solid var(--border-strong);border-radius:4px;font-size:11px" type="number" id="e-lat-${id}" value="${b.lat||''}" placeholder="lat" step="0.0001"></td>
+    <td><input style="width:70px;padding:4px;border:1px solid var(--border-strong);border-radius:4px;font-size:11px" type="number" id="e-lng-${id}" value="${b.lng||''}" placeholder="lng" step="0.0001"></td>
     <td>
       <button class="btn-save" onclick="saveBar(${id})">Guardar</button>
       <button class="btn-danger" onclick="renderBarsTable()">Cancelar</button>
@@ -566,20 +550,16 @@ function editBar(id) {
 }
 
 async function saveBar(id) {
-  const nombre = document.getElementById(`e-nombre-${id}`).value.trim();
-  const ciudad = document.getElementById(`e-ciudad-${id}`).value.trim();
+  const nombre   = document.getElementById(`e-nombre-${id}`).value.trim();
+  const ciudad   = document.getElementById(`e-ciudad-${id}`).value.trim();
   const direccion = document.getElementById(`e-dir-${id}`).value.trim();
-  const precio = parseFloat(document.getElementById(`e-precio-${id}`).value);
-  const lat = parseFloat(document.getElementById(`e-lat-${id}`).value) || null;
-  const lng = parseFloat(document.getElementById(`e-lng-${id}`).value) || null;
-  const cana_precio = document.getElementById(`e-cana-${id}`).value ? String(parseFloat(document.getElementById(`e-cana-${id}`).value)) : null;
-  const bravas_precio = document.getElementById(`e-bravas-${id}`).value ? String(parseFloat(document.getElementById(`e-bravas-${id}`).value)) : null;
-  const tortilla_precio = document.getElementById(`e-tortilla-${id}`).value ? String(parseFloat(document.getElementById(`e-tortilla-${id}`).value)) : null;
-  const croquetas_precio = document.getElementById(`e-croquetas-${id}`).value ? String(parseFloat(document.getElementById(`e-croquetas-${id}`).value)) : null;
+  const precio   = parseFloat(document.getElementById(`e-precio-${id}`).value);
+  const lat      = parseFloat(document.getElementById(`e-lat-${id}`).value) || null;
+  const lng      = parseFloat(document.getElementById(`e-lng-${id}`).value) || null;
   try {
-    await api('PATCH',`bares?id=eq.${id}`,{nombre,ciudad,direccion,precio,lat,lng,cana_precio,bravas_precio,tortilla_precio,croquetas_precio});
+    await api('PATCH',`bares?id=eq.${id}`,{nombre,ciudad,direccion,precio:String(precio),lat,lng});
     const bar = allBars.find(b=>b.id===id);
-    Object.assign(bar,{nombre,ciudad,direccion,precio,lat,lng,cana_precio,bravas_precio,tortilla_precio,croquetas_precio});
+    Object.assign(bar,{nombre,ciudad,direccion,precio:String(precio),lat,lng});
     updateStats(); renderBarsTable();
     showToast(`✅ "${nombre}" actualizado`,'success');
   } catch(e) { showToast('Error: '+e.message,'error'); }
@@ -653,9 +633,33 @@ async function geocodeAddress(direccion, ciudad) {
 
 async function importCSVRows(rows) {
   try {
-    showToast(`🌍 Geocodificando ${rows.length} bares...`, 'success');
-    const data = [];
+    // 1 — Detectar duplicados contra los bares ya existentes (nombre+dirección)
+    const existingKeys = new Set(
+      allBars.map(b => (b.nombre||'').trim().toLowerCase() + '|' + (b.direccion||'').trim().toLowerCase())
+    );
+    const seenInBatch = new Set();
+    const toInsert = [];
+    let skippedExisting = 0, skippedDupInFile = 0;
+
     for (const r of rows) {
+      const key = (r.nombre||'').trim().toLowerCase() + '|' + (r.direccion||'').trim().toLowerCase();
+      if (existingKeys.has(key)) { skippedExisting++; continue; }
+      if (seenInBatch.has(key))  { skippedDupInFile++; continue; }
+      seenInBatch.add(key);
+      toInsert.push(r);
+    }
+
+    if (toInsert.length === 0) {
+      showToast('⚠️ Todos los bares ya existían. 0 importados.', 'error');
+      document.getElementById('csv-preview').innerHTML = '';
+      return;
+    }
+
+    showToast(`🌍 Procesando ${toInsert.length} bares (${skippedExisting} duplicados omitidos)...`, 'success');
+
+    // 2 — Geocodificar solo los que no traen lat/lng
+    const data = [];
+    for (const r of toInsert) {
       let lat = parseFloat(r.lat) || null;
       let lng = parseFloat(r.lng) || null;
       if (!lat || !lng) {
@@ -666,14 +670,32 @@ async function importCSVRows(rows) {
       data.push({
         nombre: r.nombre, ciudad: r.ciudad, region: r.region,
         precio: parseFloat(r.precio) || 0, direccion: r.direccion || '',
-        lat, lng,
-        cana_precio: r.cana_precio || null, bravas_precio: r.bravas_precio || null,
-        tortilla_precio: r.tortilla_precio || null, croquetas_precio: r.croquetas_precio || null
+        lat, lng, aprobado: true, fuente: 'admin'
       });
     }
-    await api('POST','bares',data);
-    document.getElementById('csv-preview').innerHTML='';
-    showToast(`✅ ${data.length} bares importados`,'success');
+
+    // 3 — Insertar en lotes de 100 para evitar timeouts con CSVs grandes
+    const CHUNK = 100;
+    let imported = 0;
+    for (let i = 0; i < data.length; i += CHUNK) {
+      const chunk = data.slice(i, i + CHUNK);
+      try {
+        await api('POST', 'bares', chunk);
+        imported += chunk.length;
+      } catch(e) {
+        console.warn('Chunk falló, reintentando fila por fila:', e.message);
+        // Si el lote falla (p.ej. un duplicado se coló), reintenta una por una
+        for (const row of chunk) {
+          try { await api('POST', 'bares', [row]); imported++; }
+          catch(e2) { skippedExisting++; }
+        }
+      }
+    }
+
+    document.getElementById('csv-preview').innerHTML = '';
+    let msg = `✅ ${imported} bares importados`;
+    if (skippedExisting || skippedDupInFile) msg += ` · ${skippedExisting + skippedDupInFile} omitidos (duplicados)`;
+    showToast(msg, 'success');
     loadBars();
     switchTab('bares', document.querySelector('.tab-btn'));
   } catch(e) { showToast('Error importando: '+e.message,'error'); }
@@ -777,19 +799,9 @@ function renderPendientes() {
       </td>
       <td style="font-size:12px;color:var(--slate-light);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${b.direccion || '—'}</td>
       <td>
-        <div style="display:flex;flex-direction:column;gap:4px">
-          <input type="number" id="qp-${b.id}" placeholder="Doble €" step="0.10" min="0.50" max="15"
-            style="width:90px;padding:5px 8px;border:1px solid var(--border-strong);border-radius:6px;font-size:13px;font-family:'Bebas Neue',sans-serif;text-align:center"
-            onkeydown="if(event.key==='Enter')quickSavePrice(${b.id})">
-          <input type="number" id="qc-${b.id}" placeholder="Caña €" step="0.10" min="0.50" max="10"
-            style="width:90px;padding:5px 8px;border:1px solid var(--border-strong);border-radius:6px;font-size:13px;font-family:'Bebas Neue',sans-serif;text-align:center">
-          <input type="number" id="qb-${b.id}" placeholder="Bravas €" step="0.10" min="0.50" max="30"
-            style="width:90px;padding:5px 8px;border:1px solid var(--border-strong);border-radius:6px;font-size:13px;font-family:'Bebas Neue',sans-serif;text-align:center">
-          <input type="number" id="qt-${b.id}" placeholder="Tortilla €" step="0.10" min="0.50" max="30"
-            style="width:90px;padding:5px 8px;border:1px solid var(--border-strong);border-radius:6px;font-size:13px;font-family:'Bebas Neue',sans-serif;text-align:center">
-          <input type="number" id="qq-${b.id}" placeholder="Croquetas €" step="0.10" min="0.50" max="30"
-            style="width:90px;padding:5px 8px;border:1px solid var(--border-strong);border-radius:6px;font-size:13px;font-family:'Bebas Neue',sans-serif;text-align:center">
-        </div>
+        <input type="number" id="qp-${b.id}" placeholder="€" step="0.10" min="0.50" max="15"
+          style="width:90px;padding:5px 8px;border:1px solid var(--border-strong);border-radius:6px;font-size:15px;font-family:'Bebas Neue',sans-serif;text-align:center"
+          onkeydown="if(event.key==='Enter')quickSavePrice(${b.id})">
       </td>
       <td style="white-space:nowrap;vertical-align:top;padding-top:4px">
         <button class="btn-save" onclick="quickSavePrice(${b.id})">Guardar</button>
@@ -801,34 +813,17 @@ function renderPendientes() {
 }
 
 async function quickSavePrice(id) {
-  const precio    = document.getElementById('qp-' + id)?.value;
-  const cana      = document.getElementById('qc-' + id)?.value;
-  const bravas    = document.getElementById('qb-' + id)?.value;
-  const tortilla  = document.getElementById('qt-' + id)?.value;
-  const croquetas = document.getElementById('qq-' + id)?.value;
-
-  if (!precio && !cana && !bravas && !tortilla && !croquetas) {
-    showToast('Introduce al menos un precio', 'error'); return;
+  const precio = document.getElementById('qp-' + id)?.value;
+  if (!precio || parseFloat(precio) < 0.5 || parseFloat(precio) > 15) {
+    showToast('Introduce un precio válido (0.50–15.00)', 'error'); return;
   }
-  if (precio && (parseFloat(precio) < 0.5 || parseFloat(precio) > 15)) {
-    showToast('Precio del doble inválido (0.50–15.00)', 'error'); return;
-  }
-
-  const data = { aprobado: true };
-  if (precio)    data.precio            = precio;
-  if (cana)      data.cana_precio       = cana;
-  if (bravas)    data.bravas_precio     = bravas;
-  if (tortilla)  data.tortilla_precio   = tortilla;
-  if (croquetas) data.croquetas_precio  = croquetas;
-
+  const data = { aprobado: true, precio };
   try {
     await api('PATCH', 'bares?id=eq.' + id, data);
     const bar = allBars.find(b => b.id === id);
     if (bar) Object.assign(bar, data);
-    showToast('✅ Precios guardados y bar aprobado', 'success');
-    renderPendientes();
-    renderBarsTable();
-    updateStats();
+    showToast('✅ Precio guardado y bar aprobado', 'success');
+    renderPendientes(); renderBarsTable(); updateStats();
   } catch (e) {
     showToast('Error: ' + e.message, 'error');
   }
